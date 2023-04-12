@@ -12,8 +12,12 @@
             <tag name="shopware.entity.extension"/>
         </service>
 
-        <service id="ICTShopFinder\Core\Content\Aggregate\ShopFinderTranslation\ShopFinderTranslationDefinition">
+        <service id="ICTShopFinder\Core\Content\ShopFinder\Aggregate\ShopFinderTranslation\ShopFinderTranslationDefinition">
             <tag name="shopware.entity.definition" entity="ict_shop_finder_translation"/>
+        </service>
+
+        <service id="ICTShopFinder\Core\Content\Extension\Language\LanguageExtension">
+            <tag name="shopware.entity.extension"/>
         </service>
 
     </services>

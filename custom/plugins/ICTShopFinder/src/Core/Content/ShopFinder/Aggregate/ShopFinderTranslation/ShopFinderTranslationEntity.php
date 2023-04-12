@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace ICTShopFinder\Core\Content\Aggregate\ShopFinderTranslation;
+namespace ICTShopFinder\Core\Content\ShopFinder\Aggregate\ShopFinderTranslation;
 
 use ICTShopFinder\Core\Content\ShopFinder\ShopFinderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
@@ -10,7 +10,7 @@ class ShopFinderTranslationEntity extends TranslationEntity
     /**
      * @var string|null
      */
-    protected ?string $shopFinderId;
+    protected ?string $ictShopFinderId;
 
     /**
      * @var string|null
@@ -30,22 +30,22 @@ class ShopFinderTranslationEntity extends TranslationEntity
     /**
      * @var ShopFinderEntity
      */
-    protected ShopFinderEntity $shopFinderEntity;
+    protected ShopFinderEntity $ictShopFinder;
 
     /**
      * @return string
      */
-    public function getShopFinderId(): string
+    public function getIctShopFinderId(): string
     {
-        return $this->shopFinderId;
+        return $this->ictShopFinderId;
     }
 
     /**
-     * @param string $shopFinderId
+     * @param string|null $ictShopFinderId
      */
-    public function setShopFinderId(?string $shopFinderId): void
+    public function setIctShopFinderId(?string $ictShopFinderId): void
     {
-        $this->shopFinderId = $shopFinderId;
+        $this->ictShopFinderId = $ictShopFinderId;
     }
 
     /**
@@ -62,22 +62,6 @@ class ShopFinderTranslationEntity extends TranslationEntity
     public function setName(?string $name): void
     {
         $this->name = $name;
-    }
-
-    /**
-     * @return ShopFinderEntity
-     */
-    public function getShopFinderEntity(): ShopFinderEntity
-    {
-        return $this->shopFinderEntity;
-    }
-
-    /**
-     * @param ShopFinderEntity $shopFinderEntity
-     */
-    public function setShopFinderEntity(ShopFinderEntity $shopFinderEntity): void
-    {
-        $this->shopFinderEntity = $shopFinderEntity;
     }
 
     /**
@@ -112,4 +96,19 @@ class ShopFinderTranslationEntity extends TranslationEntity
         $this->city = $city;
     }
 
+    /**
+     * @return ShopFinderEntity
+     */
+    public function getIctShopFinder(): ShopFinderEntity
+    {
+        return $this->ictShopFinder;
+    }
+
+    /**
+     * @param ShopFinderEntity $ictShopFinder
+     */
+    public function setIctShopFinder(ShopFinderEntity $ictShopFinder): void
+    {
+        $this->ictShopFinder = $ictShopFinder;
+    }
 }
