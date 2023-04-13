@@ -5,11 +5,11 @@ namespace ICTShopFinder\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1681282742 extends MigrationStep
+class Migration1681370291 extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1681282742;
+        return 1681370291;
     }
 
     public function update(Connection $connection): void
@@ -26,7 +26,7 @@ class Migration1681282742 extends MigrationStep
             `telephone` VARCHAR(255) NULL,
             `open_times` LONGTEXT NULL,
             `country_id` BINARY(16) NULL,
-            `created_at` DATETIME(3) NULL,
+            `created_at` DATETIME(3) NOT NULL,
             `updated_at` DATETIME(3) NULL,
             PRIMARY KEY (`id`),
             KEY `fk.ict_shop_finder.country_id` (`country_id`),
@@ -35,7 +35,7 @@ class Migration1681282742 extends MigrationStep
 
         $connection->executeStatement($sqlShopFinder);
 
-        $sqlTranslation = "CREATE TABLE `ict_shop_finder_translation` (
+        $sqlTranslation = "CREATE TABLE IF NOT EXISTS `ict_shop_finder_translation` (
                         `name` VARCHAR(255) NOT NULL,
                         `street` VARCHAR(255) NOT NULL,
                         `city` VARCHAR(255) NULL,

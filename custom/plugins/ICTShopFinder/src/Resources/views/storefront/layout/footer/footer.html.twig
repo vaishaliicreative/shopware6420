@@ -2,5 +2,9 @@
 
 {% block layout_footer_navigation_columns %}
     {{ parent() }}
-    {{ dump() }}
+    {% if page.footer.extensions.ict_shop_finder %}
+        {% sw_include '@Storefront/storefront/layout/footer/shop-finder-footer.html.twig' with{
+            'ict_shop_finder': page.footer.extensions.ict_shop_finder
+        } %}
+    {% endif %}
 {% endblock %}
