@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace ICTShopFinder\Core\Content\ShopFinder;
 
-use ICTShopFinder\Core\Content\Aggregate\ShopFinderTranslation\ShopFinderTranslationDefinition;
+use ICTShopFinder\Core\Content\ShopFinder\Aggregate\ShopFinderTranslation\ShopFinderTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -61,19 +61,20 @@ class ShopFinderDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey(),new ApiAware()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Inherited()),
+            (new StringField('not_translated_field', 'notTranslatedField'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active')),
-            (new TranslatedField('name', 'name'))->addFlags(new ApiAware(),new Required()),
+            (new TranslatedField('name'))->addFlags(new ApiAware(),new Required()),
             (new LongTextField('description', 'description')),
-            (new TranslatedField('street','street'))->addFlags(new ApiAware(),new Required()),
+            (new TranslatedField('street'))->addFlags(new ApiAware(),new Required()),
             (new StringField('post_code','postCode'))->addFlags(new Required()),
-            (new TranslatedField('city','city'))->addFlags(new ApiAware(),new Required()),
+            (new TranslatedField('city'))->addFlags(new ApiAware(),new Required()),
             (new StringField('url','url')),
             (new StringField('telephone','telephone')),
             (new LongTextField('open_times','openTimes')),
             (new FkField('country_id','countryId', CountryDefinition::class)),
             (new TranslationsAssociationField(
                 ShopFinderTranslationDefinition::class,
-                'shop_finder_id'
+                'ict_shop_finder_id'
             ))->addFlags(new ApiAware(), new Required()),
             new ManyToOneAssociationField(
                 'countryId',

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace ICTShopFinder\Core\Content\Aggregate\ShopFinderTranslation;
+namespace ICTShopFinder\Core\Content\ShopFinder\Aggregate\ShopFinderTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 

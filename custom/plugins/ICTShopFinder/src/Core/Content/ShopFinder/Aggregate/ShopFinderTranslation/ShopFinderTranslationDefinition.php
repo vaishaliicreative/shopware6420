@@ -1,20 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace ICTShopFinder\Core\Content\Aggregate\ShopFinderTranslation;
-
+namespace ICTShopFinder\Core\Content\ShopFinder\Aggregate\ShopFinderTranslation;
 
 use ICTShopFinder\Core\Content\ShopFinder\ShopFinderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 
 class ShopFinderTranslationDefinition extends EntityTranslationDefinition
 {
-
     public const ENTITY_NAME = 'ict_shop_finder_translation';
-
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
