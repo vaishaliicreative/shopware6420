@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace ICTShopProductFinder\Core\Content\Extension\State;
+namespace ICTTask\Core\Content\Extension\State;
 
-use ICTShopProductFinder\Core\Content\ShopProductFinder\ShopProductFinderDefinition;
+use ICTTask\Core\Content\IctTask\IctTaskDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -15,7 +15,7 @@ class StateExtension extends EntityExtension
     public  function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            new OneToManyAssociationField('countryState',ShopProductFinderDefinition::class,'id')
+            new OneToManyAssociationField('countryState',IctTaskDefinition::class,'id')
         );
     }
 

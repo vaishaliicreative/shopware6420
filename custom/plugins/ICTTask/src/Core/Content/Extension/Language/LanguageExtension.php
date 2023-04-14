@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace ICTShopProductFinder\Core\Content\Extension\Language;
+namespace ICTTask\Core\Content\Extension\Language;
 
-use ICTShopProductFinder\Core\Content\ShopProductFinder\ShopProductFinderDefinition;
+use ICTTask\Core\Content\IctTask\IctTaskDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -15,9 +15,9 @@ class LanguageExtension extends EntityExtension
     {
         $collection->add(
             new OneToManyAssociationField(
-                'ictShopProductFinderTranId',
-                ShopProductFinderDefinition::class,
-                'ict_shop_product_finder_id')
+                'ictTaskTranId',
+                IctTaskDefinition::class,
+                'ict_task_id')
         );
     }
     public function getDefinitionClass(): string

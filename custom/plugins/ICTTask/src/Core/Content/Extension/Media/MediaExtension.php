@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace ICTShopProductFinder\Core\Content\Extension\Media;
+namespace ICTTask\Core\Content\Extension\Media;
 
-use ICTShopProductFinder\Core\Content\ShopProductFinder\ShopProductFinderDefinition;
+use ICTTask\Core\Content\IctTask\IctTaskDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -14,7 +14,7 @@ class MediaExtension extends EntityExtension
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            new OneToOneAssociationField('media','media_id','id',ShopProductFinderDefinition::class,false)
+            new OneToOneAssociationField('media','id','media_id',IctTaskDefinition::class,false)
         );
     }
 

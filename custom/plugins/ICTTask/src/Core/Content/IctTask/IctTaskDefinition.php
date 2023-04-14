@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace ICTShopProductFinder\Core\Content\ShopProductFinder;
+namespace ICTTask\Core\Content\IctTask;
 
-use ICTShopProductFinder\Core\Content\ShopProductFinder\Aggregate\ShopProductFinderTranslation\ShopProductFinderTranslationDefinition;
+use ICTTask\Core\Content\IctTask\Aggregate\IctTaskTranslation\IctTaskTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -22,23 +22,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 
-class ShopProductFinderDefinition extends EntityDefinition
+class IctTaskDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = "ict_shop_product_finder";
+    public const ENTITY_NAME = "ict_task";
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
     }
 
-//    public function getCollectionClass(): string
-//    {
-//        return ShopFinderCollection::class;
-//    }
-//
-//    public function getEntityClass(): string
-//    {
-//        return ShopFinderEntity::class;
-//    }
+    public function getCollectionClass(): string
+    {
+        return IctTaskCollection::class;
+    }
+
+    public function getEntityClass(): string
+    {
+        return IctTaskEntity::class;
+    }
 
     protected function defineFields(): FieldCollection
     {
@@ -95,10 +96,10 @@ class ShopProductFinderDefinition extends EntityDefinition
                 MediaDefinition::class,
                 false
             ))->addFlags(new ApiAware()),
-            new TranslationsAssociationField(
-            ShopProductFinderTranslationDefinition::class,
-            'ict_shop_product_finder_id'
-            )
+            (new TranslationsAssociationField(
+                IctTaskTranslationDefinition::class,
+                'ict_task_id'
+            ))
         ]);
     }
 }
