@@ -61,6 +61,16 @@ class ShopFinderEntity extends Entity
     protected CountryEntity $countryId;
 
     /**
+     * @var string | null
+     */
+    protected string  $notTranslatedField;
+
+    /**
+     * @var string | null
+     */
+    protected string $translations;
+
+    /**
      * @return bool
      */
     public function isActive(): bool
@@ -218,6 +228,38 @@ class ShopFinderEntity extends Entity
     public function setCountryId(CountryEntity $countryId): void
     {
         $this->countryId = $countryId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotTranslatedField(): ?string
+    {
+        return $this->notTranslatedField;
+    }
+
+    /**
+     * @param string|null $notTranslatedField
+     */
+    public function setNotTranslatedField(?string $notTranslatedField): void
+    {
+        $this->notTranslatedField = $notTranslatedField;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTranslations(): ?string
+    {
+        return $this->translations;
+    }
+
+    /**
+     * @param string $translations
+     */
+    public function setTranslations(string $translations): void
+    {
+        $this->translations = $translations;
     }
 
 

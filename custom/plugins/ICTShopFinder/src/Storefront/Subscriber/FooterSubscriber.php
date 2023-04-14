@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Pagelet\Footer\FooterPageletLoader;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class FooterSubscriber implements EventSubscriberInterface
@@ -38,14 +38,14 @@ class FooterSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            FooterPageletLoader::class => 'onFooterPageletLoaded',
+            FooterPageletLoadedEvent::class => 'onFooterPageletLoaded',
         ];
     }
-    public function onFooterPageletLoaded(FooterPageletLoader $event):void
+    public function onFooterPageletLoaded(FooterPageletLoadedEvent $event):void
     {
-//        if(!$this->systemConfigService->get('ICTShopFinder.config.showInStoreFront')){
-//            return;
-//        }
+        if(!$this->systemConfigService->get('ICTShopFinder.config.showInStoreFront')){
+            return;
+        }
 
         $shops = $this->fetchShops($event->getContext());
         $event->getPagelet()->addExtension('ict_shop_finder',$shops);

@@ -32,5 +32,9 @@
             <argument id="ict_shop_finder.repository" type="service" />
             <tag name="kernel.event_subscriber" />
         </service>
+
+        <service id="ICTShopFinder\Resources\snippet\en_GB\SnippetFile_en_GB">
+            <tag name="shopware.snippet.file"/>
+        </service>
     </services>
 </container>
