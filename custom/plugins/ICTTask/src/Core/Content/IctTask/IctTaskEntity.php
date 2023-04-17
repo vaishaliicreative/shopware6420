@@ -55,7 +55,7 @@ class IctTaskEntity extends Entity
     protected $mediaId;
 
     /**
-     * @var CountryEntity
+     * @var CountryEntity|null
      */
     protected $country;
 
@@ -174,12 +174,12 @@ class IctTaskEntity extends Entity
         $this->mediaId = $mediaId;
     }
 
-    public function getCountry(): CountryEntity
+    public function getCountry(): ?CountryEntity
     {
         return $this->country;
     }
 
-    public function setCountry(CountryEntity $country): void
+    public function setCountry(?CountryEntity $country): void
     {
         $this->country = $country;
     }
@@ -224,12 +224,12 @@ class IctTaskEntity extends Entity
         $this->translations = $translations;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
