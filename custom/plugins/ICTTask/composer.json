@@ -1,0 +1,19 @@
+{
+    "name": "ict/task",
+    "description": "Task",
+    "type": "shopware-platform-plugin",
+    "version": "v1.0.0",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "ICTTask\\": "src/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "ICTTask\\ICTTask",
+        "label": {
+            "de-DE": "Task plugin",
+            "en-GB": "Task plugin"
+        }
+    }
+}

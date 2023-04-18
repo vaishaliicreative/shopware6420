@@ -139,6 +139,10 @@ Component.register('sw-task-detail', {
             };
         },
 
+        hasStates(){
+            return this.state.length > 0;
+        },
+
         ...mapPropertyErrors('task', ['name','city']),
     },
 
@@ -152,7 +156,8 @@ Component.register('sw-task-detail', {
                 if (typeof oldId !== 'undefined') {
                     this.task.countryStateId = null;
                 }
-
+                // console.log(oldId);
+                // console.log(newId);
                 if (!this.countryId) {
                     this.country = null;
                     return Promise.resolve();
@@ -226,7 +231,7 @@ Component.register('sw-task-detail', {
             }
 
             return this.countryStateRepository.search(this.stateCriteria).then((response) => {
-                this.states = response;
+                this.state = response;
             });
         },
 
