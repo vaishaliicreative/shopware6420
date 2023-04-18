@@ -5,11 +5,11 @@ namespace ICTTask\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1681467865 extends MigrationStep
+class Migration1681729108 extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1681467865;
+        return 1681729108;
     }
 
     public function update(Connection $connection): void
@@ -35,18 +35,18 @@ class Migration1681467865 extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
         $connection->executeStatement("CREATE TABLE IF NOT EXISTS `ict_task_translation` (
-                    `name` VARCHAR(255) NOT NULL,
-                    `city` VARCHAR(255) NOT NULL,
-                    `created_at` DATETIME(3) NOT NULL,
-                    `updated_at` DATETIME(3) NULL,
-                    `ict_task_id` BINARY(16) NOT NULL,
-                    `language_id` BINARY(16) NOT NULL,
-                    PRIMARY KEY (`ict_task_id`,`language_id`),
-                    KEY `fk.ict_task_translation.ict_task_id` (`ict_task_id`),
-                    KEY `fk.ict_task_translation.language_id` (`language_id`),
-                    CONSTRAINT `fk.ict_task_translation.ict_task_id` FOREIGN KEY (`ict_task_id`) REFERENCES `ict_task` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                    CONSTRAINT `fk.ict_task_translation.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+            `name` VARCHAR(255) NOT NULL,
+            `city` VARCHAR(255) NOT NULL,
+            `created_at` DATETIME(3) NOT NULL,
+            `updated_at` DATETIME(3) NULL,
+            `ict_task_id` BINARY(16) NOT NULL,
+            `language_id` BINARY(16) NOT NULL,
+            PRIMARY KEY (`ict_task_id`,`language_id`),
+            KEY `fk.ict_task_translation.ict_task_id` (`ict_task_id`),
+            KEY `fk.ict_task_translation.language_id` (`language_id`),
+            CONSTRAINT `fk.ict_task_translation.ict_task_id` FOREIGN KEY (`ict_task_id`) REFERENCES `ict_task` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+            CONSTRAINT `fk.ict_task_translation.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
     }
 
     public function updateDestructive(Connection $connection): void

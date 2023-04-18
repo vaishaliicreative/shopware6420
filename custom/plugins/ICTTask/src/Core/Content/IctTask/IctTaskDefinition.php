@@ -74,28 +74,28 @@ class IctTaskDefinition extends EntityDefinition
                 CountryDefinition::class,
                 'id',
                 false
-            ))->addFlags(new Required(), new ApiAware()),
+            )),
             (new ManyToOneAssociationField(
                 'countryState',
                 'country_state_id',
                 CountryStateDefinition::class,
                 'id',
                 false
-            ))->addFlags( new ApiAware()),
+            )),
             (new ManyToOneAssociationField(
                 'product',
                 'product_id',
                 ProductDefinition::class,
                 'id',
                 false
-            ))->addFlags(new ApiAware()),
+            )),
             (new OneToOneAssociationField(
                 'media',
                 'media_id',
                 'id',
                 MediaDefinition::class,
                 false
-            ))->addFlags(new ApiAware()),
+            )),
             (new TranslationsAssociationField(
                 IctTaskTranslationDefinition::class,
                 'ict_task_id'

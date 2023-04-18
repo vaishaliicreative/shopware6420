@@ -4,7 +4,7 @@ namespace ICTTask\Core\Content\IctTask\Aggregate\IctTaskTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Struct\ArrayEntity;
+use ICTTask\Core\Content\IctTask\IctTaskEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 
 class IctTaskTranslationEntity extends Entity
@@ -42,7 +42,7 @@ class IctTaskTranslationEntity extends Entity
     protected $languageId;
 
     /**
-     * @var ArrayEntity|null
+     * @var IctTaskEntity|null
      */
     protected $ictTask;
 
@@ -111,12 +111,12 @@ class IctTaskTranslationEntity extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getIctTask(): ?ArrayEntity
+    public function getIctTask(): ?IctTaskEntity
     {
         return $this->ictTask;
     }
 
-    public function setIctTask(?ArrayEntity $ictTask): void
+    public function setIctTask(?IctTaskEntity $ictTask): void
     {
         $this->ictTask = $ictTask;
     }
