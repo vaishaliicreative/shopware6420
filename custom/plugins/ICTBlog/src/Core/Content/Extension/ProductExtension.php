@@ -25,7 +25,9 @@ class ProductExtension extends EntityExtension
                 IctBlogDefinition::class,
                 IctBlogProductMappingDefinition::class,
                 'product_id',
-                'blog_id'
+                'blog_id',
+                'id',
+                'id'
             )
         );
     }

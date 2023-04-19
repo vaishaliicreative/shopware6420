@@ -12,7 +12,7 @@ class IctBlogCategoryTranslationEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -61,7 +61,7 @@ class IctBlogCategoryTranslationEntity extends Entity
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }

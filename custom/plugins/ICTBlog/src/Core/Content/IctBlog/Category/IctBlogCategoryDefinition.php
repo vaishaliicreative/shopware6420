@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -44,19 +45,20 @@ class IctBlogCategoryDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id','id'))->addFlags(new Required(),new PrimaryKey(), new ApiAware()),
-            (new TranslatedField('name'))->addFlags(new ApiAware(), new Required()),
+            (new TranslatedField('name'))->addFlags(new ApiAware()),
+            (new StringField('not_translated_field', 'notTranslatedField'))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(
                 IctBlogCategoryTranslationDefinition::class,
                 'ict_blog_category_id',
-                'translations',
-                'id'
             )),
             new ManyToManyAssociationField(
                 'ictBlogs',
                 IctBlogDefinition::class,
                 IctBlogCategoryMappingDefinition::class,
                 'blog_category_id',
-                'blog_id'
+                'blog_id',
+                'id',
+                'id'
             )
 
         ]);

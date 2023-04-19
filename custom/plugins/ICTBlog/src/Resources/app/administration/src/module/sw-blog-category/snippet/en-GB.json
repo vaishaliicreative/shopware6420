@@ -1,0 +1,48 @@
+{
+  "sw-task": {
+    "general": {
+      "mainMenuItemList": "Tasks",
+      "mainMenuItemGeneral": "Tasks",
+      "placeholderSearchBar": "Search tasks..."
+    },
+    "list": {
+      "textTaskOverview": "Tasks",
+      "textTotalTask": "No tasks | One task | {count} tasks",
+      "buttonAddTask": "Add task",
+      "columnName": "Task",
+      "columnCity": "City",
+      "columnCountry": "Country",
+      "columnState": "State",
+      "columnProduct": "Product",
+      "columnActive": "Active"
+    },
+    "detail": {
+      "textHeadline": "New task",
+      "textMediaSelection": "Media selection",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "cardTitleTaskInfo": "Task information",
+      "labelName": "Name",
+      "labelCity": "City",
+      "labelCountry": "Country",
+      "labelState": "State",
+      "labelProduct": "Product",
+      "labelActive": "Active",
+      "placeholderName": "Enter task name...",
+      "placeholderCity": "Enter city...",
+      "placeholderCountry": "Select country...",
+      "placeholderState": "Select state...",
+      "placeholderProduct": "Select product...",
+      "messageSaveSuccess": "Task \"{name}\" has been saved.",
+      "labelImage": "Image",
+      "labelUseAsLogo": "Use as Logo"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "task": {
+        "label": "Tasks"
+      }
+    }
+  }
+}

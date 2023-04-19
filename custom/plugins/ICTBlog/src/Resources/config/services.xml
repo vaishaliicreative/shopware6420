@@ -22,11 +22,11 @@
         </service>
 
         <service id="ICTBlog\Core\Content\IctBlogProductMappingDefinition">
-            <tag name="shopware.entity.definition" entity="blog_product" />
+            <tag name="shopware.entity.definition" entity="ict_blog_product_map" />
         </service>
 
         <service id="ICTBlog\Core\Content\IctBlogCategoryMappingDefinition">
-            <tag name="shopware.entity.definition" entity="blog_category" />
+            <tag name="shopware.entity.definition" entity="ict_blog_category_map" />
         </service>
 
         <service id="ICTBlog\Core\Content\Extension\LanguageExtension">

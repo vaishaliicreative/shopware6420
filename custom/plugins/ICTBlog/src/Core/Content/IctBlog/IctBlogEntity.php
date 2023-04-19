@@ -18,7 +18,7 @@ class IctBlogEntity extends Entity
     protected $id;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -41,6 +41,21 @@ class IctBlogEntity extends Entity
      * @var string
      */
     protected $author;
+
+    /**
+     * @var string|null
+     */
+    protected $notTranslatedField;
+
+    /**
+     * @var array|null
+     */
+    protected $categoryIds;
+
+    /**
+     * @var array|null
+     */
+    protected $productIds;
 
     /**
      * @var IctBlogCategoryCollection|null
@@ -82,12 +97,12 @@ class IctBlogEntity extends Entity
         $this->id = $id;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
@@ -130,6 +145,36 @@ class IctBlogEntity extends Entity
     public function setAuthor(string $author): void
     {
         $this->author = $author;
+    }
+
+    public function getNotTranslatedField(): ?string
+    {
+        return $this->notTranslatedField;
+    }
+
+    public function setNotTranslatedField(?string $notTranslatedField): void
+    {
+        $this->notTranslatedField = $notTranslatedField;
+    }
+
+    public function getCategoryIds(): ?array
+    {
+        return $this->categoryIds;
+    }
+
+    public function setCategoryIds(?array $categoryIds): void
+    {
+        $this->categoryIds = $categoryIds;
+    }
+
+    public function getProductIds(): ?array
+    {
+        return $this->productIds;
+    }
+
+    public function setProductIds(?array $productIds): void
+    {
+        $this->productIds = $productIds;
     }
 
     public function getIctBlogCategories(): ?IctBlogCategoryCollection
