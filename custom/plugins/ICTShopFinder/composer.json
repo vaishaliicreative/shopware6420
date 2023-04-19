@@ -1,0 +1,19 @@
+{
+    "name": "ict/shopfinder",
+    "description": "Shop Finder plugin",
+    "type": "shopware-platform-plugin",
+    "version": "v1.0.0",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "ICTShopFinder\\": "src/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "ICTShopFinder\\ICTShopFinder",
+        "label": {
+            "de-DE": "Shop Finder plugin",
+            "en-GB": "Shop Finder plugin"
+        }
+    }
+}

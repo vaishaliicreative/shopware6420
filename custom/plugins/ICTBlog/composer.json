@@ -1,0 +1,19 @@
+{
+  "name": "ict/blog",
+  "description": "Blog",
+  "type": "shopware-platform-plugin",
+  "license": "MIT",
+  "version": "v1.0.0",
+  "autoload": {
+    "psr-4": {
+      "ICTBlog\\": "src/"
+    }
+  },
+  "extra": {
+    "shopware-plugin-class": "ICTBlog\\ICTBlog",
+    "label": {
+      "de-DE": "Blog plugin",
+      "en-GB": "Blog plugin"
+    }
+  }
+}

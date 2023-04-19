@@ -132,15 +132,17 @@
 
                     <div class="sw-task-detail__base-info-wrapper">
                         {% block sw_task_detail_base_info_field_state %}
-                            <sw-entity-single-select
-                                v-model="task.countryStateId"
-                                class="sw-task-form_country_state-select"
-                                entity="country_state"
-                                :criteria="stateCriteria"
-                                :label="$tc('sw-task.detail.labelState')"
-                                :placeholder="$tc('sw-task.detail.placeholderState')"
-                                show-clearable-button
-                            />
+{#                            <div v-if="hasStates && countryId">#}
+                                <sw-entity-single-select
+                                    v-model="task.countryStateId"
+                                    class="sw-task-form_country_state-select"
+                                    entity="country_state"
+                                    :criteria="stateCriteria"
+                                    :label="$tc('sw-task.detail.labelState')"
+                                    :placeholder="$tc('sw-task.detail.placeholderState')"
+                                    show-clearable-button
+                                />
+{#                            </div>#}
                         {% endblock %}
                     </div>
                     <div class="sw-task-detail__base-info-wrapper">
