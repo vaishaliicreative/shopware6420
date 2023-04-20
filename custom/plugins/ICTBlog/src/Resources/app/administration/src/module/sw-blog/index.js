@@ -66,7 +66,7 @@ Module.register('sw-blog', {
         id: 'sw-blog',
         parent: 'sw-catalogue',
         color: '#57D9A3',
-        position: 51,
+        position: 52,
     }],
 
     defaultSearchConfiguration,

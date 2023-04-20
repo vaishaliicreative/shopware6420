@@ -6,6 +6,7 @@ use ICTBlog\Core\Content\IctBlog\Aggregate\Category\IctBlogCategoryTranslationDe
 use ICTBlog\Core\Content\IctBlog\IctBlogDefinition;
 use ICTBlog\Core\Content\IctBlogCategoryMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -47,6 +48,7 @@ class IctBlogCategoryDefinition extends EntityDefinition
             (new IdField('id','id'))->addFlags(new Required(),new PrimaryKey(), new ApiAware()),
             (new TranslatedField('name'))->addFlags(new ApiAware()),
             (new StringField('not_translated_field', 'notTranslatedField'))->addFlags(new ApiAware()),
+            (new BoolField('active','active')),
             (new TranslationsAssociationField(
                 IctBlogCategoryTranslationDefinition::class,
                 'ict_blog_category_id',

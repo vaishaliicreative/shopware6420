@@ -18,7 +18,7 @@ class IctBlogEntity extends Entity
     protected $id;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $name;
 
@@ -97,12 +97,12 @@ class IctBlogEntity extends Entity
         $this->id = $id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName(?string $name): void
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -232,7 +232,7 @@ class IctBlogEntity extends Entity
         return $this->translated;
     }
 
-    public function setTranslated(array $translated): void
+    public function setTranslated(?array $translated): void
     {
         $this->translated = $translated;
     }

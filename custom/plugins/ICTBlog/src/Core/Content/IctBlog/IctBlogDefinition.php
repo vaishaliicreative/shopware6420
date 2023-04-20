@@ -9,7 +9,7 @@ use ICTBlog\Core\Content\IctBlogProductMappingDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -61,7 +61,7 @@ class IctBlogDefinition extends EntityDefinition
             (new IdField('id','id'))->addFlags(new Required(),new PrimaryKey(),new ApiAware()),
             (new TranslatedField('name'))->addFlags(new ApiAware()),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
-            (new DateTimeField('release_date','releaseDate'))->addFlags(new ApiAware()),
+            (new DateField('release_date','releaseDate'))->addFlags(new ApiAware()),
             (new BoolField('active','active')),
             (new StringField('author','author'))->addFlags(new Required(), new ApiAware()),
             (new StringField('not_translated_field', 'notTranslatedField'))->addFlags(new ApiAware()),

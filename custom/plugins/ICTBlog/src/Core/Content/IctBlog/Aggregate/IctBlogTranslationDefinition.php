@@ -4,6 +4,7 @@ namespace ICTBlog\Core\Content\IctBlog\Aggregate;
 
 use ICTBlog\Core\Content\IctBlog\IctBlogDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -35,8 +36,8 @@ class IctBlogTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name','name')),
-            (new LongTextField('description','description')),
+            (new StringField('name','name'))->addFlags(new Required()),
+            (new LongTextField('description','description'))->addFlags(new AllowHtml()),
         ]);
     }
 }

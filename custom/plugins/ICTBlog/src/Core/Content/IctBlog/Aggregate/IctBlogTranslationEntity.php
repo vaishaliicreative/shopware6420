@@ -12,7 +12,7 @@ class IctBlogTranslationEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $name;
 

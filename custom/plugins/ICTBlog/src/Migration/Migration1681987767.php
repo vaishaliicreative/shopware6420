@@ -5,19 +5,20 @@ namespace ICTBlog\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1681902033 extends MigrationStep
+class Migration1681987767 extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1681902033;
+        return 1681987767;
     }
 
     public function update(Connection $connection): void
     {
         $connection->executeStatement("
-           CREATE TABLE IF NOT EXISTS `ict_blog_category` (
+            CREATE TABLE IF NOT EXISTS `ict_blog_category` (
                 `id` BINARY(16) NOT NULL,
                 `not_translated_field` VARCHAR(255) NULL,
+                `active` TINYINT(1) NULL DEFAULT '0',
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`)
@@ -26,7 +27,7 @@ class Migration1681902033 extends MigrationStep
 
         $connection->executeStatement("
             CREATE TABLE IF NOT EXISTS `ict_blog_category_translation` (
-                `name` VARCHAR(255) NULL,
+                `name` VARCHAR(255) NOT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 `ict_blog_category_id` BINARY(16) NOT NULL,
@@ -42,7 +43,7 @@ class Migration1681902033 extends MigrationStep
         $connection->executeStatement("
             CREATE TABLE IF NOT EXISTS `ict_blog` (
                 `id` BINARY(16) NOT NULL,
-                `release_date` DATETIME(3) NULL,
+                `release_date` DATE NULL,
                 `active` TINYINT(1) NULL DEFAULT '0',
                 `author` VARCHAR(255) NOT NULL,
                 `not_translated_field` VARCHAR(255) NULL,
@@ -58,7 +59,7 @@ class Migration1681902033 extends MigrationStep
 
         $connection->executeStatement("
             CREATE TABLE IF NOT EXISTS `ict_blog_translation` (
-                `name` VARCHAR(255) NULL,
+                `name` VARCHAR(255) NOT NULL,
                 `description` LONGTEXT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
@@ -94,7 +95,7 @@ class Migration1681902033 extends MigrationStep
                 KEY `fk.ict_blog_category_map.blog_category_id` (`blog_category_id`),
                 KEY `fk.ict_blog_category_map.blog_id` (`blog_id`),
                 CONSTRAINT `fk.ict_blog_category_map.blog_category_id` FOREIGN KEY (`blog_category_id`) REFERENCES `ict_blog_category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                CONSTRAINT `fk.ict_blog_category_map.blog_id` FOREIGN KEY (`blog_id`) REFERENCES `ict_blog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+                CONSTRAINT `fk.ict_blog_category_map.blog_id` FOREIGN KEY (`blog_id`) REFERENCES `ict_blog` (`id`) ON DELETE CASCADE     ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ");
 
