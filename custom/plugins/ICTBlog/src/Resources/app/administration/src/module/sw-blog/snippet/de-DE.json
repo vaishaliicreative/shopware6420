@@ -1,46 +1,45 @@
 {
   "sw-blog": {
     "general": {
-      "mainMenuItemList": "Taak",
-      "mainMenuItemGeneral": "Taak",
-      "placeholderSearchBar": "Zoektaken ..."
+      "mainMenuItemList": "Blogs",
+      "mainMenuItemGeneral": "Blogs",
+      "placeholderSearchBar": "Blogs durchsuchen ..."
     },
     "list": {
-      "textBlogOverview": "Taak",
-      "textTotalBlog": "Geen taken | Een taak | {count} taak",
-      "buttonAddBlog": "Taak toevoegen",
-      "columnName": "Taak",
-      "columnDescription": "Description",
-      "columnReleaseDate": "Release date",
-      "columnProduct": "Product",
-      "columnActive": "Active",
-      "columnAuthor": "Author"
+      "textBlogOverview": "Blogs",
+      "textTotalBlog": "Keine Blogs | Ein Blog | {count} Blogs",
+      "buttonAddBlog": "Blog hinzufügen",
+      "columnName": "Bloggen",
+      "columnDescription": "Beschreibung",
+      "columnReleaseDate": "Veröffentlichungsdatum",
+      "columnProduct": "Produkt",
+      "columnActive": "Aktiv",
+      "columnAuthor": "Autorin"
     },
       "detail": {
-          "textHeadline": "Neuer taak",
-          "textMediaSelection": "Medienauswahl",
+          "textHeadline": "Neuer Blog",
           "buttonCancel": "Abbrechen",
           "buttonSave": "Speichern",
-          "cardTitleBlogInfo": "Taakinformatie",
+          "cardTitleBlogInfo": "Blog-Informationen",
           "labelName": "Name",
-          "labelDescription": "Description",
-          "labelCategory": "Categories",
-          "labelProduct": "Product",
-          "labelActive": "Active",
-          "labelAuthor": "Author",
-          "labelReleaseDate": "Release date",
-          "placeholderName": "Taaknaam invoeren...",
-          "placeholderDescription": "Enter description...",
-          "placeholderCategory": "Select category...",
-          "placeholderProduct": "Select product...",
-          "placeholderAuthor": "Enter author name..",
-          "placeholderReleaseDate": "Enter release date.."
+          "labelDescription": "Beschreibung",
+          "labelCategory": "Kategorien",
+          "labelProduct": "Produkt",
+          "labelActive": "Aktiv",
+          "labelAuthor": "Autorin",
+          "labelReleaseDate": "Veröffentlichungsdatum",
+          "placeholderName": "Blognamen eingeben...",
+          "placeholderDescription": "Beschreibung eingeben...",
+          "placeholderCategory": "Kategorie wählen...",
+          "placeholderProduct": "Ausgewähltes Produkt...",
+          "placeholderAuthor": "Geben Sie den Namen des Autors ein..",
+          "placeholderReleaseDate": "Veröffentlichungsdatum eingeben.."
       }
   },
     "sw-privileges": {
         "permissions": {
             "blog": {
-                "label": "Taken"
+                "label": "Blogs"
             }
         }
     }

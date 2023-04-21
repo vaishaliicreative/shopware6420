@@ -19,7 +19,6 @@
                             {{ $tc('sw-blog-category.list.textBlogCategoryOverview') }}
                         {% endblock %}
 
-
                         {% block sw_blog_category_list_smart_bar_header_amount %}
                             <span
                                 v-if="!isLoading"
@@ -33,7 +32,7 @@
             </template>
         {% endblock %}
 
-
+        {#   Action Buttons     #}
         {% block sw_blog_category_list_actions %}
             <template #smart-bar-actions>
 
@@ -54,14 +53,13 @@
                 {% endblock %}
             </template>
         {% endblock %}
-
-
+        {#  Language Selection      #}
         {% block sw_blog_category_list_language_switch %}
             <template #language-switch>
                 <sw-language-switch @on-change="onChangeLanguage" />
             </template>
         {% endblock %}
-
+        {#    List of blog category    #}
         <template #content>
 
             {% block sw_blog_category_list_content %}

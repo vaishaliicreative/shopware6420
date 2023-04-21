@@ -104,7 +104,7 @@ Component.register('sw-blog-category-detail', {
         createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-blog-category-detail__blog_category',
-                path: 'blog-category',
+                path: 'blog.category',
                 scope: this,
             });
             if (this.blogCategoryId) {

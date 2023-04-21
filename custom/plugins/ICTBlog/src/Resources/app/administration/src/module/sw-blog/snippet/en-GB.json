@@ -18,7 +18,6 @@
     },
     "detail": {
       "textHeadline": "New blog",
-      "textMediaSelection": "Media selection",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "cardTitleBlogInfo": "Blog information",

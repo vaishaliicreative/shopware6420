@@ -1,7 +1,6 @@
 /*
  * @package inventory
  */
-import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-blog-detail.html.twig';
 
 const { Component, Context, Mixin, Data: { Criteria } } = Shopware;
@@ -35,12 +34,10 @@ Component.register('sw-blog-detail', {
     data() {
         return {
             blog: [],
-            category: null,
             isLoading: false,
             isSaveSuccessful: false,
             products:null,
-            inputKey: 'productIds',
-            categories:null
+            categories:null,
         };
     },
 
@@ -71,7 +68,7 @@ Component.register('sw-blog-detail', {
             return this.repositoryFactory.create('product');
         },
 
-        categoryCriteria() {
+        blogCategoryCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('active', 1));
             return criteria;
@@ -80,6 +77,7 @@ Component.register('sw-blog-detail', {
         productCriteria(){
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('active',1));
+            return criteria;
         },
 
         tooltipSave() {
@@ -95,7 +93,7 @@ Component.register('sw-blog-detail', {
             return {
                 showDelay: 300,
                 message: this.$tc('sw-privileges.tooltip.warning'),
-                disabled: this.acl.can('order.editor'),
+                disabled: this.acl.can('blog.editor'),
                 showOnDisabledElements: true,
             };
         },
@@ -133,27 +131,30 @@ Component.register('sw-blog-detail', {
                 this.categoryRepository.entityName,
                 Context.api,
             )
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-blog-detail__blog',
-                path: 'blog',
-                scope: this,
-            });
+            // Shopware.ExtensionAPI.publishData({
+            //     id: 'sw-blog-detail__blog',
+            //     path: 'blog',
+            //     scope: this,
+            // });
 
             if (this.blogId) {
                 this.loadEntityData();
                 return;
             }
 
-            // if (this.countryIds.length <= 0) {
-            //     return Promise.resolve();
-            // }
-
             const criteria = new Criteria(1, 25);
             criteria.setIds(this.productIds);
             criteria.addFilter(Criteria.equals('active',1));
 
-            return this.countryRepository.search(criteria, Context.api).then((products) => {
+            return this.productRepository.search(criteria, Context.api).then((products) => {
                 this.products = products;
+            });
+
+            const criteriaCategory = new Criteria(1, 25);
+            criteriaCategory.addFilter(Criteria.equals('active',1));
+
+            return this.categoryRepository.search(criteriaCategory, Context.api).then((categories) => {
+                this.categories = categories;
             });
 
             Shopware.State.commit('context/resetLanguageToDefault');
@@ -223,7 +224,9 @@ Component.register('sw-blog-detail', {
                     return;
                 }
 
-                this.loadEntityData();
+                this.loadEntityData().then(r =>{
+
+                } );
             }).catch((exception) => {
                 this.isLoading = false;
                 this.createNotificationError({
@@ -240,15 +243,17 @@ Component.register('sw-blog-detail', {
         },
 
         setProductIds(products) {
-            this.productIds = products.getIds();
+            // this.productIds = products.getIds();
             this.products = products;
             this.blog.productIds = products.getIds();
+            this.blog.products = products;
         },
 
         setCategoryIds(categories){
-            this.categoryIds = categories.getIds();
+            // this.categoryIds = categories.getIds();
             this.categories = categories;
             this.blog.categoryIds = categories.getIds();
+            this.blog.ictBlogCategories = categories;
         }
     },
 });
