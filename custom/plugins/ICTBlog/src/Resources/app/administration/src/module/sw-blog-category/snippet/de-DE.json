@@ -1,45 +1,32 @@
 {
-  "sw-task": {
+  "sw-blog-category": {
     "general": {
       "mainMenuItemList": "Taak",
       "mainMenuItemGeneral": "Taak",
       "placeholderSearchBar": "Zoektaken ..."
     },
     "list": {
-      "textTaskOverview": "Taak",
-      "textTotalTask": "Geen taken | Een taak | {count} taak",
-        "buttonAddTask": "Taak toevoegen",
+      "textBlogCategoryOverview": "Taak",
+      "textTotalBlogCategory": "Geen taken | Een taak | {count} taak",
+        "buttonAddBlogCategory": "Taak toevoegen",
         "columnName": "Taak",
-        "columnCity": "Stadt",
-        "columnCountry": "Land",
-        "columnState": "Bundesland",
-        "columnProduct": "Produkte"
+        "columnActive": "Active"
     },
       "detail": {
           "textHeadline": "Neuer taak",
           "textMediaSelection": "Medienauswahl",
           "buttonCancel": "Abbrechen",
           "buttonSave": "Speichern",
-          "cardTitleTaskInfo": "Taakinformatie",
+          "cardTitleBlogCategoryInfo": "Taakinformatie",
           "labelName": "Name",
-          "labelCity": "Stadt",
-          "labelCountry": "Land",
-          "labelState": "Bundesland",
-          "labelProduct": "Produkte",
           "labelActive": "Active",
           "placeholderName": "Taaknaam invoeren...",
-          "placeholderCity": "Gib eine Stadt ein ...",
-          "placeholderCountry": "Wähle ein Land aus ...",
-          "placeholderState": "Wähle ein (Bundes-)Land aus...",
-          "placeholderProduct": "Wähle ein Produkte...",
-          "messageSaveSuccess": "Taak \"{name}\" wurde erfolgreich gespeichert.",
-          "labelLogo": "Logo",
-          "labelUseAsLogo": "Als Logo nutzen"
+          "messageSaveSuccess": "Taak \"{name}\" wurde erfolgreich gespeichert."
       }
   },
     "sw-privileges": {
         "permissions": {
-            "task": {
+            "blogCategory": {
                 "label": "Taken"
             }
         }

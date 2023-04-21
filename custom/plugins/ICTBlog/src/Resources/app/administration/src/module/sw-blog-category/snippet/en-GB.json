@@ -1,47 +1,33 @@
 {
-  "sw-task": {
+  "sw-blog-category": {
     "general": {
-      "mainMenuItemList": "Tasks",
-      "mainMenuItemGeneral": "Tasks",
-      "placeholderSearchBar": "Search tasks..."
+      "mainMenuItemList": "Blog categories",
+      "mainMenuItemGeneral": "Blog categories",
+      "placeholderSearchBar": "Search blog categories..."
     },
     "list": {
-      "textTaskOverview": "Tasks",
-      "textTotalTask": "No tasks | One task | {count} tasks",
-      "buttonAddTask": "Add task",
-      "columnName": "Task",
-      "columnCity": "City",
-      "columnCountry": "Country",
-      "columnState": "State",
-      "columnProduct": "Product",
+      "textBlogCategoryOverview": "Blog categories",
+      "textTotalBlogCategory": "No blog categories | One blog category | {count} blog categories",
+      "buttonAddBlogCategory": "Add blog category",
+      "columnName": "Blog Category",
       "columnActive": "Active"
     },
     "detail": {
-      "textHeadline": "New task",
+      "textHeadline": "New blog category",
       "textMediaSelection": "Media selection",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
-      "cardTitleTaskInfo": "Task information",
-      "labelName": "Name",
-      "labelCity": "City",
-      "labelCountry": "Country",
-      "labelState": "State",
-      "labelProduct": "Product",
+      "cardTitleBlogCategoryInfo": "Blog category information",
+      "labelName": "Blog category",
       "labelActive": "Active",
-      "placeholderName": "Enter task name...",
-      "placeholderCity": "Enter city...",
-      "placeholderCountry": "Select country...",
-      "placeholderState": "Select state...",
-      "placeholderProduct": "Select product...",
-      "messageSaveSuccess": "Task \"{name}\" has been saved.",
-      "labelImage": "Image",
-      "labelUseAsLogo": "Use as Logo"
+      "placeholderName": "Enter blog category name...",
+      "messageSaveSuccess": "Blog category \"{name}\" has been saved."
     }
   },
   "sw-privileges": {
     "permissions": {
-      "task": {
-        "label": "Tasks"
+      "blogCategory": {
+        "label": "blog categories"
       }
     }
   }

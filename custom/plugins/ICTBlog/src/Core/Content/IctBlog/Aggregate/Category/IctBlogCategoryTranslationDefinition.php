@@ -32,7 +32,7 @@ class IctBlogCategoryTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name','name'))
+            (new StringField('name','name'))->addFlags(new Required())
         ]);
     }
 }

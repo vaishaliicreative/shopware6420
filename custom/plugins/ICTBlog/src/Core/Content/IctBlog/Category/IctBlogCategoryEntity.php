@@ -17,7 +17,7 @@ class IctBlogCategoryEntity extends Entity
     protected $id;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $name;
 
@@ -25,6 +25,11 @@ class IctBlogCategoryEntity extends Entity
      * @var string|null
      */
     protected $notTranslatedField;
+
+    /**
+     * @var bool|null
+     */
+    protected $active;
 
     /**
      * @var EntityCollection|null
@@ -61,12 +66,12 @@ class IctBlogCategoryEntity extends Entity
         $this->id = $id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName(?string $name): void
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -79,6 +84,16 @@ class IctBlogCategoryEntity extends Entity
     public function setNotTranslatedField(?string $notTranslatedField): void
     {
         $this->notTranslatedField = $notTranslatedField;
+    }
+
+    public function getActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(?bool $active): void
+    {
+        $this->active = $active;
     }
 
     public function getTranslations(): ?EntityCollection
@@ -126,7 +141,7 @@ class IctBlogCategoryEntity extends Entity
         return $this->translated;
     }
 
-    public function setTranslated(array $translated): void
+    public function setTranslated(?array $translated): void
     {
         $this->translated = $translated;
     }
