@@ -14,7 +14,6 @@
     },
     "detail": {
       "textHeadline": "New blog category",
-      "textMediaSelection": "Media selection",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "cardTitleBlogCategoryInfo": "Blog category information",
@@ -27,7 +26,7 @@
   "sw-privileges": {
     "permissions": {
       "blogCategory": {
-        "label": "blog categories"
+        "label": "Blog categories"
       }
     }
   }

@@ -79,6 +79,12 @@
                             @column-sort="onSortColumn"
                         >
 
+                            {% block sw_blog_list_grid_columns_release_date %}
+                                <template #column-releaseDate="{ item }">
+                                   {{ item.releaseDate | date() }}
+                                </template>
+                            {% endblock %}
+
                         </sw-entity-listing>
                     {% endblock %}
                     {% block sw_blog_list_empty_state %}
