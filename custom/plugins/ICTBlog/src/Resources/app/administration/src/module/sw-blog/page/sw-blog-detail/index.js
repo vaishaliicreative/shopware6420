@@ -1,13 +1,11 @@
 /*
  * @package inventory
  */
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-blog-detail.html.twig';
-
-const { Component, Context, Mixin, Data: { Criteria } } = Shopware;
-const { EntityCollection } = Shopware.Data;
+const { Component,Context, Mixin, Data: { Criteria } } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+const { EntityCollection } = Shopware.Data;
 Component.register('sw-blog-detail', {
     template,
 
@@ -30,23 +28,20 @@ Component.register('sw-blog-detail', {
             default: null,
         },
     },
-
     data() {
         return {
-            blog: [],
+            blog: null,
             isLoading: false,
             isSaveSuccessful: false,
-            products:null,
-            categories:null,
+            blogCategories: null,
+            blogProducts:null,
         };
     },
-
     metaInfo() {
         return {
             title: this.$createTitle(this.identifier),
         };
     },
-
     computed: {
         identifier() {
             return this.placeholder(this.blog, 'name');
@@ -60,7 +55,7 @@ Component.register('sw-blog-detail', {
             return this.repositoryFactory.create('ict_blog');
         },
 
-        categoryRepository() {
+        blogCategoryRepository(){
             return this.repositoryFactory.create('ict_blog_category');
         },
 
@@ -68,15 +63,10 @@ Component.register('sw-blog-detail', {
             return this.repositoryFactory.create('product');
         },
 
-        blogCategoryCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('active', 1));
-            return criteria;
-        },
-
         productCriteria(){
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('active',1));
+            criteria.addFilter(Criteria.equals('parent_id','NULL'))
             return criteria;
         },
 
@@ -105,6 +95,12 @@ Component.register('sw-blog-detail', {
             };
         },
 
+        blogCategoryCriteria(){
+            const criteria = new Criteria(1,25);
+            criteria.addFilter(Criteria.equals('active',1));
+            return criteria
+        },
+
         ...mapPropertyErrors('blog', ['name','author','releaseDate']),
     },
 
@@ -117,69 +113,59 @@ Component.register('sw-blog-detail', {
     created() {
         this.createdComponent();
     },
-
     methods: {
         createdComponent() {
-            this.products = new EntityCollection(
+
+            this.blogCategories = new EntityCollection(
+                this.blogCategoryRepository.route,
+                this.blogCategoryRepository.entityName,
+                Context.api,
+            );
+
+            this.blogProducts = new EntityCollection(
                 this.productRepository.route,
                 this.productRepository.entityName,
                 Context.api,
             );
 
-            this.categories = new EntityCollection(
-                this.categoryRepository.route,
-                this.categoryRepository.entityName,
-                Context.api,
-            )
-            // Shopware.ExtensionAPI.publishData({
-            //     id: 'sw-blog-detail__blog',
-            //     path: 'blog',
-            //     scope: this,
-            // });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-blog-detail__blog',
+                path: 'blog',
+                scope: this,
+            });
+
 
             if (this.blogId) {
                 this.loadEntityData();
                 return;
             }
 
-            const criteria = new Criteria(1, 25);
-            criteria.setIds(this.productIds);
-            criteria.addFilter(Criteria.equals('active',1));
-
-            return this.productRepository.search(criteria, Context.api).then((products) => {
-                this.products = products;
-            });
-
-            const criteriaCategory = new Criteria(1, 25);
-            criteriaCategory.addFilter(Criteria.equals('active',1));
-
-            return this.categoryRepository.search(criteriaCategory, Context.api).then((categories) => {
-                this.categories = categories;
-            });
-
             Shopware.State.commit('context/resetLanguageToDefault');
             this.blog = this.blogRepository.create();
-
         },
 
         async loadEntityData() {
             this.isLoading = true;
-
-            const [blogResponse, customFieldResponse] = await Promise.allSettled([
-                this.blogRepository.get(this.blogId),
-            ]);
-
-            if (blogResponse.status === 'fulfilled') {
-                this.blog = blogResponse.value;
-            }
-
-            if (blogResponse.status === 'rejected' ) {
+            const blogCriteria = new Criteria();
+            blogCriteria.addFilter(Criteria.equals('id',this.blogId))
+            blogCriteria.addAssociation('ictBlogCategories');
+            blogCriteria.addAssociation('products');
+            this.blogRepository.search(blogCriteria,Context.api).then((res)=>{
+                // console.log(res)
+                this.blog = res[0];
+                // console.log(this.blog)
+                this.blogCategories = this.blog.ictBlogCategories;
+                this.blogProducts = this.blog.products;
+                // console.log(this.blogProducts);
+            }).catch((exception) => {
+                this.isLoading = false;
                 this.createNotificationError({
                     message: this.$tc(
                         'global.notification.notificationLoadingDataErrorMessage',
                     ),
                 });
-            }
+                throw exception;
+            });
 
             this.isLoading = false;
         },
@@ -197,6 +183,7 @@ Component.register('sw-blog-detail', {
         },
 
         onSave() {
+            console.log(this.blog);
             if (!this.acl.can('blog.editor')) {
                 return;
             }
@@ -213,7 +200,6 @@ Component.register('sw-blog-detail', {
                 });
                 return Promise.resolve();
             }
-
             this.isLoading = true;
 
             this.blogRepository.save(this.blog).then(() => {
@@ -224,9 +210,7 @@ Component.register('sw-blog-detail', {
                     return;
                 }
 
-                this.loadEntityData().then(r =>{
-
-                } );
+                this.loadEntityData();
             }).catch((exception) => {
                 this.isLoading = false;
                 this.createNotificationError({
@@ -243,15 +227,13 @@ Component.register('sw-blog-detail', {
         },
 
         setProductIds(products) {
-            // this.productIds = products.getIds();
-            this.products = products;
+            this.blogProducts = products;
             this.blog.productIds = products.getIds();
             this.blog.products = products;
         },
 
         setCategoryIds(categories){
-            // this.categoryIds = categories.getIds();
-            this.categories = categories;
+            this.blogCategories = categories;
             this.blog.categoryIds = categories.getIds();
             this.blog.ictBlogCategories = categories;
         }

@@ -45,16 +45,6 @@ Component.register('sw-blog-list',{
                     inlineEdit: 'string',
                     primary: true,
                 },{
-                    property: 'description',
-                    label: 'sw-blog.list.columnDescription',
-                    inlineEdit: 'string',
-                },{
-                    property: 'active',
-                    label: 'sw-blog.list.columnActive',
-                    inlineEdit: 'boolean',
-                    allowResize: true,
-                    align: 'center',
-                },{
                     property: 'releaseDate',
                     label: 'sw-blog.list.columnReleaseDate',
                     inlineEdit: 'string'
@@ -62,6 +52,12 @@ Component.register('sw-blog-list',{
                     property: 'author',
                     label: 'sw-blog.list.columnAuthor',
                     inlineEdit: 'string'
+                },{
+                    property: 'active',
+                    label: 'sw-blog.list.columnActive',
+                    inlineEdit: 'boolean',
+                    allowResize: true,
+                    align: 'center',
                 }
             ];
         },
