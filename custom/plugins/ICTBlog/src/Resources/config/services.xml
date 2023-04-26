@@ -5,37 +5,67 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <!-- Start Blog Category Translation Definition-->
         <service id="ICTBlog\Core\Content\IctBlog\Aggregate\Category\IctBlogCategoryTranslationDefinition">
             <tag name="shopware.entity.definition" entity="ict_blog_category_translation"/>
         </service>
+        <!-- End Definition-->
 
+        <!-- Start Blog Category Definition-->
         <service id="ICTBlog\Core\Content\IctBlog\Category\IctBlogCategoryDefinition">
             <tag name="shopware.entity.definition" entity="ict_blog_category" />
         </service>
+        <!-- End Definition-->
 
+        <!-- Start Blog Translation Definition-->
         <service id="ICTBlog\Core\Content\IctBlog\Aggregate\IctBlogTranslationDefinition">
             <tag name="shopware.entity.definition"  entity="ict_blog_translation"/>
         </service>
+        <!-- End Definition-->
 
+        <!-- Start Blog Definition-->
         <service id="ICTBlog\Core\Content\IctBlog\IctBlogDefinition">
             <tag name="shopware.entity.definition" entity="ict_blog" />
         </service>
+        <!-- End Definition-->
 
+        <!-- Start Blog Product Mapping definition-->
         <service id="ICTBlog\Core\Content\IctBlogProductMappingDefinition">
             <tag name="shopware.entity.definition" entity="ict_blog_product_map" />
         </service>
+        <!-- End Definition-->
 
+        <!-- Start Blog Category Mapping Definition-->
         <service id="ICTBlog\Core\Content\IctBlogCategoryMappingDefinition">
             <tag name="shopware.entity.definition" entity="ict_blog_category_map" />
         </service>
+        <!-- End Definition-->
 
+        <!-- Start Language Extension-->
         <service id="ICTBlog\Core\Content\Extension\LanguageExtension">
             <tag name="shopware.entity.extension"/>
         </service>
+        <!-- End Extension-->
 
+        <!-- Start Product Extension-->
         <service id="ICTBlog\Core\Content\Extension\ProductExtension">
             <tag name="shopware.entity.extension" />
         </service>
+        <!-- End Extension-->
+
+        <!-- Start Image Data Resolver-->
+        <service id="ICTBlog\Core\Content\ImageBlog\Cms\ImageBlogCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+            <argument type="service" id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver"/>
+        </service>
+        <!-- End Data Resolver-->
+
+        <!-- Start Text Data Resolver-->
+        <service id="ICTBlog\Core\Content\ImageBlog\Cms\TextBlogCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
+        </service>
+        <!-- End Data Resolver-->
 
     </services>
 </container>

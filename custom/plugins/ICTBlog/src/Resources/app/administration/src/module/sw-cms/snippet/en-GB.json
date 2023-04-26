@@ -5,6 +5,16 @@
                 "text-blog": {
                     "label": "Blog Text"
                 }
+            },
+            "blogTextImage": {
+                "imageText": {
+                    "label": "Blog Text Image"
+                }
+            },
+            "image": {
+                "image-blog": {
+                    "label": "Blog Image"
+                }
             }
         },
         "elements": {
@@ -51,6 +61,19 @@
                 "config": {
                     "label": {
                         "content": "Blog Text"
+                    }
+                }
+            },
+            "image-blog": {
+                "label": "Blog Image",
+                "config": {
+                    "label": {
+                        "linkNewTab": "Open link in new tab",
+                        "minHeight":"Minimum height"
+                    },
+                    "placeholder": {
+                        "enterMinHeight": "Enter a minimum height...",
+                        "enterUrl": "Enter URL..."
                     }
                 }
             }

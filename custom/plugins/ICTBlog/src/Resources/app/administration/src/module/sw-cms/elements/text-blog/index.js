@@ -16,10 +16,8 @@ Shopware.Service('cmsService').registerCmsElement({
         content: {
             source: 'static',
             value: `
-                <h2 style="text-align: center">Blog title</h2>
-                <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-                sed diam voluptua. </p>
+                <h2 style="text-align: center">First Text Image block</h2>
+                <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr </p>
             `.trim(),
         },
         verticalAlign: {

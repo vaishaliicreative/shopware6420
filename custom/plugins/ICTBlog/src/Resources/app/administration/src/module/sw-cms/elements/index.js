@@ -1,1 +1,2 @@
-import "./text-blog"
+import "./text-blog";
+import "./image-blog";
