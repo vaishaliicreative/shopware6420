@@ -25,5 +25,6 @@ Shopware.Service('cmsService').registerCmsElement({
             value: null,
         },
     },
+    
 });
 
