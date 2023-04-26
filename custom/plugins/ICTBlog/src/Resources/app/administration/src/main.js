@@ -1,3 +1,3 @@
 import './module/sw-blog';
 import './module/sw-blog-category';
-import './module/sw-cms-text-blog';
+import './module/sw-cms';
