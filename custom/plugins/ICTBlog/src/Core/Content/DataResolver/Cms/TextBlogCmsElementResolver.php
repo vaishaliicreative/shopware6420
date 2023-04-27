@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace ICTBlog\Core\Content\ImageBlog\Cms;
+namespace ICTBlog\Core\Content\DataResolver\Cms;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;

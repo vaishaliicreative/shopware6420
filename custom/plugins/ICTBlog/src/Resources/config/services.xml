@@ -54,18 +54,25 @@
         <!-- End Extension-->
 
         <!-- Start Image Data Resolver-->
-        <service id="ICTBlog\Core\Content\ImageBlog\Cms\ImageBlogCmsElementResolver">
+        <service id="ICTBlog\Core\Content\DataResolver\Cms\ImageBlogCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
             <argument type="service" id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver"/>
         </service>
         <!-- End Data Resolver-->
 
         <!-- Start Text Data Resolver-->
-        <service id="ICTBlog\Core\Content\ImageBlog\Cms\TextBlogCmsElementResolver">
+        <service id="ICTBlog\Core\Content\DataResolver\Cms\TextBlogCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
         </service>
         <!-- End Data Resolver-->
+
+        <!-- Start Product Slider Data Resolver-->
+        <service id="ICTBlog\Core\Content\DataResolver\Cms\CustomProductSliderCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
 
     </services>
 </container>
