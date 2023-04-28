@@ -1,0 +1,13 @@
+{% block sw_cms_block_custom_image_text_video %}
+    <div class="sw-cms-block-custom-image-text-video">
+        <slot name="left-image">
+            {% block sw_cms_block_custom_image_text_video_left_image %}{% endblock %}
+        </slot>
+        <slot name="center-text">
+            {% block sw_cms_block_custom_image_text_video_center_text %}{% endblock %}
+        </slot>
+        <slot name="right-video">
+            {% block sw_cms_block_custom_image_text_video_right_video %}{% endblock %}
+        </slot>
+    </div>
+{% endblock %}

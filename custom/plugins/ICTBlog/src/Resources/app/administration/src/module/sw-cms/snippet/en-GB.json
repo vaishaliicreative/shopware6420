@@ -25,6 +25,17 @@
                 "customYoutubeVideo": {
                     "label": "Custom Youtube video"
                 }
+            },
+            "textImage": {
+                "customTextOnImage": {
+                    "label": "Custom Text on Image"
+                },
+                "customImageTextVideo": {
+                    "label": "Custom Image Text Video"
+                },
+                "customImageTextTextVideo": {
+                    "label": "Custom Two row with two column"
+                }
             }
         },
         "elements": {
