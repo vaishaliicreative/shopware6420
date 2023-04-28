@@ -1,0 +1,12 @@
+{% block sw_cms_element_custom_youtube_video %}
+    <div
+        class="sw-cms-el-custom-youtube-video"
+        :class="displayModeClass"
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/iframe-has-title -->
+        <iframe
+            class="sw-cms-el-custom-youtube-video__video"
+            :src="videoUrl"
+        ></iframe>
+    </div>
+{% endblock %}
