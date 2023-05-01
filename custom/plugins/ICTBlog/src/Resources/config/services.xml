@@ -73,6 +73,13 @@
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
+        <!-- End Data Resolver -->
+
+        <!-- Start YouTube Video  Data Resolver-->
+        <service id="ICTBlog\Core\Content\DataResolver\Cms\CustomYoutubeVideoCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+        </service>
+        <!-- End Data Resolver -->
 
     </services>
 </container>
