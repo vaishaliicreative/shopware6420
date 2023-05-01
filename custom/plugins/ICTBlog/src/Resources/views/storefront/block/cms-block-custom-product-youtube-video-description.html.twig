@@ -1,0 +1,54 @@
+{% block sw_cms_block_custom_product_youtube_video_description %}
+    {% set columns = 2 %}
+    {# @deprecated tag:v6.5.0 - Use "element.id" directly instead. #}
+    {% set id = element.id %}
+
+    {% block sw_cms_block_custom_product_youtube_video_description_left_text %}
+        {% set element = block.slots.getSlot('leftText') %}
+        <div class="col-md-6" data-cms-element-id="{{ element.id }}">
+            {% block sw_cms_block_custom_product_youtube_video_description_left_text_inner %}
+                {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+    {% block sw_cms_block_custom_product_youtube_video_description_right_text %}
+        <div class="col-md-6">
+            <div class="row mb-4">
+                {% block sw_cms_block_custom_product_youtube_video_description_right_video_first %}
+                    {% set element = block.slots.getSlot('rightVideoFirst') %}
+                    <div class="col-md-6" data-cms-element-id="{{ element.id }}">
+                        {% block sw_cms_block_custom_product_youtube_video_description_right_video_first_inner %}
+                            {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+                {% block sw_cms_block_custom_product_youtube_video_description_right_description_first %}
+                    {% set element = block.slots.getSlot('rightDescriptionFirst') %}
+                    <div class="col-md-6" data-cms-element-id="{{ element.id }}">
+                        {% block sw_cms_block_custom_product_youtube_video_description_right_description_first_inner %}
+                            {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+            <div class="row">
+                {% block sw_cms_block_custom_product_youtube_video_description_right_video_second %}
+                    {% set element = block.slots.getSlot('rightVideoSecond') %}
+                    <div class="col-md-6" data-cms-element-id="{{ element.id }}">
+                        {% block sw_cms_block_custom_product_youtube_video_description_right_video_second_inner %}
+                            {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+                {% block sw_cms_block_custom_product_youtube_video_description_right_description_second %}
+                    {% set element = block.slots.getSlot('rightDescriptionSecond') %}
+                    <div class="col-md-6" data-cms-element-id="{{ element.id }}">
+                        {% block sw_cms_block_custom_product_youtube_video_description_right_description_second_inner %}
+                            {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}

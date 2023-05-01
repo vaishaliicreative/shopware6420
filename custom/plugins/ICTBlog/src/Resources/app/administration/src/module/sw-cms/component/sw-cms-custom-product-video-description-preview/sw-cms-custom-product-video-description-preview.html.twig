@@ -1,0 +1,20 @@
+{% block sw_cms_custom_product_video_description_preview %}
+    <div class="sw-cms-custom-product-video-description-preview">
+
+        <div class="sw-cms-custom-product-video-description-preview__video">
+            <img
+                class="sw-cms-custom-product-video-description-preview-youtube-video__img"
+                :src="'/administration/static/img/cms/preview_youtube.jpg' | asset"
+                alt=""
+            >
+            <img
+                class="sw-cms-custom-product-video-description-preview-youtube-video__icon"
+                :src="'/administration/static/img/cms/youtube-icon.png' | asset"
+                alt=""
+            >
+        </div>
+        <div class="sw-cms-custom-product-video-description-preview__description">
+            This is custom product video and description...
+        </div>
+    </div>
+{% endblock %}

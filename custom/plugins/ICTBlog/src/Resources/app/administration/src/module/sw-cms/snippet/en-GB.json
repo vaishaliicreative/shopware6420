@@ -19,6 +19,9 @@
             "commerce": {
                 "customProductSlider": {
                     "label": "Custom Product Slider"
+                },
+                "customProductVideoDescListing": {
+                    "label": "Custom Product Video and description"
                 }
             },
             "video": {
@@ -35,6 +38,9 @@
                 },
                 "customImageTextTextVideo": {
                     "label": "Custom Two row with two column"
+                },
+                "customTextVideoImage": {
+                    "label": "Text on Image, video and description"
                 }
             }
         },

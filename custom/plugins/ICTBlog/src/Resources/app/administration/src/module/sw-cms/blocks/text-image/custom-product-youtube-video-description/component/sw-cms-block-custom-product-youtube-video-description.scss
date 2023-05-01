@@ -1,0 +1,19 @@
+.sw-cms-block-custom-product-youtube-video-description{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+
+    .sw-cms-el-text {
+        padding: 30px;
+    }
+
+    .sw-cms-el-image.is--cover {
+        min-height: 400px;
+    }
+    .sw-cms-block-custom-product-youtube-video-description__right{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding-bottom: 10px;
+    }
+}
