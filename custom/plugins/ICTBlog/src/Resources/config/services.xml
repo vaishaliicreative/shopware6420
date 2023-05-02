@@ -81,5 +81,12 @@
         </service>
         <!-- End Data Resolver -->
 
+        <!-- Start Product Data Resolver-->
+        <service id="ICTBlog\Core\Content\DataResolver\Cms\CustomProductVideoDescriptionCmsElementResolver">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.cms.data_resolver" />
+        </service>
+        <!-- End Data Resolver -->
+
     </services>
 </container>

@@ -1,11 +1,12 @@
-{% block element_custom_product_video_description_listing %}
+{% block element_custom_product_video_description %}
     {%  set config = element.fieldConfig.elements %}
-    {{ dump(element) }}
+
     <div class="cms-element-{{ element.type }}">
-        {% block element_custom_product_video_description_listing_alignment %}
+        {% block element_custom_product_video_description_alignment %}
             <div class="cms-element-alignment">
-                {% block element_text_inner %}
-                    {{ element.data.content|raw }}
+                {% block element_textcustom_product_video_description_inner %}
+                    <h2>{{ element.data.product.translated.name|raw}}</h2>
+                    {{ element.data.product.customFields.custom_product_video_description_video_description_first|raw }}
                 {% endblock %}
 
             </div>
