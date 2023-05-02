@@ -1,0 +1,45 @@
+{% block sw_cms_element_product_video_description_config %}
+    <div class="sw-cms-el-config-product-video-description">
+        {% block sw_cms_element_product_video_description_config_product_select %}
+            <sw-entity-single-select
+                v-if="!isProductPage"
+                ref="cmsProductSelection"
+                v-model="element.config.product.value"
+                entity="product"
+                :label="$tc('sw-cms-text-blog.elements.customProductBox.config.label.selection')"
+                :placeholder="$tc('sw-cms-text-blog.elements.customProductBox.config.placeholder.selection')"
+                :criteria="productCriteria"
+                :context="productSelectContext"
+                show-clearable-button
+                @change="onProductChange"
+            >
+                {% block sw_entity_single_select_variant_selected_item %}
+                    <template #selection-label-property="{ item }">
+                        <sw-product-variant-info
+                            :variations="item.variation"
+                        >
+                            {{ item.translated.name || item.name }}
+                        </sw-product-variant-info>
+                    </template>
+                {% endblock %}
+
+                {% block sw_entity_single_select_variant_result_item %}
+                    <template #result-item="{ item, index }">
+                        <li
+                            is="sw-select-result"
+                            v-bind="{ item, index }"
+                        >
+                            {% block sw_entity_single_select_base_results_list_result_label %}
+                                <span class="sw-select-result__result-item-text">
+                                    <sw-product-variant-info :variations="item.variation">
+                                        {{ item.translated.name || item.name }}
+                                    </sw-product-variant-info>
+                                </span>
+                            {% endblock %}
+                        </li>
+                    </template>
+                {% endblock %}
+            </sw-entity-single-select>
+        {% endblock %}
+    </div>
+{% endblock %}

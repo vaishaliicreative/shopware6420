@@ -1,0 +1,16 @@
+{% block sw_cms_element_custom_product_video_description %}
+    <div
+        class="sw-cms-el-custom-product-video-description"
+    >
+        {% block sw_cms_element_custom_product_video_description_detail %}
+            <div
+                v-if="!isProductPageType || currentDemoEntity"
+                class="sw-cms-el-product-description-reviews__detail"
+            >
+                <div class="sw-cms-el-product-description-reviews__detail-description">
+                    {{ placeholder(product, 'customFields.custom_product_video_description_video_description_first', product.customFields.custom_product_video_description_video_description_first) }}
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

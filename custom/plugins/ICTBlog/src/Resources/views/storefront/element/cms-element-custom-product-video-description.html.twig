@@ -1,0 +1,14 @@
+{% block element_custom_product_video_description_listing %}
+    {%  set config = element.fieldConfig.elements %}
+    {{ dump(element) }}
+    <div class="cms-element-{{ element.type }}">
+        {% block element_custom_product_video_description_listing_alignment %}
+            <div class="cms-element-alignment">
+                {% block element_text_inner %}
+                    {{ element.data.content|raw }}
+                {% endblock %}
+
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -6,3 +6,5 @@ import "./video/custom-youtube-video";
 import "./text-image/custom-text-on-image";
 import "./text-image/custom-image-text-video";
 import "./text-image/custom-image-text-text-video";
+import "./text-image/custom-product-youtube-video-description";
+import "./commerce/custom-product-video-description-listing";
