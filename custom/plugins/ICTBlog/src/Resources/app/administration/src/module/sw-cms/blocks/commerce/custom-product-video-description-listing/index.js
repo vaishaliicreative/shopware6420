@@ -17,6 +17,9 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginLeft: '20px',
         marginRight: '20px',
         sizingMode: 'boxed',
+        backgroundMedia: {
+            url: '/administration/static/img/cms/preview_mountain_large.jpg',
+        },
     },
     slots: {
         leftAuthor: 'text-blog',

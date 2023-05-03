@@ -5,6 +5,30 @@
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 10px;
 
+    .sw-cms-preview-custom-product-video-description__image__overlay{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        left: 0;
+        top:0;
+    }
+
+    .sw-cms-preview-custom-product-video-description__image {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        left: 0;
+        top: 0;
+
+        img {
+            display: block;
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
     .sw-cms-preview-custom-product-video-description-listing__text {
         display: grid;
         align-content: center;
@@ -13,38 +37,19 @@
         z-index: 2;
         height: 100%;
         width: 100%;
+        color:#FFFFFF;
     }
 
     .sw-cms-preview-custom-product-video-description-listing__video_description {
         position: relative;
         .sw-cms-custom-product-video-description-preview {
             height: 75px;
-            .sw-cms-custom-product-video-description-preview__video {
-                position: relative;
-                .sw-cms-custom-product-video-description-preview-youtube-video {
-                    position: relative;
-                    overflow: hidden;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    margin: 0;
-
-                    &__img {
-                        width: 100%;
-                        height: 100%;
-                    }
-
-                    &__icon {
-                        $icon-height: 10px;
-                        height: $icon-height;
-                        position: absolute;
-                        top: 17px;
-                        left: 39%;
-                    }
-                }
-            }
             .sw-cms-custom-product-video-description-preview__description{
-                font-size: 11px;
+                font-size: 12px;
+                color: #FFFFFF;
+                h3{
+                    color: #FFFFFF;
+                }
             }
         }
     }
