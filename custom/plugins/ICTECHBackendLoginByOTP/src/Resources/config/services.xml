@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Start Definition -->
+            <service id="ICTECHBackendLoginByOTP\Core\Content\BackendLoginByOTP\BackendLoginByOTPDefinition">
+                <tag name="shopware.entity.definition" entity="backend_login_by_otp" />
+            </service>
+        <!-- End Definition -->
+
+        <!-- Start Extension -->
+            <service id="ICTECHBackendLoginByOTP\Core\Content\Extension\UserExtension">
+                <tag name="shopware.entity.extension" />
+            </service>
+        <!-- End Extension -->
+    </services>
+</container>
