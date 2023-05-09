@@ -1,1 +1,0 @@
-import './module/sw-task';
