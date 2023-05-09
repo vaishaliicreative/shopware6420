@@ -11,6 +11,7 @@
   },
   "extra": {
     "shopware-plugin-class": "ICTECHBackendLoginByOTP\\ICTECHBackendLoginByOTP",
+    "plugin-icon": "src/Resources/config/Login.jpg",
     "label": {
       "de-DE": "Backend-Login per OTP",
       "en-GB": "Backend Login by OTP"
