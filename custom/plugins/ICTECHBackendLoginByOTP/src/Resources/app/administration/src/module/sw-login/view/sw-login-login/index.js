@@ -45,10 +45,11 @@ Component.override('sw-login-login', {
                 });
         },
 
-        createUserOtpWithEmail(){
+       createUserOtpWithEmail(){
+            alert("test");
             // console.log(this.username);
             // console.log(this);
-            this.$emit('is-loading');
+            // this.$emit('is-loading');
             let headers = this.configService.getBasicHeaders();
             let seconds = 0;
             return this.configService.httpClient
@@ -56,16 +57,16 @@ Component.override('sw-login-login', {
                     params:{
                         username:this.username
                     },headers
-                }).then((response)=>{
+                }).then( (response) => {
                     // console.log(response.data.type);
-                    this.$emit('is-not-loading');
-                    console.log(this.$router);
+                    // this.$emit('is-not-loading');
                     this.$router.push({
-                        name: 'sw.login.index.recoveryInfo',
+                        name: 'sw.verify.verify',
                         params: {
                             waitTime: seconds,
                         },
                     });
+                    console.log(this.$router);
                     // this.$router.push({ name:'sw.login.index.verify' });
                 });
             // this.$emit('is-not-loading');

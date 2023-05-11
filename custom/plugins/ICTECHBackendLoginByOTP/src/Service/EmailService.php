@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ICTECHBackendLoginByOTP\Service;
 
@@ -6,10 +8,10 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -17,40 +19,22 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 
 class EmailService
 {
-    /**
-     * @var AbstractMailService
-     */
     private AbstractMailService $mailService;
 
-    /**
-     * @var EntityRepository
-     */
     private EntityRepository $userRepository;
 
-    /**
-     * @var EntityRepository
-     */
     private EntityRepository $mailTemplateRepository;
 
-    /**
-     * @var LoggerInterface
-     */
     private LoggerInterface $logger;
     private SalesChannelContextServiceInterface $salesChannelContextService;
-    /**
-     * @param AbstractMailService $mailService
-     * @param EntityRepository $userRepository
-     * @param EntityRepository $mailTemplateRepository
-     * @param LoggerInterface $logger
-     */
+
     public function __construct(
         AbstractMailService $mailService,
         EntityRepository $userRepository,
         EntityRepository $mailTemplateRepository,
         LoggerInterface $logger,
         SalesChannelContextServiceInterface $salesChannelContextService
-    )
-    {
+    ) {
         $this->mailService = $mailService;
         $this->userRepository = $userRepository;
         $this->mailTemplateRepository = $mailTemplateRepository;
@@ -58,14 +42,8 @@ class EmailService
         $this->salesChannelContextService = $salesChannelContextService;
     }
 
-    /**
-     * @param string $userId
-     * @param $context
-     * @param string $otp
-     * @return void
-     */
     //send login OTP through email
-    public function sendOTPEMail($userDetails, $context, string $otp): void
+    public function sendOTPEMail(object $userDetails, Context $context, string $otp): void
     {
         //getting dynamic data
         $firstname = $userDetails->getFirstName();
@@ -80,8 +58,9 @@ class EmailService
                 null,
                 $context,
                 null,
-            ));
-            $salesChannelId = $salesChannelContext->getSalesChannelId();
+            )
+        );
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
         if ($userDetails === null) {
             return;
         }
@@ -128,20 +107,12 @@ class EmailService
 //            $this->mailService->send($data->all(), $context);
         } catch (\Exception $e) {
             $this->logger->error(
-                "Could not send mail:\n"
-                . $e->getMessage() . "\n"
-                . 'Error Code:' . $e->getCode() . "\n"
-                . "Template data: \n"
-                . json_encode($data->all()) . "\n"
+                "Could not send mail:\n {$e->getMessage}() \n 'Error Code:' {$e->getCode}() \n Template data: \n". json_encode($data->all()) . "\n"
             );
         }
     }
 
-    /**
-     * @param $context
-     * @return MailTemplateEntity|null
-     */
-    private function getMailTemplate($context): ?MailTemplateEntity
+    private function getMailTemplate(Context $context): ?MailTemplateEntity
     {
         $criteria = new Criteria();
 

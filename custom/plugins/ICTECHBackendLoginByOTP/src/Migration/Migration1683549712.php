@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ICTECHBackendLoginByOTP\Migration;
 
@@ -15,7 +17,7 @@ class Migration1683549712 extends MigrationStep
     public function update(Connection $connection): void
     {
         // implement update
-        $connection->executeStatement("
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `backend_login_by_otp` (
                 `id` BINARY(16) NOT NULL,
                 `user_id` BINARY(16) NOT NULL,
@@ -26,7 +28,7 @@ class Migration1683549712 extends MigrationStep
                 KEY `fk.backend_login_by_otp.user_id` (`user_id`),
                 CONSTRAINT `fk.backend_login_by_otp.user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ");
+        ');
     }
 
     public function updateDestructive(Connection $connection): void

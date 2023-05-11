@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ICTECHBackendLoginByOTP\Core\Content\BackendLoginByOTP;
 
@@ -14,13 +16,10 @@ use Shopware\Core\Framework\Log\Package;
  * @method BackendLoginByOtpEntity|null first()
  * @method BackendLoginByOtpEntity|null last()
  */
- #[Package('core')]
+#[Package('core')]
 class BackendLoginByOtpCollection extends EntityCollection
 {
-     /**
-      * @return string
-      */
-     protected function getExpectedClass(): string
+    protected function getExpectedClass(): string
     {
         return BackendLoginByOtpEntity::class;
     }

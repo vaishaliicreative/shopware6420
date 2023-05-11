@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ICTECHBackendLoginByOTP\Core\Content\Extension;
 
@@ -10,10 +12,6 @@ use Shopware\Core\System\User\UserDefinition;
 
 class UserExtension extends EntityExtension
 {
-
-    /**
-     * @return string
-     */
     public function getDefinitionClass(): string
     {
         return UserDefinition::class;
