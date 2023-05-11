@@ -35,9 +35,9 @@
 <script nonce="{{ cspNonce }}" src="{{ asset('static/js/app.js', '@Administration') }}"></script>
 
 <script nonce="{{ cspNonce }}">
-    console.log("call");
+    // console.log("call");
     // console.log(Shopware.Application.bootLogin);
-    // Rewrite bootLogin function to load our custom code allowing the 2 factor authentication
+    // Rewrite bootLogin function to load our custom code allowing the OTP authentication
     Shopware.Application.bootLogin = function () {
         // set force reload after successful login
         sessionStorage.setItem('sw-login-should-reload', 'true');

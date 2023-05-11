@@ -16,5 +16,26 @@
                 <tag name="shopware.entity.extension" />
             </service>
         <!-- End Extension -->
+
+        <!-- Start Controller -->
+            <service id="ICTECHBackendLoginByOTP\Controller\BackendLoginByOtpController" public="true">
+                <argument type="service" id="user.repository" />
+                <argument type="service" id="ICTECHBackendLoginByOTP\Service\EmailService" />
+                <argument type="service" id="backend_login_by_otp.repository" />
+                <call method="setContainer">
+                    <argument type="service" id="service_container"/>
+                </call>
+            </service>
+        <!-- End Controller -->
+
+        <!-- Start Service -->
+            <service id="ICTECHBackendLoginByOTP\Service\EmailService" public="true">
+                <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+                <argument type="service" id="user.repository" />
+                <argument type="service" id="mail_template.repository"/>
+                <argument type="service" id="logger"/>
+                <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
+            </service>
+        <!-- End Service -->
     </services>
 </container>

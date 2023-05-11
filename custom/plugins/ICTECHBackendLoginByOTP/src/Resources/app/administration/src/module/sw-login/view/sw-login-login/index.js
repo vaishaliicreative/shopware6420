@@ -4,11 +4,11 @@ const { Component, Mixin } = Shopware;
 
 Component.override('sw-login-login', {
     template,
-    // inject: ['loginService', 'userService'],
+    inject: ['configService'],
     //
-    // mixins: [
-    //     Mixin.getByName('notification'),
-    // ],
+    mixins: [
+        Mixin.getByName('notification'),
+    ],
 
     data() {
         return {
@@ -22,6 +22,7 @@ Component.override('sw-login-login', {
         },
     },
     created() {
+        // console.log("login component");
         if (!localStorage.getItem('sw-admin-locale')) {
             Shopware.State.dispatch('setAdminLocale', navigator.language);
         }
@@ -45,9 +46,31 @@ Component.override('sw-login-login', {
         },
 
         createUserOtpWithEmail(){
-            console.log(this.username);
+            // console.log(this.username);
+            // console.log(this);
             this.$emit('is-loading');
-            this.$emit('is-not-loading');
+            let headers = this.configService.getBasicHeaders();
+            let seconds = 0;
+            return this.configService.httpClient
+                .post('/backend/login/generateotp',{
+                    params:{
+                        username:this.username
+                    },headers
+                }).then((response)=>{
+                    // console.log(response.data.type);
+                    this.$emit('is-not-loading');
+                    console.log(this.$router);
+                    this.$router.push({
+                        name: 'sw.login.index.recoveryInfo',
+                        params: {
+                            waitTime: seconds,
+                        },
+                    });
+                    // this.$router.push({ name:'sw.login.index.verify' });
+                });
+            // this.$emit('is-not-loading');
+            // console.log(this.$router);
+
         },
 
         handleLoginSuccess() {
@@ -96,7 +119,6 @@ Component.override('sw-login-login', {
         },
 
         handleLoginError(response) {
-            this.password = '';
 
             this.$emit('login-error');
             setTimeout(() => {
@@ -106,37 +128,7 @@ Component.override('sw-login-login', {
             this.createNotificationFromResponse(response);
         },
 
-        createNotificationFromResponse(response) {
-            if (!response.response) {
-                this.createNotificationError({
-                    message: this.$tc('sw-login.index.messageGeneralRequestError'),
-                });
-                return;
-            }
 
-            const url = response.config.url;
-            let error = response.response.data.errors;
-            error = Array.isArray(error) ? error[0] : error;
-
-            if (parseInt(error.status, 10) === 429) {
-                const seconds = error?.meta?.parameters?.seconds;
-                this.loginAlertMessage = this.$tc('sw-login.index.messageAuthThrottled', 0, { seconds });
-
-                setTimeout(() => {
-                    this.loginAlertMessage = '';
-                }, seconds * 1000);
-                return;
-            }
-
-            if (error.code?.length) {
-                const { message, title } = getErrorCode(parseInt(error.code, 10));
-
-                this.createNotificationError({
-                    title: this.$tc(title),
-                    message: this.$tc(message, 0, { url }),
-                });
-            }
-        },
     },
 
 });
