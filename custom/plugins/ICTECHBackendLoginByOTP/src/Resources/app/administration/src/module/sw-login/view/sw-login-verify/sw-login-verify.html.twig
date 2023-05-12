@@ -1,3 +1,45 @@
 {% block sw_login_verify %}
-<h1>Hello</h1>
+    <form  class="sw-login-login"
+           @submit.prevent="verifyOtpWithEmail">
+        {% block sw_login_login_form_headline %}
+            <h2 class="sw-login__content-headline">
+                {{ $tc('sw-login.verify.otpHeadlineForm') }}
+            </h2>
+        {% endblock %}
+
+        {% block sw_login_verify_alert %}
+            <sw-alert
+                v-if="showLoginAlert"
+                variant="info"
+                appearance="default"
+                :show-icon="true"
+                :closable="false"
+            >
+                {{ loginAlertMessage }}
+            </sw-alert>
+        {% endblock %}
+
+        {% block sw_login_verify_otp_field %}
+            <sw-text-field
+                v-model="otp"
+                v-autofocus
+                :label="$tc('sw-login.verify.labelOtp')"
+                :placeholder="$tc('sw-login.verify.placeholderOtp')"
+                :disabled="showLoginAlert"
+                required
+            />
+        {% endblock %}
+        {% block sw_login_verify_submit %}
+            {% block sw_login_verify_submit_button %}
+                <sw-button
+                    :disabled="otp.length <= 0 || showLoginAlert"
+                    class="sw-login__login-action"
+                    variant="primary"
+                >
+                    {{ $tc('sw-login.index.buttonLogin') }}
+                </sw-button>
+            {% endblock %}
+        {% endblock %}
+
+    </form>
 {% endblock %}

@@ -2,24 +2,30 @@ import './view/sw-login-login';
 import './view/sw-login-verify';
 
 // const {Module} = Shopware;
-// // Register module at settings module for plugin configuration
+// // Register module
 // Module.register('sw-verify',{
 //     type: 'core',
-//     name: 'loginVerify',
-//     title: 'sw-login.general.mainMenuItemsGeneral',
-//     description: 'sw-login.general.description',
+//     name: 'login',
+//     title: 'verify',
+//     description: 'verify',
 //     version: '1.0.0',
 //     targetVersion: '1.0.0',
-//     color: '#9AA8B5',
-//     icon: 'regular-cog',
-//     favicon: 'icon-module-settings.png',
+//     color: '#F19D12',
+//     icon: 'regular-products',
+//     favicon: 'icon-module-products.png',
+//
 //     routes: {
-//         verify: {
-//             component: 'sw-login-verify',
-//             path: '/verify',
-//             meta: {
-//                 parentPath: "sw.login.index"
+//         index: {
+//             component: 'sw-login',
+//             path: '/login',
+//             coreRoute: true,
+//             children: {
+//                 verify: {
+//                     component: 'sw-login-verify',
+//                     path: 'verify',
+//                     coreRoute: true,
+//                 }
 //             }
-//         }
+//         },
 //     },
 // })
