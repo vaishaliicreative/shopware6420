@@ -19,17 +19,17 @@ Component.override('sw-login',{
         };
     },
     metaInfo() {
-        return {
-            title: this.title,
-        };
+        // return {
+        //     title: this.title,
+        // };
     },
     computed: {
-        title() {
-            const modulName = this.$tc('sw-login.general.mainMenuItemIndex');
-            const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
-
-            return `${modulName} | ${adminName}`;
-        },
+        // title() {
+        //     const modulName = this.$tc('sw-login.general.mainMenuItemIndex');
+        //     const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
+        //
+        //     return `${modulName} | ${adminName}`;
+        // },
     },
 
     methods: {

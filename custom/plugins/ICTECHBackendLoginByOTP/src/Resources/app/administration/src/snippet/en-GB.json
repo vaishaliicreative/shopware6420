@@ -2,6 +2,11 @@
     "sw-login": {
         "index": {
             "buttonSendOTP": "Send Otp"
+        },
+        "verify": {
+            "otpHeadlineForm": "Enter Otp",
+            "labelOtp": "OTP",
+            "placeholderOtp": "Enter your OTP..."
         }
     }
 }

@@ -20,5 +20,13 @@
       "de-DE": "Nach der Installation dieses Plugins können sich sowohl Administratoren als auch Benutzer mit unterschiedlichen Rollen beim Backend anmelden, indem sie ein OTP per E-Mail erhalten.",
       "en-GB": "After installing this plugin, both administrators and users with different roles can log in to the backend by receiving an OTP via email."
     }
+  },
+  "require-dev": {
+    "nunomaduro/phpinsights": "^2.8"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": false
+    }
   }
 }

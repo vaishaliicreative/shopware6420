@@ -1,6 +1,6 @@
 import template from './sw-login-login.html.twig';
 // import getErrorCode from 'src/core/data/error-codes/login.error-codes';
-const { Component, Mixin } = Shopware;
+const { Component, Mixin,Context, Application } = Shopware;
 
 Component.override('sw-login-login', {
     template,
@@ -14,6 +14,10 @@ Component.override('sw-login-login', {
         return {
             username: '',
             loginAlertMessage: '',
+            loginUserDiv: '',
+            loginOtpDiv:'',
+            otp: '',
+            resendOptDiv:'',
         };
     },
     computed: {
@@ -22,6 +26,8 @@ Component.override('sw-login-login', {
         },
     },
     created() {
+        this.loginUserDiv = true;
+        this.loginOtpDiv = false;
         // console.log("login component");
         if (!localStorage.getItem('sw-admin-locale')) {
             Shopware.State.dispatch('setAdminLocale', navigator.language);
@@ -29,49 +35,66 @@ Component.override('sw-login-login', {
     },
 
     methods: {
-        loginUserWithPassword() {
-            this.$emit('is-loading');
 
-            return this.loginService.loginByUsername(this.username)
-                .then(() => {
-                    this.handleLoginSuccess();
+       createUserOtpWithEmail() {
+           // alert("test");
+           // console.log(this.username);
+           // this.$emit('is-loading');
+           // let headers = this.configService.getBasicHeaders();
+
+           return Application.getContainer('init').httpClient
+               .post('/backend/login/generateotp', {
+                   username: this.username
+               },{
+                   baseURL: Context.api.apiPath,
+               }).then((response) => {
+                   // console.log(response.data.type);
+                   if(response.data.type == 'success'){
+                       this.loginUserDiv = false;
+                       this.loginOtpDiv = true;
+                   }
+                   // this.$emit('is-not-loading');
+                   // localStorage.setItem('username',this.username);
+                   // this.$router.push({
+                   //     name: 'sw.verify.index.verify',
+                   // });
+                   // console.log(this.$router);
+               });
+           // this.$emit('is-not-loading');
+           // console.log(this.$router);
+
+       },
+        verifyOtpWithEmail(){
+            this.$emit('is-loading');
+            // console.log(this.username);
+            return Application.getContainer('init').httpClient
+                .post('/backend/login/verifyotp',{
+                    username: this.username,
+                    otp: this.otp,
+                    grant_type: 'password',
+                    client_id: 'administration',
+                    scopes: 'write'
+                },{
+                    baseURL: Context.api.apiPath,
+                }).then((response) => {
+                    // console.log(response);
+                    if(response.data.type == 'success') {
+                        const auth = this.loginService.setBearerAuthentication({
+                            access: response.data.access_token,
+                            refresh: response.data.refresh_token,
+                            expiry: response.data.expires_in,
+                        });
+                        this.handleLoginSuccess();
+                        return auth;
+                    }
                     this.$emit('is-not-loading');
                 })
                 .catch((response) => {
-                    this.password = '';
+                    this.otp = '';
 
                     this.handleLoginError(response);
                     this.$emit('is-not-loading');
                 });
-        },
-
-       createUserOtpWithEmail(){
-            alert("test");
-            // console.log(this.username);
-            // console.log(this);
-            // this.$emit('is-loading');
-            let headers = this.configService.getBasicHeaders();
-            let seconds = 0;
-            return this.configService.httpClient
-                .post('/backend/login/generateotp',{
-                    params:{
-                        username:this.username
-                    },headers
-                }).then( (response) => {
-                    // console.log(response.data.type);
-                    // this.$emit('is-not-loading');
-                    this.$router.push({
-                        name: 'sw.verify.verify',
-                        params: {
-                            waitTime: seconds,
-                        },
-                    });
-                    console.log(this.$router);
-                    // this.$router.push({ name:'sw.login.index.verify' });
-                });
-            // this.$emit('is-not-loading');
-            // console.log(this.$router);
-
         },
 
         handleLoginSuccess() {
@@ -98,25 +121,6 @@ Component.override('sw-login-login', {
                     window.location.reload(true);
                 }
             });
-        },
-
-        forwardLogin() {
-            const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
-            sessionStorage.removeItem('sw-admin-previous-route');
-
-            const firstRunWizard = Shopware.Context.app.firstRunWizard;
-
-            if (firstRunWizard && !this.$router.history.current.name.startsWith('sw.first.run.wizard.')) {
-                this.$router.push({ name: 'sw.first.run.wizard.index' });
-                return;
-            }
-
-            if (previousRoute?.fullPath) {
-                this.$router.push(previousRoute.fullPath);
-                return;
-            }
-
-            this.$router.push({ name: 'core' });
         },
 
         handleLoginError(response) {
