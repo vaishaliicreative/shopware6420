@@ -3,6 +3,16 @@
            @submit.prevent="verifyOtpWithEmail">
         {% block sw_login_login_form_headline %}
             <h2 class="sw-login__content-headline">
+                <router-link
+                    class="sw-login__back"
+                    :to="{ name: 'sw.login.index.login' }"
+                >
+                    <sw-icon
+                        class="sw-login__back-arrow"
+                        name="regular-long-arrow-left"
+                        small
+                    />
+                </router-link>
                 {{ $tc('sw-login.verify.otpHeadlineForm') }}
             </h2>
         {% endblock %}
@@ -30,15 +40,34 @@
             />
         {% endblock %}
         {% block sw_login_verify_submit %}
-            {% block sw_login_verify_submit_button %}
-                <sw-button
-                    :disabled="otp.length <= 0 || showLoginAlert"
-                    class="sw-login__login-action"
-                    variant="primary"
-                >
-                    {{ $tc('sw-login.index.buttonLogin') }}
-                </sw-button>
-            {% endblock %}
+            <div class="sw-login__submit">
+                {% block sw_login_verify_resend_otp %}
+                    <div style="display: inline-block">
+                        <div id="countDownId" class="countdown" style="display: inline-block">
+                            {{ timer }}
+                        </div>
+                        <sw-button
+                            @click="resendOtpWithEmail"
+                            class="sw-login__verify-action resendOtp"
+                            variant="primary"
+                            id="resendOtpBtn"
+                            style="display: none"
+                        >
+                            {{ $tc('sw-login.verify.buttonResendOTP') }}
+                        </sw-button>
+                    </div>
+                {% endblock %}
+                {% block sw_login_verify_submit_button %}
+                    <sw-button
+                        :disabled="otp.length <= 0 || showLoginAlert"
+                        class="sw-login__login-action"
+                        variant="primary"
+                    >
+                        {{ $tc('sw-login.index.buttonLogin') }}
+                    </sw-button>
+                {% endblock %}
+            </div>
+
         {% endblock %}
 
     </form>

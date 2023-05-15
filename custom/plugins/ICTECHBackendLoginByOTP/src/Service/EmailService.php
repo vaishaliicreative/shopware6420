@@ -43,8 +43,11 @@ class EmailService
     }
 
     //send login OTP through email
-    public function sendOTPEMail(object $userDetails, Context $context, string $otp): void
-    {
+    public function sendOTPEMail(
+        object $userDetails,
+        Context $context,
+        string $otp
+    ): void {
         //getting dynamic data
         $firstname = $userDetails->getFirstName();
         $lastname = $userDetails->getLastName();
@@ -67,23 +70,49 @@ class EmailService
         //getting mail template
         $mailTemplate = $this->getMailTemplate($context);
         $mailTranslations = $mailTemplate->getTranslations();
-        $mailTranslation = $mailTranslations->filter(function ($element) use ($context) {
-            return $element->getLanguageId() === $context->getLanguageId();
-        })->first();
+        $mailTranslation = $mailTranslations->filter(
+            function ($element) use ($context) {
+                return $element->getLanguageId() === $context->getLanguageId();
+            }
+        )->first();
 
         $data = new DataBag();
 
         // Replace html content dynamic content
         $htmlUserContent = $mailTranslation->getContentHtml();
-        $replaceUserContent = str_replace('{firstname}', $firstname, $htmlUserContent);
-        $replaceUserContent = str_replace('{lastname}', $lastname, $replaceUserContent);
-        $replaceUserContent = str_replace('{otp}', $otp, $replaceUserContent);
+        $replaceUserContent = str_replace(
+            '{firstname}',
+            $firstname,
+            $htmlUserContent
+        );
+        $replaceUserContent = str_replace(
+            '{lastname}',
+            $lastname,
+            $replaceUserContent
+        );
+        $replaceUserContent = str_replace(
+            '{otp}',
+            $otp,
+            $replaceUserContent
+        );
 
         // Replace Plain content dynamic content
         $htmlUserContentPlain = $mailTemplate->getTranslation('contentPlain');
-        $replaceUserContentPlain = str_replace('{firstname}', $firstname, $htmlUserContentPlain);
-        $replaceUserContentPlain = str_replace('{lastname}', $lastname, $replaceUserContentPlain);
-        $replaceUserContentPlain = str_replace('{otp}', $otp, $replaceUserContentPlain);
+        $replaceUserContentPlain = str_replace(
+            '{firstname}',
+            $firstname,
+            $htmlUserContentPlain
+        );
+        $replaceUserContentPlain = str_replace(
+            '{lastname}',
+            $lastname,
+            $replaceUserContentPlain
+        );
+        $replaceUserContentPlain = str_replace(
+            '{otp}',
+            $otp,
+            $replaceUserContentPlain
+        );
 
         //Sender Name
         $senderName = $mailTemplate->getTranslation('senderName');
@@ -100,14 +129,21 @@ class EmailService
         }
 //        dd($data);
 
-        $data->set('recipients', [$userDetails->getEmail() => $userDetails->getEmail()]);
+        $data->set(
+            'recipients',
+            [
+                $userDetails->getEmail() => $userDetails->getEmail(),
+            ]
+        );
         $data->set('salesChannelId', $salesChannelId);
 
         try {
 //            $this->mailService->send($data->all(), $context);
         } catch (\Exception $e) {
             $this->logger->error(
-                "Could not send mail:\n {$e->getMessage}() \n 'Error Code:' {$e->getCode}() \n Template data: \n". json_encode($data->all()) . "\n"
+                "Could not send mail:\n {$e->getMessage}() \n 'Error Code:'
+                {$e->getCode}() \n Template data: \n".
+                json_encode($data->all()) . "\n"
             );
         }
     }
@@ -115,10 +151,16 @@ class EmailService
     private function getMailTemplate(Context $context): ?MailTemplateEntity
     {
         $criteria = new Criteria();
-
-        $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', 'email_otp_login_for_administration'));
+        $criteria->addFilter(
+            new EqualsFilter(
+                'mailTemplateType.technicalName',
+                'email_otp_login_for_administration'
+            )
+        );
         $criteria->addAssociation('translations');
-
-        return $this->mailTemplateRepository->search($criteria, $context)->first();
+        return $this->mailTemplateRepository->search(
+            $criteria,
+            $context
+        )->first();
     }
 }

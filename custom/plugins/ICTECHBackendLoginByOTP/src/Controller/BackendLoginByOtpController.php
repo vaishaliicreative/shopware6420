@@ -4,23 +4,27 @@ declare(strict_types=1);
 
 namespace ICTECHBackendLoginByOTP\Controller;
 
-use League\OAuth2\Server\AuthorizationServer;
 use ICTECHBackendLoginByOTP\Service\EmailService;
+use League\OAuth2\Server\AuthorizationServer;
+//use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
-use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Component\Routing\Annotation\Route;
+use function Psl\Str\Byte\length;
+
 /**
  * @Route(defaults={"_routeScope"={"api"}})
  */
@@ -75,12 +79,12 @@ class BackendLoginByOtpController extends AbstractController
     /**
      * @Route("/api/backend/login/generateotp", name="api.action.backend.login.generateotp", defaults={"auth_required"=false}, methods={"POST"})
      */
-    public function generateLoginOtp(Context $context, Request $request):JsonResponse
+    public function generateLoginOtp(Context $context, Request $request): JsonResponse
     {
         $response = [];
 
         $userResult = $this->getUserDetails($request, $context);
-        if (!$userResult->count()) {
+        if (! $userResult->count()) {
             $response['type'] = 'notfound';
             return new JsonResponse($response);
         }
@@ -91,9 +95,9 @@ class BackendLoginByOtpController extends AbstractController
         $backendOtpDetails = $this->getBackendLoginByOtp($userId, $context);
 
         //four-digit random otp generation
-        $four_digit_random_number = rand(0000, 9999);
+        $four_digit_random_number = substr(str_shuffle("0123456789"), 0, 4);
 
-        $backendOtpData = array();
+        $backendOtpData = [];
         if ($backendOtpDetails !== null) {
             $backendOtpData = [
                 'id' => $backendOtpDetails->getId(),
@@ -106,7 +110,7 @@ class BackendLoginByOtpController extends AbstractController
                 'otp' => strval($four_digit_random_number),
             ];
         }
-        if (!is_null($backendOtpData)) {
+        if (! is_null($backendOtpData)) {
             $otp = $backendOtpData['otp'];
             $this->emailService->sendOTPEMail($userDetails, $context, $otp);
             $this->backendLoginByOtpRepository->upsert([$backendOtpData], $context);
@@ -121,7 +125,7 @@ class BackendLoginByOtpController extends AbstractController
     /**
      * @param array $params
      */
-    public function getUserDetails(Request $request, Context $context):EntitySearchResult
+    public function getUserDetails(Request $request, Context $context): EntitySearchResult
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('username', $request->get('username')));
@@ -129,7 +133,7 @@ class BackendLoginByOtpController extends AbstractController
         return $this->userRepository->search($criteria, $context);
     }
 
-    public function getBackendLoginByOtp(string $userId, Context $context):?Entity
+    public function getBackendLoginByOtp(string $userId, Context $context): ?Entity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('userId', $userId));
@@ -141,7 +145,7 @@ class BackendLoginByOtpController extends AbstractController
     /**
      * @Route("/api/backend/login/verifyotp", name="api.action.backend.login.verifyotp", defaults={"auth_required"=false}, methods={"POST"})
      */
-    public function verifyOtpWithUsername(Context $context, Request $request):JsonResponse
+    public function verifyOtpWithUsername(Context $context, Request $request): JsonResponse
     {
         $responseArray = [];
         $response = new Response();
@@ -152,42 +156,47 @@ class BackendLoginByOtpController extends AbstractController
 
         // searching UUID in BackendLoginByOtp repository
         $backendOtpDetails = $this->getBackendLoginByOtpWithUserName($userId, $otp, $context);
-        if($backendOtpDetails !== null){
-
-            $request->request->add(array('password' => 'shopware'));
+        if ($backendOtpDetails !== null) {
+            $request->request->add(['password' => 'shopware']);
             $tokenResponse = $this->createAccessToken($request, $response);
 
-            if($tokenResponse !== null){
+            if ($tokenResponse !== null) {
                 $responseArray['type'] = 'success';
                 $responseArray['access_token'] = $tokenResponse->access_token;
                 $responseArray['refresh_token'] = $tokenResponse->refresh_token;
                 $responseArray['expires_in'] = $tokenResponse->expires_in;
-            }else{
+            } else {
                 $responseArray['type'] = 'error';
             }
-        }else{
-            $responseArray['type'] = 'error';
+        } else {
+            $responseArray['type'] = 'notfound';
         }
         return new JsonResponse($responseArray);
     }
 
-    public function getBackendLoginByOtpWithUserName(string $userId, string $otp, Context $context):?Entity{
+    public function getBackendLoginByOtpWithUserName(string $userId, string $otp, Context $context): ?Entity
+    {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('userId', $userId));
-        $criteria->addFilter(new EqualsFilter('otp',$otp));
+        $criteria->addFilter(new EqualsFilter('otp', $otp));
         $backendOtpResult = $this->backendLoginByOtpRepository->search($criteria, $context);
 
         return $backendOtpResult->first();
     }
 
+    /**
+     * @param $request
+     * @param $response
+     *
+     * @return mixed
+     *
+     * @throws OAuthServerException
+     */
     private function createAccessToken($request, $response)
     {
-
         try {
             $cacheKey = $request->get('username') . '-' . $request->getClientIp();
-
             $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
-
         } catch (RateLimitExceededException $exception) {
             throw new AuthThrottledException($exception->getWaitTime(), $exception);
         }
@@ -195,7 +204,6 @@ class BackendLoginByOtpController extends AbstractController
         $psr7Response = $this->psrHttpFactory->createResponse($response);
 
         $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
-
         $tokenResponse = (new HttpFoundationFactory())->createResponse($response);
 //        echo "<pre>";
 //        print_r(json_decode($tokenResponse->getContent()));

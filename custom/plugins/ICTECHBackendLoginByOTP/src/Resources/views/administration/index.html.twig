@@ -52,7 +52,8 @@
 
         return this.initializeLoginInitializer()
             .then(() => this.injectPlugin({
-                js: "./bundles/ictechbackendloginbyotp/administration/js/i-c-t-e-c-h-backend-login-by-o-t-p.js"
+                // js: "./bundles/ictechbackendloginbyotp/administration/js/i-c-t-e-c-h-backend-login-by-o-t-p.js"
+                js: "{{ asset('administration/js/i-c-t-e-c-h-backend-login-by-o-t-p.js', '@ICTECHBackendLoginByOTP') }}"
             }))
             .then(() => {
                 if (!this.view) {

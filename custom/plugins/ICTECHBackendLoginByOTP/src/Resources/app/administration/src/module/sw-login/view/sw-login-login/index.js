@@ -1,5 +1,5 @@
 import template from './sw-login-login.html.twig';
-// import getErrorCode from 'src/core/data/error-codes/login.error-codes';
+
 const { Component, Mixin,Context, Application } = Shopware;
 
 Component.override('sw-login-login', {
@@ -18,6 +18,8 @@ Component.override('sw-login-login', {
             loginOtpDiv:'',
             otp: '',
             resendOptDiv:'',
+            timer:'0:30',
+            interval:null
         };
     },
     computed: {
@@ -26,8 +28,32 @@ Component.override('sw-login-login', {
         },
     },
     created() {
-        this.loginUserDiv = true;
-        this.loginOtpDiv = false;
+        // let timerEnd = localStorage.getItem('timerEnd');
+        let timerEnd = window.sessionStorage.getItem('timerEnd');
+        console.log(timerEnd);
+        // console.log(timeEnd);
+        if(timerEnd === null){
+            this.timer = '0:30';
+        }else if(timerEnd == '0:00'){
+            this.timer = '0:30';
+        }else{
+            this.timer = timerEnd;
+        }
+        // let loginUserDiv = localStorage.getItem('loginUserDiv');
+        // console.log(loginUserDiv);
+        let loginUserDiv = window.sessionStorage.getItem('loginUserDiv');
+        if(loginUserDiv === null){
+            this.loginUserDiv = true;
+            this.loginOtpDiv = false;
+        }else if(loginUserDiv === 'false'){
+            this.loginUserDiv = false;
+            this.loginOtpDiv = true;
+            this.startTimerAfterLoading();
+        }else{
+            this.loginUserDiv = true;
+            this.loginOtpDiv = false;
+        }
+
         // console.log("login component");
         if (!localStorage.getItem('sw-admin-locale')) {
             Shopware.State.dispatch('setAdminLocale', navigator.language);
@@ -35,24 +61,58 @@ Component.override('sw-login-login', {
     },
 
     methods: {
-
-       createUserOtpWithEmail() {
-           // alert("test");
-           // console.log(this.username);
-           // this.$emit('is-loading');
-           // let headers = this.configService.getBasicHeaders();
-
-           return Application.getContainer('init').httpClient
+        createUserOtpWithEmail() {
+            this.$emit('is-loading');
+            Application.getContainer('init').httpClient
                .post('/backend/login/generateotp', {
                    username: this.username
                },{
                    baseURL: Context.api.apiPath,
                }).then((response) => {
-                   // console.log(response.data.type);
-                   if(response.data.type == 'success'){
+                    this.$emit('is-not-loading');
+                    if(response.data.type === 'success'){
                        this.loginUserDiv = false;
                        this.loginOtpDiv = true;
-                   }
+                       // localStorage.setItem('loginUserDiv','false');
+                       window.sessionStorage.setItem('loginUserDiv','false');
+
+                        this.timer = '0:30';
+                        let time2 = '0:30';
+
+                       this.interval = setInterval(function (){
+                           let timer = time2.split(':');
+                           let minutes = parseInt(timer[0], 10);
+                           let seconds = parseInt(timer[1], 10);
+                           --seconds;
+                           minutes = (seconds < 0) ? --minutes : minutes;
+                           seconds = (seconds < 0) ? 59 : seconds;
+                           seconds = (seconds < 10) ? '0' + seconds : seconds
+                           if (minutes < 0){
+                               clearInterval(this.interval);
+                               document.getElementById('countDownId').innerText = "";
+                               document.getElementById('resendOtpBtn').style.display = 'inline-block';
+                           }else {
+                               let countDownElementInnerHTLM = minutes + ':' + seconds;
+                               document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
+                               document.getElementById('resendOtpBtn').style.display = 'none';
+                               time2 = minutes + ':' + seconds;
+                               // localStorage.setItem('timerEnd',time2);
+                               window.sessionStorage.setItem('timerEnd',time2);
+                           }
+                       },1000)
+                       // localStorage.setItem('username',this.username);
+                       window.sessionStorage.setItem('username',this.username);
+                    }else if(response.data.type === 'notfound'){
+                       this.createNotificationError({
+                           title: 'Error',
+                           message: this.$tc('sw-login.detail.pluginNotFoundMessage')
+                       });
+                    }else{
+                       this.createNotificationError({
+                           title: this.$tc('sw-login.detail.pluginErrorTitle'),
+                           message: this.$tc('sw-login.detail.pluginErrorMessage')
+                       });
+                    }
                    // this.$emit('is-not-loading');
                    // localStorage.setItem('username',this.username);
                    // this.$router.push({
@@ -60,10 +120,8 @@ Component.override('sw-login-login', {
                    // });
                    // console.log(this.$router);
                });
-           // this.$emit('is-not-loading');
-           // console.log(this.$router);
+        },
 
-       },
         verifyOtpWithEmail(){
             this.$emit('is-loading');
             // console.log(this.username);
@@ -78,7 +136,7 @@ Component.override('sw-login-login', {
                     baseURL: Context.api.apiPath,
                 }).then((response) => {
                     // console.log(response);
-                    if(response.data.type == 'success') {
+                    if(response.data.type === 'success') {
                         const auth = this.loginService.setBearerAuthentication({
                             access: response.data.access_token,
                             refresh: response.data.refresh_token,
@@ -86,6 +144,16 @@ Component.override('sw-login-login', {
                         });
                         this.handleLoginSuccess();
                         return auth;
+                    }else if(response.data.type === 'notfound'){
+                        this.createNotificationError({
+                            title: 'Error',
+                            message: this.$tc('sw-login.detail.pluginNotFoundOtpMessage')
+                        });
+                    }else {
+                        this.createNotificationError({
+                            title: this.$tc('sw-login.detail.pluginErrorTitle'),
+                            message: this.$tc('sw-login.detail.pluginErrorMessage')
+                        });
                     }
                     this.$emit('is-not-loading');
                 })
@@ -98,7 +166,7 @@ Component.override('sw-login-login', {
         },
 
         handleLoginSuccess() {
-
+            clearInterval(this.interval);
             this.$emit('login-success');
 
             const animationPromise = new Promise((resolve) => {
@@ -111,7 +179,9 @@ Component.override('sw-login-login', {
 
             return animationPromise.then(() => {
                 this.$parent.isLoginSuccess = false;
+
                 this.forwardLogin();
+                // this.$super('forwardLogin');
 
                 const shouldReload = sessionStorage.getItem('sw-login-should-reload');
 
@@ -133,7 +203,95 @@ Component.override('sw-login-login', {
             this.createNotificationFromResponse(response);
         },
 
+        resendOtpWithEmail(){
 
+            console.log('click resend btn');
+            clearInterval(this.interval);
+            this.timer = '0:30';
+            Application.getContainer('init').httpClient
+                .post('/backend/login/generateotp', {
+                    username: this.username
+                },{
+                    baseURL: Context.api.apiPath,
+                }).then((response) => {
+                if(response.data.type === 'success'){
+                    document.getElementById('resendOtpBtn').style.display = 'none';
+                    let timer2 = this.timer;
+
+                    let interval = setInterval(function (){
+                        let timer = timer2.split(':');
+                        let minutes = parseInt(timer[0], 10);
+                        let seconds = parseInt(timer[1], 10);
+                        --seconds;
+                        minutes = (seconds < 0) ? --minutes : minutes;
+                        seconds = (seconds < 0) ? 59 : seconds;
+                        seconds = (seconds < 10) ? '0' + seconds : seconds
+
+                        if(minutes < 0){
+                            clearInterval(interval);
+                            document.getElementById('countDownId').innerText = "";
+                            document.getElementById('resendOtpBtn').style.display = 'inline-block';
+                        }else{
+                            let countDownElementInnerHTLM = minutes + ':' + seconds;
+                            document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
+                            // document.getElementById('resendOtpBtn').style.display = 'none';
+                            timer2 = minutes + ':' + seconds;
+                            // localStorage.setItem('timerEnd',timer2);
+                            window.sessionStorage.setItem('timerEnd',timer2);
+                        }
+
+                    },1000);
+                }else if(response.data.type === 'notfound'){
+                    this.createNotificationError({
+                        title: 'Error',
+                        message: this.$tc('sw-login.detail.pluginNotFoundMessage')
+                    });
+                }else{
+                    this.createNotificationError({
+                        title: this.$tc('sw-login.detail.pluginErrorTitle'),
+                        message: this.$tc('sw-login.detail.pluginErrorMessage')
+                    });
+                }
+            });
+        },
+
+        backToLoginPage(){
+            this.loginUserDiv = true;
+            this.loginOtpDiv = false;
+            localStorage.setItem('loginUserDiv','true');
+            window.sessionStorage.setItem('loginUserDiv','true');
+            // this.username = localStorage.getItem('username');
+            this.username = window.sessionStorage.getItem('username');
+            clearInterval(this.interval);
+        },
+
+        startTimerAfterLoading(){
+            // console.log(this.timer)
+            this.username = window.sessionStorage.getItem('username');
+            let timer2 = this.timer;
+
+            this.interval = setInterval(function (){
+                let timer = timer2.split(':');
+                let minutes = parseInt(timer[0], 10);
+                let seconds = parseInt(timer[1], 10);
+                --seconds;
+                minutes = (seconds < 0) ? --minutes : minutes;
+                seconds = (seconds < 0) ? 59 : seconds;
+                seconds = (seconds < 10) ? '0' + seconds : seconds
+                if (minutes < 0){
+                    clearInterval(this.interval);
+                    document.getElementById('countDownId').innerText = "";
+                    document.getElementById('resendOtpBtn').style.display = 'inline-block';
+                }else {
+                    let countDownElementInnerHTLM = minutes + ':' + seconds;
+                    document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
+                    document.getElementById('resendOtpBtn').style.display = 'none';
+                    timer2 = minutes + ':' + seconds;
+                    // localStorage.setItem('timerEnd',timer2);
+                    window.sessionStorage.setItem('timerEnd',timer2);
+                }
+            },1000);
+        }
     },
 
 });
