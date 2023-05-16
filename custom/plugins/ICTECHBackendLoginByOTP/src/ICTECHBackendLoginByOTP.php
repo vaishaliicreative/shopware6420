@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,14 +20,14 @@ class ICTECHBackendLoginByOTP extends Plugin
     public const TEMPLATE_TYPE_NAME = 'Email OTP Login For Administration';
     public const TEMPLATE_TYPE_TECHNICAL_NAME = 'email_otp_login_for_administration';
 
-    public const SUBJECT_ENG = 'Login with Email OTP';
-    public const SUBJECT_DE = 'Melden Sie sich mit E-Mail-OTP an';
+    public const SUBJECT_ENG = 'OTP for [Sales Channel Name] admin Login';
+    public const SUBJECT_DE = 'Einmalpasswort-OTP für [Sales Channel Name] Admin-Login';
 
-    public const CONTAIN_PLAIN_EN = "Hello {firstname} {lastname},\n\n Please use the verification code below to login into your account.\n\n Your verification code: {otp} \n\n If you didn't request this, you can ignore this email or let us know.\n\n Yours sincerely Your team.";
-    public const CONTAIN_PLAIN_DE = "Hallo {firstname} {lastname},\n\n Bitte verwenden Sie den unten stehenden Bestätigungscode, um sich bei Ihrem Konto anzumelden.\n\n Ihr Bestätigungscode: {otp} \n\n Wenn Sie dies nicht angefordert haben, können Sie diese E-Mail ignorieren oder uns dies mitteilen.\n\n Mit freundlichen Grüßen Ihr Team.";
+    public const CONTAIN_PLAIN_EN = 'Dear {username},\n\n Please use the following OTP to log in to the Shopware admin.\n\n OTP: {otp} \n\n Thank you for helping us maintain the security of our eCommerce shop.\n\n Best regards,';
+    public const CONTAIN_PLAIN_DE = 'Sehr geehrte/r {username},\n\n Bitte verwenden Sie das folgende Einmalpasswort (OTP), um sich bei Ihrem Ecommerce-Backend-Konto anzumelden.\n\n OTP: {otp} \n\n Vielen Dank, dass Sie uns helfen, die Sicherheit unserer Ecommerce-Plattform zu gewährleisten.\n\n Freundliche Grüße,';
 
-    public const CONTAIN_HTML_EN = "Hello {firstname} {lastname},<br><br>Please use the verification code below to login into your account.<br><br> Your verification code: <b>{otp}</b> <br><br>If you didn't request this, you can ignore this email or let us know.<br><br>Yours sincerely Your team.";
-    public const CONTAIN_HTML_DE = 'Hallo {firstname} {lastname},<br><br>Bitte verwenden Sie den unten stehenden Bestätigungscode, um sich bei Ihrem Konto anzumelden.<br><br> Ihr Bestätigungscode: <b>{otp}</b> <br><br> Wenn Sie dies nicht angefordert haben, können Sie diese E-Mail ignorieren oder uns dies mitteilen.<br><br> Mit freundlichen Grüßen Ihr Team.';
+    public const CONTAIN_HTML_EN = 'Dear {username},<br><br>Please use the following OTP to log in to the Shopware admin.<br><br> OTP: <b>{otp}</b> <br><br>Thank you for helping us maintain the security of our eCommerce shop.<br><br>Best regards,';
+    public const CONTAIN_HTML_DE = 'Sehr geehrte/r {username},<br><br>Bitte verwenden Sie das folgende Einmalpasswort (OTP), um sich bei Ihrem Ecommerce-Backend-Konto anzumelden.<br><br> OTP: <b>{otp}</b> <br><br> Vielen Dank, dass Sie uns helfen, die Sicherheit unserer Ecommerce-Plattform zu gewährleisten.<br><br> Freundliche Grüße,';
 
     public function install(InstallContext $installContext): void
     {
@@ -65,8 +66,8 @@ class ICTECHBackendLoginByOTP extends Plugin
                 'id' => Uuid::randomHex(),
                 'mailTemplateTypeId' => $mailTemplateTypeId,
                 'senderName' => [
-                    'en-GB' => 'Storefront',
-                    'de-DE' => 'Storefront',
+                    'en-GB' => 'Shopware Administration',
+                    'de-DE' => 'Shopware Administration',
                 ],
                 'subject' => [
                     'en-GB' => self::SUBJECT_ENG,
@@ -143,5 +144,16 @@ class ICTECHBackendLoginByOTP extends Plugin
 
         $mailTemplateRepository->delete($ids, $uninstallContext->getContext());
         $mailTemplateTypeRepository->delete([['id' => $customMailTemplateType->getId()]], $uninstallContext->getContext());
+    }
+
+    public function deactivate(DeactivateContext $context): void
+    {
+//        $jsCode = <<<'JS'
+//        <script>
+//            window.sessionStorage.clear();
+//        </script>
+//    JS;
+//
+//        $context->addExtension('storefront', $jsCode);
     }
 }

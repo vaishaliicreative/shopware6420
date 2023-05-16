@@ -65,7 +65,8 @@
 
         <div v-else-if="loginOtpDiv">
             <form  class="sw-login-login"
-                   @submit.prevent="verifyOtpWithEmail">
+                   @submit.prevent="verifyOtpWithEmail"
+                   >
                 {% block sw_login_verify_form_headline %}
                     <h2 class="sw-login__content-headline">
                             <sw-icon
@@ -97,24 +98,25 @@
                         :label="$tc('sw-login.verify.labelOtp')"
                         :placeholder="$tc('sw-login.verify.placeholderOtp')"
                         :disabled="showLoginAlert"
+                        required
                     />
                 {% endblock %}
                 {% block sw_login_verify_submit %}
                     <div class="sw-login__submit">
                         {% block sw_login_verify_resend_otp %}
                             <div style="display: inline-block">
-                                <div id="countDownId" class="countdown" style="display: inline-block">
-                                    {{ timer }}
+                                <div id="countDownId" class="countdown text-danger" style="display: inline-block;color:red">
+                                    Resend OTP only after {{ timer }}  seconds
                                 </div>
-                                <sw-button
-                                    @click="resendOtpWithEmail"
-                                    class="sw-login__verify-action resendOtp"
+                                <a
+                                    @click.prevent="resendOtpWithEmail"
+                                    class="sw-button sw-button--primary sw-login__verify-action resendOtp"
                                     variant="primary"
                                     id="resendOtpBtn"
                                     style="display: none"
                                 >
                                     {{ $tc('sw-login.verify.buttonResendOTP') }}
-                                </sw-button>
+                                </a>
                             </div>
 
                         {% endblock %}
@@ -123,6 +125,7 @@
                                 :disabled="otp.length <= 0 || showLoginAlert"
                                 class="sw-login__login-action"
                                 variant="primary"
+
                             >
                                 {{ $tc('sw-login.index.buttonLogin') }}
                             </sw-button>

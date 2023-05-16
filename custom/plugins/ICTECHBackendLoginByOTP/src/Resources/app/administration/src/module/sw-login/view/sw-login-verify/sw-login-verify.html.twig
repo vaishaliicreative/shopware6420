@@ -43,18 +43,18 @@
             <div class="sw-login__submit">
                 {% block sw_login_verify_resend_otp %}
                     <div style="display: inline-block">
-                        <div id="countDownId" class="countdown" style="display: inline-block">
-                            {{ timer }}
+                        <div id="countDownId" class="countdown" style="display: inline-block;color:red">
+                            Resend OTP only after {{ timer }}  seconds
                         </div>
-                        <sw-button
-                            @click="resendOtpWithEmail"
-                            class="sw-login__verify-action resendOtp"
+                        <a
+                            @click.prevent="resendOtpWithEmail"
+                            class="sw-button sw-button--primary sw-login__verify-action resendOtp"
                             variant="primary"
                             id="resendOtpBtn"
                             style="display: none"
                         >
                             {{ $tc('sw-login.verify.buttonResendOTP') }}
-                        </sw-button>
+                        </a>
                     </div>
                 {% endblock %}
                 {% block sw_login_verify_submit_button %}

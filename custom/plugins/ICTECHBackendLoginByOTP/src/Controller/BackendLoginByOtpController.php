@@ -6,7 +6,6 @@ namespace ICTECHBackendLoginByOTP\Controller;
 
 use ICTECHBackendLoginByOTP\Service\EmailService;
 use League\OAuth2\Server\AuthorizationServer;
-//use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -23,7 +22,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use function Psl\Str\Byte\length;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
@@ -95,7 +93,7 @@ class BackendLoginByOtpController extends AbstractController
         $backendOtpDetails = $this->getBackendLoginByOtp($userId, $context);
 
         //four-digit random otp generation
-        $four_digit_random_number = substr(str_shuffle("0123456789"), 0, 4);
+        $four_digit_random_number = substr(str_shuffle('0123456789'), 0, 4);
 
         $backendOtpData = [];
         if ($backendOtpDetails !== null) {
@@ -153,7 +151,6 @@ class BackendLoginByOtpController extends AbstractController
         $userDetails = $this->getUserDetails($request, $context)->first();
         $userId = $userDetails->getId();
         $otp = $request->get('otp');
-
         // searching UUID in BackendLoginByOtp repository
         $backendOtpDetails = $this->getBackendLoginByOtpWithUserName($userId, $otp, $context);
         if ($backendOtpDetails !== null) {
@@ -192,7 +189,7 @@ class BackendLoginByOtpController extends AbstractController
      *
      * @throws OAuthServerException
      */
-    private function createAccessToken($request, $response)
+    private function createAccessToken(Request $request, Response $response)
     {
         try {
             $cacheKey = $request->get('username') . '-' . $request->getClientIp();

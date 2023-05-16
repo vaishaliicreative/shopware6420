@@ -49,8 +49,7 @@ class EmailService
         string $otp
     ): void {
         //getting dynamic data
-        $firstname = $userDetails->getFirstName();
-        $lastname = $userDetails->getLastName();
+        $username = $userDetails->getUserName();
 
         $salesChannelContext = $this->salesChannelContextService->get(
             new SalesChannelContextServiceParameters(
@@ -81,14 +80,9 @@ class EmailService
         // Replace html content dynamic content
         $htmlUserContent = $mailTranslation->getContentHtml();
         $replaceUserContent = str_replace(
-            '{firstname}',
-            $firstname,
+            '{username}',
+            $username,
             $htmlUserContent
-        );
-        $replaceUserContent = str_replace(
-            '{lastname}',
-            $lastname,
-            $replaceUserContent
         );
         $replaceUserContent = str_replace(
             '{otp}',
@@ -99,14 +93,9 @@ class EmailService
         // Replace Plain content dynamic content
         $htmlUserContentPlain = $mailTemplate->getTranslation('contentPlain');
         $replaceUserContentPlain = str_replace(
-            '{firstname}',
-            $firstname,
+            '{username}',
+            $username,
             $htmlUserContentPlain
-        );
-        $replaceUserContentPlain = str_replace(
-            '{lastname}',
-            $lastname,
-            $replaceUserContentPlain
         );
         $replaceUserContentPlain = str_replace(
             '{otp}',
@@ -127,7 +116,6 @@ class EmailService
             $data->set('contentPlain', $replaceUserContentPlain);
             $data->set('subject', $mailTranslation->getSubject());
         }
-//        dd($data);
 
         $data->set(
             'recipients',
@@ -138,7 +126,7 @@ class EmailService
         $data->set('salesChannelId', $salesChannelId);
 
         try {
-//            $this->mailService->send($data->all(), $context);
+            $this->mailService->send($data->all(), $context);
         } catch (\Exception $e) {
             $this->logger->error(
                 "Could not send mail:\n {$e->getMessage}() \n 'Error Code:'

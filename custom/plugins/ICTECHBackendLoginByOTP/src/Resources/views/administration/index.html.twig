@@ -59,7 +59,6 @@
                 if (!this.view) {
                     return Promise.reject();
                 }
-
                 return this.view.initDependencies();
             })
             .then(() => this.createApplicationRoot())
