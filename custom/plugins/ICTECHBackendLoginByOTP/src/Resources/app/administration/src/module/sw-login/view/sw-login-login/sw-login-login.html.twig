@@ -2,68 +2,65 @@
     {% block sw_login_login_username %}
         <div v-if="loginUserDiv">
             <form
-            class="sw-login-login"
-            @submit.prevent="createUserOtpWithEmail"
-        >
-            {% block sw_login_login_form_headline %}
-                <h2 class="sw-login__content-headline">
-                    {{ $tc('sw-login.index.headlineForm') }}
-                </h2>
-            {% endblock %}
+                class="sw-login-login"
+                @submit.prevent="createUserOtpWithEmail"
+            >
+                {% block sw_login_login_form_headline %}
+                    <h2 class="sw-login__content-headline">
+                        {{ $tc('sw-login.index.headlineForm') }}
+                    </h2>
+                {% endblock %}
 
-            {% block sw_login_login_alert %}
-                <sw-alert
-                    v-if="showLoginAlert"
-                    variant="info"
-                    appearance="default"
-                    :show-icon="true"
-                    :closable="false"
-                >
-                    {{ loginAlertMessage }}
-                </sw-alert>
-            {% endblock %}
+                {% block sw_login_login_alert %}
+                    <sw-alert
+                        v-if="showLoginAlert"
+                        variant="info"
+                        appearance="default"
+                        :show-icon="true"
+                        :closable="false"
+                    >
+                        {{ loginAlertMessage }}
+                    </sw-alert>
+                {% endblock %}
 
-            {% block sw_login_login_user_field %}
-                <sw-text-field
-                    v-model="username"
-                    v-autofocus
-                    :label="$tc('sw-login.index.labelUsername')"
-                    :placeholder="$tc('sw-login.index.placeholderUsername')"
-                    :disabled="showLoginAlert"
-                    required
-                />
-            {% endblock %}
+                {% block sw_login_login_user_field %}
+                    <sw-text-field
+                        v-model="username"
+                        v-autofocus
+                        :label="$tc('sw-login.index.labelUsername')"
+                        :placeholder="$tc('sw-login.index.placeholderUsername')"
+                        :disabled="showLoginAlert"
+                        required
+                    />
+                {% endblock %}
 
-            {% block sw_login_login_password_field %}
+                {% block sw_login_login_password_field %}
 
-            {% endblock %}
+                {% endblock %}
 
-            {% block sw_login_login_submit %}
-                <div class="sw-login__submit">
-                    {% block sw_login_login_forgot_password %}
-                        <router-link
-                            :to="{ name: 'sw.login.index.recovery' }"
-                            class="sw-login__forgot-password-action"
-                        >
-                            {{ $tc('sw-login.index.forgottenPasswordLink') }}
-                        </router-link>
-                        {% block sw_login_verify_resend_otp %}
-                            <div class="countdown"></div>
-                            <div class="resendOtpBtn"></div>
+                {% block sw_login_login_submit %}
+                    <div class="sw-login__submit">
+                        {% block sw_login_login_forgot_password %}
+                            <router-link
+                                :to="{ name: 'sw.login.index.recovery' }"
+                                class="sw-login__forgot-password-action"
+                            >
+                                {{ $tc('sw-login.index.forgottenPasswordLink') }}
+                            </router-link>
+
                         {% endblock %}
-                    {% endblock %}
-                    {% block sw_login_login_submit_button %}
-                        <sw-button
-                            :disabled="username.length <= 0 || showLoginAlert"
-                            class="sw-login__login-action"
-                            variant="primary"
-                        >
-                            {{ $tc('sw-login.index.buttonSendOTP') }}
-                        </sw-button>
-                    {% endblock %}
-                </div>
-            {% endblock %}
-        </form>
+                        {% block sw_login_login_submit_button %}
+                            <sw-button
+                                :disabled="username.length <= 0 || showLoginAlert"
+                                class="sw-login__login-action"
+                                variant="primary"
+                            >
+                                {{ $tc('sw-login.index.buttonSendOTP') }}
+                            </sw-button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </form>
         </div>
 
         <div v-else-if="loginOtpDiv">
@@ -71,6 +68,12 @@
                    @submit.prevent="verifyOtpWithEmail">
                 {% block sw_login_verify_form_headline %}
                     <h2 class="sw-login__content-headline">
+                            <sw-icon
+                                class="sw-login__back-arrow"
+                                name="regular-long-arrow-left"
+                                small
+                                @click="backToLoginPage"
+                            />
                         {{ $tc('sw-login.verify.otpHeadlineForm') }}
                     </h2>
                 {% endblock %}
@@ -94,11 +97,27 @@
                         :label="$tc('sw-login.verify.labelOtp')"
                         :placeholder="$tc('sw-login.verify.placeholderOtp')"
                         :disabled="showLoginAlert"
-                        required
                     />
                 {% endblock %}
                 {% block sw_login_verify_submit %}
                     <div class="sw-login__submit">
+                        {% block sw_login_verify_resend_otp %}
+                            <div style="display: inline-block">
+                                <div id="countDownId" class="countdown" style="display: inline-block">
+                                    {{ timer }}
+                                </div>
+                                <sw-button
+                                    @click="resendOtpWithEmail"
+                                    class="sw-login__verify-action resendOtp"
+                                    variant="primary"
+                                    id="resendOtpBtn"
+                                    style="display: none"
+                                >
+                                    {{ $tc('sw-login.verify.buttonResendOTP') }}
+                                </sw-button>
+                            </div>
+
+                        {% endblock %}
                         {% block sw_login_verify_submit_button %}
                             <sw-button
                                 :disabled="otp.length <= 0 || showLoginAlert"
@@ -107,6 +126,7 @@
                             >
                                 {{ $tc('sw-login.index.buttonLogin') }}
                             </sw-button>
+
                         {% endblock %}
                     </div>
                 {% endblock %}

@@ -6,7 +6,14 @@
         "verify": {
             "otpHeadlineForm": "Enter Otp",
             "labelOtp": "OTP",
-            "placeholderOtp": "Enter your OTP..."
+            "placeholderOtp": "Enter your OTP...",
+            "buttonResendOTP": "Resend"
+        },
+        "detail": {
+            "pluginErrorTitle": "Error",
+            "pluginErrorMessage": "Something went wrong",
+            "pluginNotFoundMessage" : "Invalid User name",
+            "pluginNotFoundOtpMessage": "Invalid OTP"
         }
     }
 }

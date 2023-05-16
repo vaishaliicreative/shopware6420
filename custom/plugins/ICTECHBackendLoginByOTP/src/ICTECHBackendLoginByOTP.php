@@ -34,7 +34,7 @@ class ICTECHBackendLoginByOTP extends Plugin
         $this->createEmailTemplateForBackendLoginOTP($installContext);
     }
 
-    public function createEmailTemplateForBackendLoginOTP(InstallContext $installContext):void
+    public function createEmailTemplateForBackendLoginOTP(InstallContext $installContext): void
     {
         /** @var
          * EntityRepositoryInterface $mailTemplateTypeRepository
@@ -86,7 +86,6 @@ class ICTECHBackendLoginByOTP extends Plugin
         /**
          * @var MailTemplateTypeEntity $customMailTemplateType
          */
-
         $customMailTemplateType = $mailTemplateTypeRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', self::TEMPLATE_TYPE_TECHNICAL_NAME)),
             $installContext->getContext()
@@ -111,7 +110,7 @@ class ICTECHBackendLoginByOTP extends Plugin
         $this->destroyEmailTemplateForBackendLoginOTP($uninstallContext);
     }
 
-    public function destroyEmailTemplateForBackendLoginOTP(UninstallContext $uninstallContext):void
+    public function destroyEmailTemplateForBackendLoginOTP(UninstallContext $uninstallContext): void
     {
         /** @var
          * EntityRepositoryInterface $mailTemplateTypeRepository

@@ -14,6 +14,8 @@ Component.register('sw-login-verify', {
             username: '',
             loginAlertMessage: '',
             otp: '',
+            timer:'0:30',
+            interval:null
         };
     },
     computed: {
@@ -22,15 +24,45 @@ Component.register('sw-login-verify', {
         },
     },
     created() {
-        console.log("verify component");
         this.username = localStorage.getItem('username');
         if (!localStorage.getItem('sw-admin-locale')) {
             Shopware.State.dispatch('setAdminLocale', navigator.language);
         }
         this.$emit('is-not-loading');
-
+        let timeEnd = localStorage.getItem('timerEnd');
+        // console.log(timeEnd);
+        if(timeEnd == '0:00'){
+            this.timer = '0:30';
+        }else{
+            this.timer = timeEnd;
+        }
+        this.createdComponent();
     },
     methods: {
+        createdComponent(){
+            let timer2 = this.timer;
+            // let interval = setInterval(function (){
+            this.interval = setInterval(function (){
+                let timer = timer2.split(':');
+                let minutes = parseInt(timer[0], 10);
+                let seconds = parseInt(timer[1], 10);
+                --seconds;
+                minutes = (seconds < 0) ? --minutes : minutes;
+                seconds = (seconds < 0) ? 59 : seconds;
+                seconds = (seconds < 10) ? '0' + seconds : seconds
+                if (minutes < 0){
+                    clearInterval(this.interval);
+                    document.getElementById('countDownId').innerText = "";
+                    document.getElementById('resendOtpBtn').style.display = 'inline-block';
+                }else {
+                    let countDownElementInnerHTLM = minutes + ':' + seconds;
+                    document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
+                    document.getElementById('resendOtpBtn').style.display = 'none';
+                    timer2 = minutes + ':' + seconds;
+                    localStorage.setItem('timerEnd',timer2);
+                }
+            },1000);
+        },
         verifyOtpWithEmail(){
             this.$emit('is-loading');
             console.log(this.username);
@@ -44,18 +76,30 @@ Component.register('sw-login-verify', {
                 },{
                     baseURL: Context.api.apiPath,
                 }).then((response) => {
-                    console.log(response);
-                    const auth = this.loginService.setBearerAuthentication({
-                        access: response.data.access_token,
-                        refresh: response.data.refresh_token,
-                        expiry: response.data.expires_in,
-                    });
+                    // console.log(response);
+                    if(response.data.type === 'success') {
+                        const auth = this.loginService.setBearerAuthentication({
+                            access: response.data.access_token,
+                            refresh: response.data.refresh_token,
+                            expiry: response.data.expires_in,
+                        });
+                        this.handleLoginSuccess();
+                        return auth;
+                    }else if(response.data.type === 'notfound'){
+                        this.createNotificationError({
+                            title: 'Error',
+                            message: this.$tc('sw-login.detail.pluginNotFoundOtpMessage')
+                        });
+                    }else {
+                        this.createNotificationError({
+                            title: this.$tc('sw-login.detail.pluginErrorTitle'),
+                            message: this.$tc('sw-login.detail.pluginErrorMessage')
+                        });
+                    }
                     this.$emit('is-not-loading');
-                    return auth;
                 })
                 .catch((response) => {
                     this.otp = '';
-
                     this.handleLoginError(response);
                     this.$emit('is-not-loading');
                 });
@@ -105,15 +149,62 @@ Component.register('sw-login-verify', {
             this.$router.push({ name: 'core' });
         },
 
-        handleLoginError(response) {
+        handleLoginError(error) {
             this.otp = '';
 
-            // this.$emit('login-error');
-            // setTimeout(() => {
-            //     this.$emit('login-error');
-            // }, 500);
             this.$super('handleLoginError', error);
             return;
         },
+
+        resendOtpWithEmail(){
+            console.log('click resend btn');
+            this.timer = '0:30';
+            clearInterval(this.interval);
+            Application.getContainer('init').httpClient
+                .post('/backend/login/generateotp', {
+                    username: this.username
+                },{
+                    baseURL: Context.api.apiPath,
+                }).then((response) => {
+                if(response.data.type === 'success'){
+                    document.getElementById('resendOtpBtn').style.display = 'none';
+                    let timer2 = this.timer;
+
+                    let interval = setInterval(function (){
+                        let timer = timer2.split(':');
+                        let minutes = parseInt(timer[0], 10);
+                        let seconds = parseInt(timer[1], 10);
+                        --seconds;
+                        minutes = (seconds < 0) ? --minutes : minutes;
+                        seconds = (seconds < 0) ? 59 : seconds;
+                        seconds = (seconds < 10) ? '0' + seconds : seconds
+
+                        if(minutes < 0){
+                            clearInterval(interval);
+                            document.getElementById('countDownId').innerText = "";
+                            document.getElementById('resendOtpBtn').style.display = 'inline-block';
+                        }else{
+                            let countDownElementInnerHTLM = minutes + ':' + seconds;
+                            document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
+                            // document.getElementById('resendOtpBtn').style.display = 'none';
+                            timer2 = minutes + ':' + seconds;
+                            localStorage.setItem('timerEnd',timer2);
+                        }
+
+                    },1000);
+                }else if(response.data.type === 'notfound'){
+                    this.createNotificationError({
+                        title: 'Error',
+                        message: this.$tc('sw-login.detail.pluginNotFoundMessage')
+                    });
+                }else{
+                    this.createNotificationError({
+                        title: this.$tc('sw-login.detail.pluginErrorTitle'),
+                        message: this.$tc('sw-login.detail.pluginErrorMessage')
+                    });
+                }
+            });
+        },
+
     },
 });
