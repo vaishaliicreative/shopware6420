@@ -58,6 +58,7 @@ Component.override('sw-login-login', {
 
     methods: {
         createUserOtpWithEmail() {
+            let self = this;
             this.$emit('is-loading');
             Application.getContainer('init').httpClient
                .post('/backend/login/generateotp', {
@@ -67,38 +68,42 @@ Component.override('sw-login-login', {
                }).then((response) => {
                     this.$emit('is-not-loading');
                     if(response.data.type === 'success'){
-                       this.loginUserDiv = false;
-                       this.loginOtpDiv = true;
-                       // localStorage.setItem('loginUserDiv','false');
-                       window.sessionStorage.setItem('loginUserDiv','false');
+                        // localStorage.setItem('username',this.username);
+                        // self.$router.push('/login/verify');
+                        // console.log(this.$router);
+                        // return;
+                        this.loginUserDiv = false;
+                        this.loginOtpDiv = true;
+                        // localStorage.setItem('loginUserDiv','false');
+                        window.sessionStorage.setItem('loginUserDiv','false');
 
                         this.timer = 30;
                         let time2 = 30;
 
-                       this.interval = setInterval(function (){
+                        this.interval = setInterval(function (){
 
-                           let seconds = parseInt(time2 % 60, 10);
+                            let seconds = parseInt(time2 % 60, 10);
 
-                           --seconds;
-                           let displaySeconds = seconds < 10 ? "0" + seconds : seconds;
-                           if (seconds < 0){
-                               clearInterval(this.interval);
-                               document.getElementById('countDownId').innerText = "";
-                               document.getElementById('resendOtpBtn').style.display = 'inline-block';
-                           }else {
-                               // let countDownElementInnerHTLM = minutes + ':' + seconds;
-                               let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
-                               document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
-                               document.getElementById('resendOtpBtn').style.display = 'none';
-                               // time2 = minutes + ':' + seconds;
-                               time2 = seconds;
+                            --seconds;
+                            let displaySeconds = seconds < 10 ? "0" + seconds : seconds;
+                            if (seconds < 0){
+                                clearInterval(this.interval);
+                                document.getElementById('countDownId').innerText = "";
+                                document.getElementById('resendOtpBtn').style.display = 'inline-block';
+                            }else {
+                                // let countDownElementInnerHTLM = minutes + ':' + seconds;
+                                let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
+                                document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
+                                document.getElementById('resendOtpBtn').style.display = 'none';
+                                // time2 = minutes + ':' + seconds;
+                                time2 = seconds;
 
-                               // localStorage.setItem('timerEnd',time2);
-                               window.sessionStorage.setItem('timerEnd',time2);
-                           }
-                       },1000)
-                       // localStorage.setItem('username',this.username);
-                       window.sessionStorage.setItem('username',this.username);
+                                // localStorage.setItem('timerEnd',time2);
+                                window.sessionStorage.setItem('timerEnd',time2);
+                            }
+                        },1000)
+                        // localStorage.setItem('username',this.username);
+                        window.sessionStorage.setItem('username',this.username);
                     }else if(response.data.type === 'notfound'){
                        this.createNotificationError({
                            title: 'Error',
@@ -121,18 +126,18 @@ Component.override('sw-login-login', {
 
         verifyOtpWithEmail(){
             this.$emit('is-loading');
-
+            clearInterval(this.interval);
             return Application.getContainer('init').httpClient
                 .post('/backend/login/verifyotp',{
                     username: this.username,
                     otp: this.otp,
-                    grant_type: 'password',
+                    grant_type: 'login_otp',
                     client_id: 'administration',
                     scopes: 'write'
                 },{
                     baseURL: Context.api.apiPath,
                 }).then((response) => {
-                    if(response.data.type === 'success') {
+                    // if(response.data.type === 'success') {
                         const auth = this.loginService.setBearerAuthentication({
                             access: response.data.access_token,
                             refresh: response.data.refresh_token,
@@ -141,17 +146,17 @@ Component.override('sw-login-login', {
                         window.localStorage.setItem('redirectFromLogin', 'true');
                         this.handleLoginSuccess();
                         return auth;
-                    }else if(response.data.type === 'notfound'){
-                        this.createNotificationError({
-                            title: 'Error',
-                            message: this.$tc('sw-login.detail.pluginNotFoundOtpMessage')
-                        });
-                    }else {
-                        this.createNotificationError({
-                            title: this.$tc('sw-login.detail.pluginErrorTitle'),
-                            message: this.$tc('sw-login.detail.pluginErrorMessage')
-                        });
-                    }
+                    // }else if(response.data.type === 'notfound'){
+                    //     this.createNotificationError({
+                    //         title: 'Error',
+                    //         message: this.$tc('sw-login.detail.pluginNotFoundOtpMessage')
+                    //     });
+                    // }else {
+                    //     this.createNotificationError({
+                    //         title: this.$tc('sw-login.detail.pluginErrorTitle'),
+                    //         message: this.$tc('sw-login.detail.pluginErrorMessage')
+                    //     });
+                    // }
                     this.$emit('is-not-loading');
                 })
                 .catch((response) => {

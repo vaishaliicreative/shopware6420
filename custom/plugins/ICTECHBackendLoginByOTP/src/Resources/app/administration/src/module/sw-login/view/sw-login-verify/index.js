@@ -33,19 +33,25 @@ Component.register('sw-login-verify', {
         // let timeEnd = localStorage.getItem('timerEnd');
         let timeEnd = window.sessionStorage.getItem('timerEnd');
         // console.log(timeEnd);
-        if(timeEnd == 0){
+        if(timeEnd === null){
+            this.timer = 30;
+        }else if(timeEnd == 0){
             this.timer = 30;
         }else{
             this.timer = timeEnd;
         }
         this.createdComponent();
     },
+    beforeDestroy() {
+        clearInterval(this.interval);
+        window.sessionStorage.removeItem('timerEnd');
+    },
     methods: {
         createdComponent(){
             let timer2 = this.timer;
             // let interval = setInterval(function (){
             this.interval = setInterval(function (){
-                let seconds = parseInt(time2 % 60, 10);
+                let seconds = parseInt(timer2 % 60, 10);
 
                 --seconds;
                 let displaySeconds = seconds < 10 ? "0" + seconds : seconds;
@@ -67,6 +73,7 @@ Component.register('sw-login-verify', {
         },
         verifyOtpWithEmail(){
             this.$emit('is-loading');
+            clearInterval(this.interval);
             // console.log(this.username);
             return Application.getContainer('init').httpClient
                 .post('/backend/login/verifyotp',{

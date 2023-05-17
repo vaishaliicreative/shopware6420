@@ -126,7 +126,7 @@ class EmailService
         $data->set('salesChannelId', $salesChannelId);
 
         try {
-            $this->mailService->send($data->all(), $context);
+//            $this->mailService->send($data->all(), $context);
         } catch (\Exception $e) {
             $this->logger->error(
                 "Could not send mail:\n {$e->getMessage}() \n 'Error Code:'
