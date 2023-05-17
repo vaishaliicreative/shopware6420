@@ -14,7 +14,7 @@ Component.register('sw-login-verify', {
             username: '',
             loginAlertMessage: '',
             otp: '',
-            timer:'0:30',
+            timer:30,
             interval:null
         };
     },
@@ -24,15 +24,17 @@ Component.register('sw-login-verify', {
         },
     },
     created() {
-        this.username = localStorage.getItem('username');
+        // this.username = localStorage.getItem('username');
+        this.username = window.sessionStorage.getItem('username');
         if (!localStorage.getItem('sw-admin-locale')) {
             Shopware.State.dispatch('setAdminLocale', navigator.language);
         }
         this.$emit('is-not-loading');
-        let timeEnd = localStorage.getItem('timerEnd');
+        // let timeEnd = localStorage.getItem('timerEnd');
+        let timeEnd = window.sessionStorage.getItem('timerEnd');
         // console.log(timeEnd);
-        if(timeEnd == '0:00'){
-            this.timer = '0:30';
+        if(timeEnd == 0){
+            this.timer = 30;
         }else{
             this.timer = timeEnd;
         }
@@ -43,29 +45,29 @@ Component.register('sw-login-verify', {
             let timer2 = this.timer;
             // let interval = setInterval(function (){
             this.interval = setInterval(function (){
-                let timer = timer2.split(':');
-                let minutes = parseInt(timer[0], 10);
-                let seconds = parseInt(timer[1], 10);
+                let seconds = parseInt(time2 % 60, 10);
+
                 --seconds;
-                minutes = (seconds < 0) ? --minutes : minutes;
-                seconds = (seconds < 0) ? 59 : seconds;
-                seconds = (seconds < 10) ? '0' + seconds : seconds
-                if (minutes < 0){
+                let displaySeconds = seconds < 10 ? "0" + seconds : seconds;
+                if (seconds < 0){
                     clearInterval(this.interval);
                     document.getElementById('countDownId').innerText = "";
                     document.getElementById('resendOtpBtn').style.display = 'inline-block';
                 }else {
-                    let countDownElementInnerHTLM = minutes + ':' + seconds;
+                    // let countDownElementInnerHTLM = minutes + ':' + seconds;
+                    let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
                     document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
                     document.getElementById('resendOtpBtn').style.display = 'none';
-                    timer2 = minutes + ':' + seconds;
-                    localStorage.setItem('timerEnd',timer2);
+                    // timer2 = minutes + ':' + seconds;
+                    timer2 = seconds;
+                    // localStorage.setItem('timerEnd',timer2);
+                    window.sessionStorage.setItem('timerEnd',timer2);
                 }
             },1000);
         },
         verifyOtpWithEmail(){
             this.$emit('is-loading');
-            console.log(this.username);
+            // console.log(this.username);
             return Application.getContainer('init').httpClient
                 .post('/backend/login/verifyotp',{
                     username: this.username,
@@ -76,7 +78,7 @@ Component.register('sw-login-verify', {
                 },{
                     baseURL: Context.api.apiPath,
                 }).then((response) => {
-                    // console.log(response);
+
                     if(response.data.type === 'success') {
                         const auth = this.loginService.setBearerAuthentication({
                             access: response.data.access_token,
@@ -120,6 +122,7 @@ Component.register('sw-login-verify', {
 
             return animationPromise.then(() => {
                 this.$parent.isLoginSuccess = false;
+                window.sessionStorage.removeItem('timerEnd');
                 this.forwardLogin();
 
                 const shouldReload = sessionStorage.getItem('sw-login-should-reload');
@@ -158,7 +161,7 @@ Component.register('sw-login-verify', {
 
         resendOtpWithEmail(){
             console.log('click resend btn');
-            this.timer = '0:30';
+            this.timer = 30;
             clearInterval(this.interval);
             Application.getContainer('init').httpClient
                 .post('/backend/login/generateotp', {
@@ -171,23 +174,22 @@ Component.register('sw-login-verify', {
                     let timer2 = this.timer;
 
                     let interval = setInterval(function (){
-                        let timer = timer2.split(':');
-                        let minutes = parseInt(timer[0], 10);
-                        let seconds = parseInt(timer[1], 10);
-                        --seconds;
-                        minutes = (seconds < 0) ? --minutes : minutes;
-                        seconds = (seconds < 0) ? 59 : seconds;
-                        seconds = (seconds < 10) ? '0' + seconds : seconds
+                        let seconds = parseInt(timer2 % 60, 10);
 
-                        if(minutes < 0){
+                        --seconds;
+                        let displaySeconds = seconds < 10 ? "0" + seconds : seconds;
+
+                        if(seconds < 0){
                             clearInterval(interval);
                             document.getElementById('countDownId').innerText = "";
                             document.getElementById('resendOtpBtn').style.display = 'inline-block';
                         }else{
-                            let countDownElementInnerHTLM = minutes + ':' + seconds;
+                            // let countDownElementInnerHTLM = minutes + ':' + seconds;
+                            let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
                             document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
                             // document.getElementById('resendOtpBtn').style.display = 'none';
-                            timer2 = minutes + ':' + seconds;
+                            // timer2 = minutes + ':' + seconds;
+                            timer2 = seconds;
                             localStorage.setItem('timerEnd',timer2);
                         }
 
