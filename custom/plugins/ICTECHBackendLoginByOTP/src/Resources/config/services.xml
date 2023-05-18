@@ -25,6 +25,7 @@
                 <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
                 <argument type="service" id="shopware.rate_limiter"/>
                 <argument type="service" id="shopware.api.authorization_server"/>
+                <argument type="service" id="shopware.api.custom_authorization_server" />
                 <call method="setContainer">
                     <argument type="service" id="service_container"/>
                 </call>
@@ -40,5 +41,26 @@
                 <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
             </service>
         <!-- End Service -->
+
+        <service id="ICTECHBackendLoginByOTP\OAuth2\CustomApiAuthenticationListener">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="shopware.api.resource_server"/>
+            <argument type="service" id="shopware.api.authorization_server"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="backend_login_by_otp.repository" />
+            <argument type="service" id="shopware.api.custom_authorization_server" />
+            <argument type="service" id="user.repository"/>
+        </service>
+
+        <service class="ICTECHBackendLoginByOTP\OAuth2\CustomAuthorizationServer" id="shopware.api.custom_authorization_server">
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\ClientRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\ScopeRepository"/>
+            <argument type="service" id="shopware.private_key"/>
+            <argument>%env(APP_SECRET)%</argument>
+        </service>
     </services>
 </container>
