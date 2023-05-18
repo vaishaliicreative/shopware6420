@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace ICTECHBackendLoginByOTP\Controller;
 
-use DateInterval;
-use ICTECHBackendLoginByOTP\OAuth2\CustomAuthorizationServer;
+use ICTECHBackendLoginByOTP\OAuth2\Server\CustomAuthorizationServer;
 use ICTECHBackendLoginByOTP\Service\EmailService;
 use League\OAuth2\Server\AuthorizationServer;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -152,12 +150,12 @@ class BackendLoginByOtpController extends AbstractController
     /**
      * @Route("/api/backend/login/verifyotp", name="api.action.backend.login.verifyotp", defaults={"auth_required"=false}, methods={"POST"})
      */
-    public function verifyOtpWithUsername(Context $context, Request $request): Response
+    public function verifyOtpWithUsername(Request $request): Response
     {
         $responseArray = [];
         $response = new Response();
 
-        try{
+        try {
             $cacheKey = $request->get('username') . '-' . $request->getClientIp();
 
             $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
@@ -172,30 +170,7 @@ class BackendLoginByOtpController extends AbstractController
 
         $this->rateLimiter->reset(RateLimiter::OAUTH, $cacheKey);
         return (new HttpFoundationFactory())->createResponse($response);
-//        echo "<pre>";
-//        print_r($response);
-//        exit;
 
-//        $userDetails = $this->getUserDetails($request, $context)->first();
-//        $userId = $userDetails->getId();
-//        $otp = $request->get('otp');
-//        // searching UUID in BackendLoginByOtp repository
-//        $backendOtpDetails = $this->getBackendLoginByOtpWithUserName($userId, $otp, $context);
-//        if ($backendOtpDetails !== null) {
-////            $request->request->add(['password' => 'shopware']);
-//            $tokenResponse = $this->createAccessToken($request, $response);
-//
-//            if ($tokenResponse !== null) {
-//                $responseArray['type'] = 'success';
-//                $responseArray['access_token'] = $tokenResponse->access_token;
-//                $responseArray['refresh_token'] = $tokenResponse->refresh_token;
-//                $responseArray['expires_in'] = $tokenResponse->expires_in;
-//            } else {
-//                $responseArray['type'] = 'error';
-//            }
-//        } else {
-//            $responseArray['type'] = 'notfound';
-//        }
         return new JsonResponse($responseArray);
     }
 
@@ -208,35 +183,5 @@ class BackendLoginByOtpController extends AbstractController
         $backendOtpResult = $this->backendLoginByOtpRepository->search($criteria, $context);
 
         return $backendOtpResult->first();
-    }
-
-    // generate access token
-    /**
-     * @param $request
-     * @param $response
-     *
-     * @return mixed
-     *
-     * @throws OAuthServerException
-     */
-    private function createAccessToken(Request $request, Response $response)
-    {
-        try {
-            $cacheKey = $request->get('username') . '-' . $request->getClientIp();
-            $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
-        } catch (RateLimitExceededException $exception) {
-            throw new AuthThrottledException($exception->getWaitTime(), $exception);
-        }
-        $psr7Request = $this->psrHttpFactory->createRequest($request);
-        $psr7Response = $this->psrHttpFactory->createResponse($response);
-
-        $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
-        $tokenResponse = (new HttpFoundationFactory())->createResponse($response);
-//        echo "<pre>";
-//        print_r(json_decode($tokenResponse->getContent()));
-//        exit;
-        $this->rateLimiter->reset(RateLimiter::OAUTH, $cacheKey);
-
-        return json_decode($tokenResponse->getContent());
     }
 }

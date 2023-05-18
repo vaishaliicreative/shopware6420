@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ICTECHBackendLoginByOTP\OAuth2;
 
-use ICTECHBackendLoginByOTP\OAuth2\CustomAuthorizationServer;
+use ICTECHBackendLoginByOTP\OAuth2\Server\CustomAuthorizationServer;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
@@ -21,7 +21,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-
 
 class CustomApiAuthenticationListener implements EventSubscriberInterface
 {
@@ -67,6 +66,7 @@ class CustomApiAuthenticationListener implements EventSubscriberInterface
         $this->userEntityRepository = $userEntityRepository;
     }
 
+    // Get Subscribe Event
     public static function getSubscribedEvents(): array
     {
         return [
@@ -79,6 +79,7 @@ class CustomApiAuthenticationListener implements EventSubscriberInterface
         ];
     }
 
+    // Set Oauth grant type
     public function setupOAuth(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
@@ -88,21 +89,22 @@ class CustomApiAuthenticationListener implements EventSubscriberInterface
         $tenMinuteInterval = new \DateInterval('PT10M');
         $oneWeekInterval = new \DateInterval('P1W');
 
-//        $passwordGrant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
-//        $passwordGrant->setRefreshTokenTTL($oneWeekInterval);
-//
-//        $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
-//        $refreshTokenGrant->setRefreshTokenTTL($oneWeekInterval);
+        $passwordGrant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
+        $passwordGrant->setRefreshTokenTTL($oneWeekInterval);
+
+        $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
+        $refreshTokenGrant->setRefreshTokenTTL($oneWeekInterval);
 
         $customGrant = new CustomGrant($this->userRepository, $this->refreshTokenRepository, $this->backendLoginByOtpRepository, $this->userEntityRepository);
         $customGrant->setRefreshTokenTTL($oneWeekInterval);
 
-//        $this->customAuthorizationServer->enableGrantType($passwordGrant, $tenMinuteInterval);
-//        $this->customAuthorizationServer->enableGrantType($refreshTokenGrant, $tenMinuteInterval);
-//        $this->customAuthorizationServer->enableGrantType(new ClientCredentialsGrant(), $tenMinuteInterval);
+        $this->customAuthorizationServer->enableGrantType($passwordGrant, $tenMinuteInterval);
+        $this->customAuthorizationServer->enableGrantType($refreshTokenGrant, $tenMinuteInterval);
+        $this->customAuthorizationServer->enableGrantType(new ClientCredentialsGrant(), $tenMinuteInterval);
         $this->customAuthorizationServer->enableGrantType($customGrant, $tenMinuteInterval);
     }
 
+    // validate request
     public function validateRequest(ControllerEvent $event): void
     {
         $request = $event->getRequest();
@@ -121,6 +123,7 @@ class CustomApiAuthenticationListener implements EventSubscriberInterface
         $request->attributes->add($psr7Request->getAttributes());
     }
 
+    // get route scope registry
     protected function getScopeRegistry(): RouteScopeRegistry
     {
         return $this->routeScopeRegistry;
