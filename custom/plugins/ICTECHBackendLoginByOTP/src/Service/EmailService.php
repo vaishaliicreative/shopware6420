@@ -129,8 +129,8 @@ class EmailService
             $this->mailService->send($data->all(), $context);
         } catch (\Exception $e) {
             $this->logger->error(
-                "Could not send mail:\n {$e->getMessage}() \n 'Error Code:'
-                {$e->getCode}() \n Template data: \n".
+                "Could not send mail:\n {$e->getMessage()} \n 'Error Code:'
+                {$e->getCode()} \n Template data: \n".
                 json_encode($data->all()) . "\n"
             );
         }

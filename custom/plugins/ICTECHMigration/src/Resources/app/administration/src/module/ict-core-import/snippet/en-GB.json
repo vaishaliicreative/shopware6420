@@ -1,0 +1,18 @@
+{
+    "ict-core-import-config": {
+        "general": {
+            "mainMenuItemGeneral": "Import Data",
+            "descriptionTextModule": "Import Data"
+        },
+        "detail": {
+            "cardInformationTitle": "Customer's Birthday Promotion Cron",
+            "property": "Properties",
+            "propertyvalue": "Properties Values",
+            "category": "Categories",
+            "productvariant": "Product Variants",
+            "mainproduct": "Main Products",
+            "noCustomerErrorTitle": "Error",
+            "noCustomerErrorMessage": "No customer found for send promotion code"
+        }
+    }
+}

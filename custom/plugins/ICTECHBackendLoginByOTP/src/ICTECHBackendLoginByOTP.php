@@ -23,11 +23,11 @@ class ICTECHBackendLoginByOTP extends Plugin
     public const SUBJECT_ENG = 'OTP for admin Login';
     public const SUBJECT_DE = 'Einmalpasswort-OTP für Admin-Login';
 
-    public const CONTAIN_PLAIN_EN = 'Dear {username},\n\n Please use the following OTP to log in to the Shopware admin.\n\n OTP: {otp} \n\n Thank you for helping us maintain the security of our eCommerce shop.\n\n Best regards,';
-    public const CONTAIN_PLAIN_DE = 'Sehr geehrte/r {username},\n\n Bitte verwenden Sie das folgende Einmalpasswort (OTP), um sich bei Ihrem Ecommerce-Backend-Konto anzumelden.\n\n OTP: {otp} \n\n Vielen Dank, dass Sie uns helfen, die Sicherheit unserer Ecommerce-Plattform zu gewährleisten.\n\n Freundliche Grüße,';
+    public const CONTAIN_PLAIN_EN = 'Dear {username},\n\n Please use the following OTP to log in to the Shopware admin.\n\n OTP: {otp} \n\n Thank you for helping us maintain the security of our eCommerce shop.';
+    public const CONTAIN_PLAIN_DE = 'Sehr geehrte/r {username},\n\n Bitte verwenden Sie das folgende Einmalpasswort (OTP), um sich bei Ihrem Ecommerce-Backend-Konto anzumelden:\n\n OTP: {otp} \n\n Vielen Dank, dass Sie uns helfen, die Sicherheit unserer Ecommerce-Plattform zu gewährleisten.';
 
-    public const CONTAIN_HTML_EN = 'Dear {username},<br><br>Please use the following OTP to log in to the Shopware admin.<br><br> OTP: <b>{otp}</b> <br><br>Thank you for helping us maintain the security of our eCommerce shop.<br><br>Best regards,';
-    public const CONTAIN_HTML_DE = 'Sehr geehrte/r {username},<br><br>Bitte verwenden Sie das folgende Einmalpasswort (OTP), um sich bei Ihrem Ecommerce-Backend-Konto anzumelden.<br><br> OTP: <b>{otp}</b> <br><br> Vielen Dank, dass Sie uns helfen, die Sicherheit unserer Ecommerce-Plattform zu gewährleisten.<br><br> Freundliche Grüße,';
+    public const CONTAIN_HTML_EN = 'Dear {username},<br><br>Please use the following OTP to log in to the Shopware admin<br><br> OTP: <b>{otp}</b> <br><br>Thank you for helping us maintain the security of our eCommerce shop.';
+    public const CONTAIN_HTML_DE = 'Sehr geehrte/r {username},<br><br>Bitte verwenden Sie das folgende Einmalpasswort (OTP), um sich bei Ihrem Ecommerce-Backend-Konto anzumelden:<br><br> OTP: <b>{otp}</b> <br><br> Vielen Dank, dass Sie uns helfen, die Sicherheit unserer Ecommerce-Plattform zu gewährleisten.';
 
     public function install(InstallContext $installContext): void
     {
