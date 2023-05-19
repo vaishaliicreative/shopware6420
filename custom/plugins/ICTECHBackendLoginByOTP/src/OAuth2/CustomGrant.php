@@ -5,31 +5,26 @@ declare(strict_types=1);
 namespace ICTECHBackendLoginByOTP\OAuth2;
 
 use DateInterval;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Grant\AbstractGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
-use League\OAuth2\Server\RequestEvent;
-use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\RequestAccessTokenEvent;
+use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\RequestRefreshTokenEvent;
+use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Psr\Http\Message\ServerRequestInterface;
-
 
 class CustomGrant extends AbstractGrant
 {
-    /**
-     * @param UserRepositoryInterface $userRepository
-     * @param RefreshTokenRepositoryInterface $refreshTokenRepository
-     * @param EntityRepository $backendLoginByOtpRepository
-     * @param EntityRepository $userEntityRepository
-     */
     public function __construct(
         UserRepositoryInterface $userRepository,
         RefreshTokenRepositoryInterface $refreshTokenRepository,
@@ -44,31 +39,32 @@ class CustomGrant extends AbstractGrant
         $this->userEntityRepository = $userEntityRepository;
     }
 
-
     public function getIdentifier(): string
     {
         return 'login_otp';
     }
 
+    /**
+     * Get access token
+     * @throws OAuthServerException
+     *
+     * @throws UniqueTokenIdentifierConstraintViolationException
+     */
     public function respondToAccessTokenRequest(
         ServerRequestInterface $request,
         ResponseTypeInterface $responseType,
         DateInterval $accessTokenTTL
-    ) {
+    ):  ResponseTypeInterface {
         // Validate request
-//        dd($request);
         $client = $this->validateClient($request);
-//        dd($client);
         $scopes = $this->validateScopes($this->getRequestParameter('scope', $request, $this->defaultScope));
         $user = $this->validateUser($request);
 
-//        dd($user->getId());
-
         // Finalize the requested scopes
-        $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $user->getId());
+        $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $user->getUserId());
 
         // Issue and persist new access token
-        $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $user->getId(), $finalizedScopes);
+        $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $user->getUserId(), $finalizedScopes);
         $this->getEmitter()->emit(new RequestAccessTokenEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request, $accessToken));
         $responseType->setAccessToken($accessToken);
 
@@ -84,12 +80,10 @@ class CustomGrant extends AbstractGrant
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @param ClientEntityInterface  $client
+     * validate user
+     * @return Entity
      *
      * @throws OAuthServerException
-     *
-     * @return UserEntityInterface
      */
     protected function validateUser(ServerRequestInterface $request)
     {
@@ -120,6 +114,7 @@ class CustomGrant extends AbstractGrant
         return $user;
     }
 
+    // get backend otp details
     public function getBackendLoginByOtpWithUserName(string $userId, string $otp, Context $context): ?Entity
     {
         $criteria = new Criteria();
@@ -130,25 +125,21 @@ class CustomGrant extends AbstractGrant
         return $backendOtpResult->first();
     }
 
-    public function getUserDetails($username, Context $context): EntitySearchResult
+    // get user details from username
+    public function getUserDetails(string $username, Context $context): EntitySearchResult
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('username', $username));
-//        dd($this->userRepository);
         return $this->userEntityRepository->search($criteria, $context);
     }
 
-    protected function validateClient(ServerRequestInterface $request)
+    /**
+     * validate client
+     * @throws OAuthServerException
+     */
+    protected function validateClient(ServerRequestInterface $request): ClientEntityInterface
     {
         [$clientId, $clientSecret] = $this->getClientCredentials($request);
-
-//        if ($this->clientRepository->validateClient($clientId, $clientSecret, $this->getIdentifier()) === false) {
-//
-//            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-//
-//            throw OAuthServerException::invalidClient($request);
-//        }
-//        dd($clientSecret);
 
         $client = $this->getClientEntityOrFail($clientId, $request);
 
@@ -166,12 +157,15 @@ class CustomGrant extends AbstractGrant
         return $client;
     }
 
-    protected function getClientCredentials(ServerRequestInterface $request)
+    /**
+     * get client credential
+     * @throws OAuthServerException
+     */
+    protected function getClientCredentials(ServerRequestInterface $request): array
     {
         [$basicAuthUser, $basicAuthPassword] = $this->getBasicAuthCredentials($request);
 
         $clientId = $this->getRequestParameter('client_id', $request, $basicAuthUser);
-
 
         if (\is_null($clientId)) {
             throw OAuthServerException::invalidRequest('client_id');

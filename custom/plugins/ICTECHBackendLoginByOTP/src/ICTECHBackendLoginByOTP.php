@@ -20,8 +20,8 @@ class ICTECHBackendLoginByOTP extends Plugin
     public const TEMPLATE_TYPE_NAME = 'Email OTP Login For Administration';
     public const TEMPLATE_TYPE_TECHNICAL_NAME = 'email_otp_login_for_administration';
 
-    public const SUBJECT_ENG = 'OTP for [Sales Channel Name] admin Login';
-    public const SUBJECT_DE = 'Einmalpasswort-OTP für [Sales Channel Name] Admin-Login';
+    public const SUBJECT_ENG = 'OTP for admin Login';
+    public const SUBJECT_DE = 'Einmalpasswort-OTP für Admin-Login';
 
     public const CONTAIN_PLAIN_EN = 'Dear {username},\n\n Please use the following OTP to log in to the Shopware admin.\n\n OTP: {otp} \n\n Thank you for helping us maintain the security of our eCommerce shop.\n\n Best regards,';
     public const CONTAIN_PLAIN_DE = 'Sehr geehrte/r {username},\n\n Bitte verwenden Sie das folgende Einmalpasswort (OTP), um sich bei Ihrem Ecommerce-Backend-Konto anzumelden.\n\n OTP: {otp} \n\n Vielen Dank, dass Sie uns helfen, die Sicherheit unserer Ecommerce-Plattform zu gewährleisten.\n\n Freundliche Grüße,';
@@ -144,16 +144,5 @@ class ICTECHBackendLoginByOTP extends Plugin
 
         $mailTemplateRepository->delete($ids, $uninstallContext->getContext());
         $mailTemplateTypeRepository->delete([['id' => $customMailTemplateType->getId()]], $uninstallContext->getContext());
-    }
-
-    public function deactivate(DeactivateContext $context): void
-    {
-//        $jsCode = <<<'JS'
-//        <script>
-//            window.sessionStorage.clear();
-//        </script>
-//    JS;
-//
-//        $context->addExtension('storefront', $jsCode);
     }
 }

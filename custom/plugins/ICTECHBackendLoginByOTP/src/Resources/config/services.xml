@@ -55,7 +55,7 @@
             <argument type="service" id="user.repository"/>
         </service>
 
-        <service class="ICTECHBackendLoginByOTP\OAuth2\CustomAuthorizationServer" id="shopware.api.custom_authorization_server">
+        <service class="ICTECHBackendLoginByOTP\OAuth2\Server\CustomAuthorizationServer" id="shopware.api.custom_authorization_server">
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\ClientRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\ScopeRepository"/>
