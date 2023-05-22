@@ -66,12 +66,18 @@ class EmailService
         if ($userDetails === null) {
             return;
         }
+        $languagesArray = $userDetails->getLocale()->getLanguages()->getElements();
+
+        $languageId = '';
+        foreach ($languagesArray as $row){
+            $languageId = $row->getId();
+        }
         //getting mail template
         $mailTemplate = $this->getMailTemplate($context);
         $mailTranslations = $mailTemplate->getTranslations();
         $mailTranslation = $mailTranslations->filter(
-            function ($element) use ($context) {
-                return $element->getLanguageId() === $context->getLanguageId();
+            function ($element) use ($languageId) {
+                return $element->getLanguageId() === $languageId;
             }
         )->first();
 

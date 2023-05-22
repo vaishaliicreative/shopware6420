@@ -132,6 +132,7 @@ class BackendLoginByOtpController extends AbstractController
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('username', $request->get('username')));
+        $criteria->addAssociation('locale.languages');
 
         return $this->userRepository->search($criteria, $context);
     }
