@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Settings</title>
+        <title lang="de-DE">Einstellungen</title>
+
+        <input-field type="text">
+            <name>coreUrl</name>
+            <label>Server/Database URL</label>
+            <label lang="de-DE">Server/Database URL</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>databaseHost</name>
+            <label>Database Host</label>
+            <label lang="de-DE">Database Host</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>databaseUser</name>
+            <label>Database Username</label>
+            <label lang="de-DE">Database Username</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>databasePassword</name>
+            <label>Database Password</label>
+            <label lang="de-DE">Database Password</label>
+        </input-field>
+    </card>
+</config>

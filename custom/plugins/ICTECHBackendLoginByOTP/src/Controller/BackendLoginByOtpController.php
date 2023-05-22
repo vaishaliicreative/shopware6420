@@ -114,8 +114,8 @@ class BackendLoginByOtpController extends AbstractController
         }
         if (! is_null($backendOtpData)) {
             $otp = $backendOtpData['otp'];
+            $result = $this->backendLoginByOtpRepository->upsert([$backendOtpData], $context);
             $this->emailService->sendOTPEMail($userDetails, $context, $otp);
-            $this->backendLoginByOtpRepository->upsert([$backendOtpData], $context);
             $response['type'] = 'success';
         } else {
             $response['type'] = 'error';

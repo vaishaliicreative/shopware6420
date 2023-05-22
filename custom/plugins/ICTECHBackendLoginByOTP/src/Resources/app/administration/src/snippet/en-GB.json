@@ -1,10 +1,10 @@
 {
     "sw-login": {
         "index": {
-            "buttonSendOTP": "Send Otp"
+            "buttonSendOTP": "Send OTP"
         },
         "verify": {
-            "otpHeadlineForm": "Enter Otp",
+            "otpHeadlineForm": "Enter OTP",
             "labelOtp": "OTP",
             "placeholderOtp": "Enter your OTP...",
             "buttonResendOTP": "Resend"

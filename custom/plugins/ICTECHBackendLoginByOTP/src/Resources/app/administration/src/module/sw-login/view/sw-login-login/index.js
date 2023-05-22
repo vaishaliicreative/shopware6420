@@ -115,8 +115,6 @@ Component.override('sw-login-login', {
 
         verifyOtpWithEmail(){
             this.$emit('is-loading');
-            clearInterval(this.interval);
-            clearInterval(this.resendInterval);
             return Application.getContainer('init').httpClient
                 .post('/backend/login/verifyotp',{
                     username: this.username,
@@ -135,6 +133,8 @@ Component.override('sw-login-login', {
                         window.localStorage.setItem('redirectFromLogin', 'true');
                         this.handleLoginSuccess();
                         return auth;
+                    clearInterval(this.interval);
+                    clearInterval(this.resendInterval);
                     this.$emit('is-not-loading');
                 })
                 .catch((response) => {

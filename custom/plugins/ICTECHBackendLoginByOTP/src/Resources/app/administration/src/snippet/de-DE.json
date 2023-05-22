@@ -1,3 +1,19 @@
 {
-
+    "sw-login": {
+        "index": {
+            "buttonSendOTP": "OTP verzenden"
+        },
+        "verify": {
+            "otpHeadlineForm": "Voer OTP in",
+            "labelOtp": "OTP",
+            "placeholderOtp": "Voer uw OTP in...",
+            "buttonResendOTP": "Stuur  opnieuw"
+        },
+        "detail": {
+            "pluginErrorTitle": "Fout",
+            "pluginErrorMessage": "Er ging iets mis",
+            "pluginNotFoundMessage" : "Ongeldige gebruikersnaam",
+            "pluginNotFoundOtpMessage": "Ongeldige OTP"
+        }
+    }
 }
