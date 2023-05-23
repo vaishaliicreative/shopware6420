@@ -18,20 +18,6 @@ Component.override('sw-login',{
             isLoginError: false,
         };
     },
-    metaInfo() {
-        // return {
-        //     title: this.title,
-        // };
-    },
-    computed: {
-        // title() {
-        //     const modulName = this.$tc('sw-login.general.mainMenuItemIndex');
-        //     const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
-        //
-        //     return `${modulName} | ${adminName}`;
-        // },
-    },
-
     methods: {
         setLoading(val) {
             this.isLoading = val;

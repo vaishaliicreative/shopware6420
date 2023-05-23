@@ -6,6 +6,7 @@ use mysqli;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,14 +38,23 @@ class PropertyController extends AbstractController
     private $productPropertyRepository;
     private $categoryRepository;
 
+    /*** @var EntityRepositoryInterface */
+    private $seoUrlRepository;
+
+    /*** @var EntityRepositoryInterface */
+    private $salesChannelRepository;
+
+
     public function __construct(
-        SystemConfigService $systemConfigService,
+        SystemConfigService       $systemConfigService,
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $propertyRepository,
         EntityRepositoryInterface $productsRepository,
         EntityRepositoryInterface $propertyOptionsRepository,
         EntityRepositoryInterface $productPropertyRepository,
-        EntityRepositoryInterface $categoryRepository
+        EntityRepositoryInterface $categoryRepository,
+        EntityRepositoryInterface $seoUrlRepository,
+        EntityRepositoryInterface $salesChannelRepository
     )
     {
         $this->systemConfigService = $systemConfigService;
@@ -54,6 +64,8 @@ class PropertyController extends AbstractController
         $this->propertyOptionsRepository = $propertyOptionsRepository;
         $this->productPropertyRepository = $productPropertyRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->seoUrlRepository = $seoUrlRepository;
+        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     /**
@@ -64,57 +76,59 @@ class PropertyController extends AbstractController
 //        $servername = "amargo-preview.de";
 //        $username = "amanwyeh5";
 //        $password = "3R7hZEy!kW7O";
+
+        //     create Context
         $context = Context::createDefaultContext();
+
+        //     get parent data
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('level', '1'));
+        $getParentDataId = $this->categoryRepository->search($criteria, $context)->first();
+
+        //     get Configuration data
         $servername = $this->systemConfigService->get('ICTECHMigration.config.databaseHost');
         $username = $this->systemConfigService->get('ICTECHMigration.config.databaseUser');
         $password = $this->systemConfigService->get('ICTECHMigration.config.databasePassword');
         $database = 'usrdb_amanwyeh5';
 
-//        $this->propertyInsert($context);
-
+        //     Connection With MySQL and Get Data
         $conn = new mysqli($servername, $username, $password, $database);
-//        $p_sql = "SELECT * FROM product_category WHERE selectable='0'";
-//        $c_sql = "SELECT * FROM product_category WHERE selectable='1'";
-//        $result = mysqli_query($conn, $p_sql);
-//        $c_result = mysqli_query($conn, $c_sql);
-//        $parentDataArray = [];
-//
-//        if (mysqli_num_rows($result) > 0) {
-//            while($row = mysqli_fetch_assoc($result)) {
-//                $parentDataArray[$row['name']] = $row['pc_id'];
-//            }
-//        } else {
-//            dd("0 results");
-//        }
-//        $childDataArray = [];
-//        if (mysqli_num_rows($c_result) > 0) {
-//            while($row = mysqli_fetch_assoc($c_result)) {
-//                $childDataArray[$row['name']] = $row['referto_pc_id'];
-//            }
-//        } else {
-//            dd("0 results");
-//        }
-//        dump($parentDataArray);
-//dd($childDataArray);
+        $startFromData = (int)$request->get('startingValue');
+        $sql = 'SELECT cms_art_menu_text,cms_art_menu_speaking_url,cms_art_article_browser_title,cms_art_article_description,cms_art_article_content,cms_art_article_content_title FROM cms_articles LIMIT 1';
+        $result = mysqli_query($conn, $sql);
 
-
-
+        if (mysqli_num_rows($result) > 0) {
+            $i = (int)$request->get('startingValue');
+            while ($row = mysqli_fetch_assoc($result)) {
+                $i = $i + 1;
+                $categoryId = Uuid::randomHex();
+                $this->categoryInsert($getParentDataId->id, $categoryId, $row, $context);
+                if ($i % 10 == 0) {
+                    return new JsonResponse([
+                        'type' => 'Pending',
+                        'message' => $i
+                    ]);
+                }
+            }
+        }
         return new JsonResponse([
             'type' => 'Success',
-            'message' => 'Properties Imported'
+            'message' => 'Categories Imported'
         ]);
     }
 
-    private function propertyInsert($context): void
+    private function categoryInsert($getParentDataId, $categoryId, $row, $context): void
     {
         $data = [
-            'id' => Uuid::randomHex(),
-            'name' => 'Shopware Administration',
+            'id' => $categoryId,
+            'parentId' => $getParentDataId,
+            'name' => $row['cms_art_menu_text'] == '' ? '' : $row['cms_art_menu_text'],
+            'metaTitle' => $row['cms_art_article_browser_title'] == '' ? '' : $row['cms_art_article_browser_title'],
+            'metaDescription' => $row['cms_art_article_description'] == '' ? '' : $row['cms_art_article_description'],
+            'description' => $row['cms_art_article_content'] == '' ? '' : $row['cms_art_article_content'],
+            'customFields' => ["custom_category_has_migration" => $row['cms_art_article_content_title']]
         ];
-        $this->categoryRepository->upsert([$data], $context);
+        $this->categoryRepository->create([$data], $context);
     }
-
-
-
 
 }

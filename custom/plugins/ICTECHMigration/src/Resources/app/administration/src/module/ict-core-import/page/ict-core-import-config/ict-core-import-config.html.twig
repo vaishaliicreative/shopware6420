@@ -14,7 +14,6 @@
                         {% block ict_core_import_config_content_card_innter %}
                             <sw-card>
                                 <sw-button
-                                    @click="propertyFunction"
                                     ref="ictCoreImportConfigContentProperty"
                                     id="ict_core_import_config_content_property"
                                     variant="primary"
@@ -37,6 +36,7 @@
                             </sw-card>
                             <sw-card>
                                 <sw-button
+                                    @click="propertyFunction(0)"
                                     ref="ictCoreImportConfigContentCategory"
                                     id="ict_core_import_config_content_category"
                                     variant="primary"
@@ -45,6 +45,7 @@
                                     :isLoading="isLoading">
                                     {{ $tc('ict-core-import-config.detail.category') }}
                                 </sw-button>
+                                {{ incrementalValue }}
                             </sw-card>
                             <sw-card>
                                 <sw-button

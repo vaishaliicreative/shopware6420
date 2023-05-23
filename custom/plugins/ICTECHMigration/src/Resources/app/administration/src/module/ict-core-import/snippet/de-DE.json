@@ -5,14 +5,11 @@
             "descriptionTextModule": "Import Data"
         },
         "detail": {
-            "cardInformationTitle": "Geburtstagsaktion des Kunden Cron",
             "property": "Properties",
             "propertyvalue": "Properties Values",
             "category": "Categories",
             "mainproduct": "Main Products",
-            "productvariant": "Product Variants",
-            "noCustomerErrorTitle": "Fehler",
-            "noCustomerErrorMessage": "Kein Kunde zum Senden des Aktionscodes gefunden"
+            "productvariant": "Product Variants"
         }
     }
 }

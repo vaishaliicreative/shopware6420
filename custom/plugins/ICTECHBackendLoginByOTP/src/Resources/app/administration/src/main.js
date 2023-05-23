@@ -5,4 +5,3 @@ import './module/sw-login';
 
 Shopware.Locale.extend('en-GB', enGB);
 Shopware.Locale.extend('de-DE', deDE);
-console.log("call main js")
