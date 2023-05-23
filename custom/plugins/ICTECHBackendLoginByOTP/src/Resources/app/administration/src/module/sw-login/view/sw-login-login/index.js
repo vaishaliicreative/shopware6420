@@ -1,4 +1,5 @@
-import template from './sw-login-login.html.twig';
+import template from './sw-login-login.html.twig'
+import './sw-login-login.scss';
 
 const { Component, Mixin,Context, Application } = Shopware;
 

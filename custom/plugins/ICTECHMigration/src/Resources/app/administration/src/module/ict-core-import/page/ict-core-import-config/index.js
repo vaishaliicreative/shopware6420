@@ -19,7 +19,12 @@ Component.register('ict-core-import-config', {
 
     data() {
         return {
-            isLoading: false
+            isLoading: false,
+            importProduct: null,
+            totalProduct: null,
+            importProductMessage: null,
+            offSet: 0
+
         }
     },
     methods: {
@@ -50,21 +55,34 @@ Component.register('ict-core-import-config', {
 
             let data = new FormData();
             data.append('type', 'main_product');
+            data.append('offSet',this.offSet);
 
             return this.configService.httpClient.post('/_action/migration/mainproduct', data, {headers})
                 .then((response) => {
                     this.isLoading = false;
-
-                    this.createNotificationSuccess({
-                        title: response.data.type,
-                        message: response.data.message
-                    });
+                    let data = response.data;
+                    if(data.type === 'Pending'){
+                        // offSet++;
+                        this.offSet++;
+                        this.importProduct = data.importProduct;
+                        this.totalProduct = data.totalProduct;
+                        this.importProductMessage =this.importProduct +' import From total '+ this.totalProduct+' Products';
+                        this.importMainProduct(this.offSet);
+                    }else{
+                        this.createNotificationSuccess({
+                            title: response.data.type,
+                            message: response.data.message
+                        });
+                    }
+                    // this.createNotificationSuccess({
+                    //     title: response.data.type,
+                    //     message: response.data.message
+                    // });
 
                 })
                 .catch((exception) => {
                     this.isLoading = false;
                 });
-        }
-
+        },
     }
 })

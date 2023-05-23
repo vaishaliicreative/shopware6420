@@ -48,7 +48,7 @@
                             </sw-card>
                             <sw-card>
                                 <sw-button
-                                    @click="importMainProduct"
+                                    @click="importMainProduct()"
                                     ref="ictCoreImportConfigContentMainProduct"
                                     id="ict_core_import_config_content_main_product"
                                     variant="primary"
@@ -57,6 +57,8 @@
                                     :isLoading="isLoading">
                                     {{ $tc('ict-core-import-config.detail.mainproduct') }}
                                 </sw-button>
+                                {{ importProductMessage }}
+
                             </sw-card>
                             <sw-card>
                                 <sw-button

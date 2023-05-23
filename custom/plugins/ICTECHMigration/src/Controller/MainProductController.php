@@ -45,7 +45,7 @@ class MainProductController extends AbstractController
     /**
      * @Route("/api/_action/migration/mainproduct",name="api.custom.migration.mainproduct", methods={"POST"})
      */
-    public function property(Request $request): Response
+    public function mainProduct(Request $request): Response
     {
         $context = Context::createDefaultContext();
         $servername = $this->systemConfigService->get('ICTECHMigration.config.databaseHost');
@@ -55,82 +55,87 @@ class MainProductController extends AbstractController
 
         $conn = new mysqli($servername, $username, $password, $database);
 
+        $offSet = $request->request->get('offSet');
+        $totalProduct = 0;
+
         $currencyId = $context->getCurrencyId();
 
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('position',1));
-        $taxDetails = $this->taxRepository->search($criteria,$context)->first();
+        $taxDetails = $this->taxRepository->search($criteria, $context)->first();
 
+        $criteriaLanguage = new Criteria();
+        $languageDetails = $this->languageRepository->search($criteriaLanguage, $context);
 
-//        $productSql = "SELECT * FROM product_data";
-        $productSql = "SELECT * FROM product INNER JOIN product_data ON product.p_id = product_data.product_id";
+        $productCountSql = 'SELECT COUNT(*) as total_products FROM product';
+        $productCountDetails = mysqli_query($conn, $productCountSql);
+
+        if (mysqli_num_rows($productCountDetails) > 0) {
+            $row = mysqli_fetch_assoc($productCountDetails);
+//            dd($row);
+            $totalProduct = $row['total_products'];
+        }
+        $responseArray['totalProduct'] = $totalProduct;
+
+        $productSql = 'SELECT * FROM product LIMIT 1 OFFSET '.$offSet;
+//        $productSql = 'SELECT * FROM product INNER JOIN product_data ON product.p_id = product_data.product_id ORDER BY product_id';
         $productDetails = mysqli_query($conn, $productSql);
-        $price = [ [
-            "net" => 100,
-            "gross" => 100,
-            "linked" => true,
-            "currencyId" => $currencyId,
 
-
-        ]];
-        $product = [
-            [
-                'id' => Uuid::randomHex(),
-                'name' => [
-                    'en-GB' => 'Test',
-                    'de-DE' => 'Test de-DE',
-                ],
-                'description' => [
-                    'en-GB' => 'test description',
-                    'de-DE' => 'test description de-DE',
-                ],
-                'metaTitle' => [
-                    'en-GB' => 'Title',
-                    'de-DE' => 'Title de-DE',
-                ],
-                'metaDescription' => [
-                    'en-GB' => 'meta_description',
-                    'de-DE' => 'meta_description de-DE',
-                ],
-                'taxId' => $taxDetails->getId(),
-                'productNumber' => bin2hex(random_bytes(16)),
-                'price' => $price,
-                'stock' => 1,
-            ],
-        ];
-        $this->productsRepository->create($product, $context);
-
-//        dd($products);
-        echo '<pre>';
         if (mysqli_num_rows($productDetails) > 0) {
             while($row = mysqli_fetch_assoc($productDetails)) {
-               print_r($row);
-               $product = [];
-               $product['name'] = $row['title'];
-               $product['description'] = $row['description'];
-               $product['metaTitle'] = $row['seo_title'];
-               $product['metaDescription'] = $row['seo_description'];
-               $product['taxId'] = $taxDetails->getId();
-               $product['productNumber'] = bin2hex(random_bytes(16));
-               $product['price'] = [
-                   'currencyId' => $currencyId,
-                   'gross' => $row['price_brutto'],
-                   'net' => $row['price_netto']
-               ];
-               $product['stock'] = $row['quantity_available'];
-               $product['weight'] = $row['weight'];
-               $product['width'] = $row['width'];
-               $product['height'] = $row['height'];
-            }
-        } else {
-            dd("0 results");
-        }
-        exit;
+                $products = array();
+                $productDataSql = 'SELECT * from product_data where product_id = '.$row['p_id'];
+                $productDataDetails = mysqli_query($conn,$productDataSql);
+                if (mysqli_num_rows($productDataDetails) > 0) {
+                    $productArray = [];
+                    while ($product = mysqli_fetch_assoc($productDataDetails)){
+                        if($product['language'] === 'en'){
+                            $productArray['name']['en-GB'] = $product['title'];
+                            $productArray['description']['en-GB'] = $product['description'];
+                            $productArray['metaTitle']['en-GB'] = $product['seo_title'];
+                            $productArray['metaDescription']['en-GB'] = $product['seo_description'];
+                        }
+                        if($product['language'] === 'de'){
+                            $productArray['name']['de-DE'] = $product['title'];
+                            $productArray['description']['de-DE'] = $product['description'];
+                            $productArray['metaTitle']['de-DE'] = $product['seo_title'];
+                            $productArray['metaDescription']['de-DE'] = $product['seo_description'];
+                        }
+                    }
+                    $productArray['taxId'] = $taxDetails->getId();
+                    $productArray['productNumber'] = bin2hex(random_bytes(16));
+                    $productArray['price'] = [
+                        [
+                            'currencyId' => $currencyId,
+                            'gross' => $row['price_brutto'],
+                            'net' => $row['price_netto'],
+                            "linked" => true,
+                        ],
+                    ];
+                    $productArray['stock'] = (int)$row['quantity_available'];
+                    $productArray['weight'] = $row['weight'];
+                    $productArray['width'] = $row['width'];
+                    $productArray['height'] = $row['height'];
+                    $products[] = $productArray;
+                    $this->productsRepository->create($products, $context);
 
-        return new JsonResponse([
-            'type' => 'Success',
-            'message' => 'Main Product Imported'
-        ]);
+                }
+            }
+        }
+        if($offSet < $totalProduct){
+            $responseArray['type'] = 'Pending';
+            $responseArray['importProduct'] = ($offSet+1);
+            $responseArray['message'] = 'Product remaining';
+        }else{
+            $responseArray['type'] = 'Success';
+            $responseArray['importProduct'] = ($offSet+1);
+            $responseArray['message'] = 'Main Product Imported';
+        }
+//        print_r($languageArray);
+//        print_r($productDetailsArray);
+//        echo json_encode($productDetailsArray);
+
+        return new JsonResponse($responseArray);
     }
 }
