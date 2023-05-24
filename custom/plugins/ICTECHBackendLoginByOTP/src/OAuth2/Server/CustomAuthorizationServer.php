@@ -160,7 +160,6 @@ class CustomAuthorizationServer implements EmitterAwareInterface
                 return $tokenResponse->generateHttpResponse($response);
             }
         }
-//        exit;
         throw OAuthServerException::unsupportedGrantType();
     }
 
