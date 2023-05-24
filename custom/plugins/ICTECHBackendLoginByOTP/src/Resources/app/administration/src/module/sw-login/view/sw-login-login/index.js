@@ -6,7 +6,6 @@ const { Component, Mixin,Context, Application } = Shopware;
 Component.override('sw-login-login', {
     template,
     inject: ['configService'],
-    //
     mixins: [
         Mixin.getByName('notification'),
     ],
@@ -60,7 +59,6 @@ Component.override('sw-login-login', {
 
     methods: {
         createUserOtpWithEmail() {
-            let self = this;
             this.$emit('is-loading');
             Application.getContainer('init').httpClient
                .post('/backend/login/generateotp', {
@@ -73,7 +71,6 @@ Component.override('sw-login-login', {
 
                         this.loginUserDiv = false;
                         this.loginOtpDiv = true;
-                        // localStorage.setItem('loginUserDiv','false');
                         window.sessionStorage.setItem('loginUserDiv','false');
 
                         this.timer = 30;
@@ -87,10 +84,10 @@ Component.override('sw-login-login', {
                             let displaySeconds = seconds < 10 ? "0" + seconds : seconds;
                             if (seconds < 0){
                                 clearInterval(this.interval);
+                                clearInterval(this.resendInterval);
                                 document.getElementById('countDownId').innerText = "";
                                 document.getElementById('resendOtpBtn').style.display = 'inline-block';
                             }else {
-                                // let countDownElementInnerHTLM = minutes + ':' + seconds;
                                 let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
                                 document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
                                 document.getElementById('resendOtpBtn').style.display = 'none';
@@ -187,6 +184,7 @@ Component.override('sw-login-login', {
 
         resendOtpWithEmail(){
             clearInterval(this.interval);
+            clearInterval(this.resendInterval);
             this.timer = 30;
             this.$emit('is-loading');
             Application.getContainer('init').httpClient
@@ -210,14 +208,15 @@ Component.override('sw-login-login', {
                             let displaySeconds = seconds < 10 ? "0" + seconds : seconds;
                             if(seconds < 0){
                                 clearInterval(this.resendInterval);
+                                clearInterval(this.interval);
                                 document.getElementById('countDownId').innerText = "";
                                 document.getElementById('resendOtpBtn').style.display = 'inline-block';
                             }else{
-
                                 let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
                                 document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
                                 timer2 = seconds;
                                 window.sessionStorage.setItem('timerEnd',timer2);
+                                document.getElementById('resendOtpBtn').style.display = 'none';
                             }
 
                         },1000);
@@ -240,7 +239,6 @@ Component.override('sw-login-login', {
             this.loginOtpDiv = false;
             localStorage.setItem('loginUserDiv','true');
             window.sessionStorage.setItem('loginUserDiv','true');
-            // this.username = localStorage.getItem('username');
             this.username = window.sessionStorage.getItem('username');
             clearInterval(this.interval);
             clearInterval(this.resendInterval);
@@ -261,13 +259,10 @@ Component.override('sw-login-login', {
                     document.getElementById('countDownId').innerText = "";
                     document.getElementById('resendOtpBtn').style.display = 'inline-block';
                 }else {
-                    // let countDownElementInnerHTLM = minutes + ':' + seconds;
                     let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
                     document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
                     document.getElementById('resendOtpBtn').style.display = 'none';
-                    // timer2 = minutes + ':' + seconds;
                     timer2 = seconds;
-                    // localStorage.setItem('timerEnd',timer2);
                     window.sessionStorage.setItem('timerEnd',timer2);
                 }
             },1000);

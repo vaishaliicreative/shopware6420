@@ -23,17 +23,19 @@ Component.register('ict-core-import-config', {
             importProduct: null,
             totalProduct: null,
             importProductMessage: null,
-            offSet: 0
+            offSet: 0,
+            incrementalValue: null,
 
         }
     },
     methods: {
-        propertyFunction() {
+        propertyFunction(value) {
+            console.log(value);
             // this.isLoading = true;
             let headers = this.configService.getBasicHeaders();
 
             let data = new FormData();
-            data.append('formData', 'abcd');
+            data.append('startingValue', value);
 
             return this.configService.httpClient.post('/_action/migration/property', data, {headers})
                 .then((response) => {
@@ -43,6 +45,12 @@ Component.register('ict-core-import-config', {
                         title: response.data.type,
                         message: response.data.message
                     });
+                    if(response.data.type == "Pending"){
+                        this.propertyFunction(response.data.message);
+                    }
+                    if(response.data.type == "Success"){
+                        this.incrementalValue = response.data.message;
+                    }
 
                 })
                 .catch((exception) => {
@@ -67,6 +75,7 @@ Component.register('ict-core-import-config', {
                         this.importProduct = data.importProduct;
                         this.totalProduct = data.totalProduct;
                         this.importProductMessage =this.importProduct +' import From total '+ this.totalProduct+' Products';
+                        return;
                         this.importMainProduct(this.offSet);
                     }else{
                         this.createNotificationSuccess({

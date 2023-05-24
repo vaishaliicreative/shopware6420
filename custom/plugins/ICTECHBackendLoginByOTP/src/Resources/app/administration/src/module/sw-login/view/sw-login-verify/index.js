@@ -5,7 +5,6 @@ const { Component,Mixin,Application,Context } = Shopware;
 Component.register('sw-login-verify', {
     template,
     inject: ['licenseViolationService','loginService'],
-    //
     mixins: [
         Mixin.getByName('notification'),
     ],
@@ -24,15 +23,12 @@ Component.register('sw-login-verify', {
         },
     },
     created() {
-        // this.username = localStorage.getItem('username');
         this.username = window.sessionStorage.getItem('username');
         if (!localStorage.getItem('sw-admin-locale')) {
             Shopware.State.dispatch('setAdminLocale', navigator.language);
         }
         this.$emit('is-not-loading');
-        // let timeEnd = localStorage.getItem('timerEnd');
         let timeEnd = window.sessionStorage.getItem('timerEnd');
-        // console.log(timeEnd);
         if(timeEnd === null){
             this.timer = 30;
         }else if(timeEnd == 0){
@@ -49,7 +45,6 @@ Component.register('sw-login-verify', {
     methods: {
         createdComponent(){
             let timer2 = this.timer;
-            // let interval = setInterval(function (){
             this.interval = setInterval(function (){
                 let seconds = parseInt(timer2 % 60, 10);
 
@@ -60,21 +55,17 @@ Component.register('sw-login-verify', {
                     document.getElementById('countDownId').innerText = "";
                     document.getElementById('resendOtpBtn').style.display = 'inline-block';
                 }else {
-                    // let countDownElementInnerHTLM = minutes + ':' + seconds;
                     let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
                     document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
                     document.getElementById('resendOtpBtn').style.display = 'none';
-                    // timer2 = minutes + ':' + seconds;
                     timer2 = seconds;
-                    // localStorage.setItem('timerEnd',timer2);
                     window.sessionStorage.setItem('timerEnd',timer2);
                 }
             },1000);
         },
         verifyOtpWithEmail(){
             this.$emit('is-loading');
-            clearInterval(this.interval);
-            // console.log(this.username);
+
             return Application.getContainer('init').httpClient
                 .post('/backend/login/verifyotp',{
                     username: this.username,
@@ -94,6 +85,7 @@ Component.register('sw-login-verify', {
                         });
                         this.handleLoginSuccess();
                         return auth;
+                        clearInterval(this.interval);
                     }else if(response.data.type === 'notfound'){
                         this.createNotificationError({
                             title: 'Error',
@@ -167,7 +159,6 @@ Component.register('sw-login-verify', {
         },
 
         resendOtpWithEmail(){
-            console.log('click resend btn');
             this.timer = 30;
             clearInterval(this.interval);
             Application.getContainer('init').httpClient
@@ -191,11 +182,8 @@ Component.register('sw-login-verify', {
                             document.getElementById('countDownId').innerText = "";
                             document.getElementById('resendOtpBtn').style.display = 'inline-block';
                         }else{
-                            // let countDownElementInnerHTLM = minutes + ':' + seconds;
                             let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
                             document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
-                            // document.getElementById('resendOtpBtn').style.display = 'none';
-                            // timer2 = minutes + ':' + seconds;
                             timer2 = seconds;
                             localStorage.setItem('timerEnd',timer2);
                         }

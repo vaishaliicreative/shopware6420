@@ -2,11 +2,15 @@
   "name": "ictech/migration",
   "description": "Core Migration",
   "type": "shopware-platform-plugin",
-  "license": "MIT",
+  "license": "proprietary",
+  "version": "v1.0.0",
   "autoload": {
     "psr-4": {
       "ICTECHMigration\\": "src/"
     }
+  },
+  "require": {
+    "shopware/core": "^6.4 <6.5"
   },
   "extra": {
     "shopware-plugin-class": "ICTECHMigration\\ICTECHMigration",
