@@ -55,7 +55,7 @@ class ICTECHMigration extends Plugin
             'name' => self::CUSTOM_FIELD_SET_NAME_FOR_PRODUCT,
             'config' => [
                 'label' => [
-                    'de-DE' => 'Custom Fields For Product',
+                    'de-DE' => 'Benutzerdefinierte Felder für Produkt',
                     'en-GB' => 'Custom Fields For Product',
                 ]
             ],
@@ -64,9 +64,14 @@ class ICTECHMigration extends Plugin
                     'name' => 'custom_product_video_url',
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
+//                        'type' => 'url',
                         'label' => [
                             'de-DE' => 'Video (URL)',
                             'en-GB' => 'Video (URL)',
+                        ],
+                        'placeholder' => [
+                            'de-DE' => 'Video-URL eingeben',
+                            'en-GB' => 'Enter Video URL',
                         ],
                         'customFieldPosition' => 1,
                     ],
@@ -75,9 +80,14 @@ class ICTECHMigration extends Plugin
                     'name' => 'custom_product_audio',
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
+//                        'type' => 'url',
                         'label' => [
                             'de-DE' => 'Audio (URL)',
                             'en-GB' => 'Audio (URL)',
+                        ],
+                        'placeholder' => [
+                            'de-DE' => 'Audio-URL eingeben',
+                            'en-GB' => 'Enter Audio URL',
                         ],
                         'customFieldPosition' => 2,
                     ],
@@ -86,6 +96,7 @@ class ICTECHMigration extends Plugin
                     'name' => 'custom_product_www',
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
+                        'type' => 'url',
                         'label' => [
                             'de-DE' => 'WWW',
                             'en-GB' => 'WWW',
@@ -95,11 +106,11 @@ class ICTECHMigration extends Plugin
                 ],
                 [
                     'name' => 'custom_product_advantage',
-                    'type' => CustomFieldTypes::TEXT,
+                    'type' => CustomFieldTypes::HTML,
                     'config' => [
                         'componentName' => 'sw-text-editor',
                         'label' => [
-                            'de-DE' => 'Product Advantage',
+                            'de-DE' => 'Produktvorteil',
                             'en-GB' => 'Product Advantage',
                         ],
                         'customFieldPosition' => 4,
@@ -110,7 +121,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product Protection Area',
+                            'de-DE' => 'Produktschutzbereich',
                             'en-GB' => 'Product Protection Area',
                         ],
                         'customFieldPosition' => 5,
@@ -121,7 +132,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product Target Group',
+                            'de-DE' => 'Produkt Zielgruppe',
                             'en-GB' => 'Product Target Group',
                         ],
                         'customFieldPosition' => 6,
@@ -132,7 +143,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product Intended Use',
+                            'de-DE' => 'Produkt Verwendungszweck',
                             'en-GB' => 'Product Intended Use',
                         ],
                         'customFieldPosition' => 7,
@@ -143,7 +154,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product Birds',
+                            'de-DE' => 'Produkt Vögel',
                             'en-GB' => 'Product Birds',
                         ],
                         'customFieldPosition' => 8,
@@ -154,7 +165,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product Guarantee',
+                            'de-DE' => 'Produktgarantie',
                             'en-GB' => 'Product Guarantee',
                         ],
                         'customFieldPosition' => 9,
@@ -162,11 +173,11 @@ class ICTECHMigration extends Plugin
                 ],
                 [
                     'name' => 'custom_product_operating_manual',
-                    'type' => CustomFieldTypes::TEXT,
+                    'type' => CustomFieldTypes::HTML,
                     'config' => [
                         'componentName' => 'sw-text-editor',
                         'label' => [
-                            'de-DE' => 'Product Operating manual',
+                            'de-DE' => 'Produkt Betriebsanleitung',
                             'en-GB' => 'Product Operating manual',
                         ],
                         'customFieldPosition' => 10,
@@ -177,7 +188,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product Warnings',
+                            'de-DE' => 'Produktwarnungen',
                             'en-GB' => 'Product Warnings',
                         ],
                         'customFieldPosition' => 11,
@@ -188,7 +199,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product Included',
+                            'de-DE' => 'Enthaltenes Produkt',
                             'en-GB' => 'Product Included',
                         ],
                         'customFieldPosition' => 12,
@@ -196,11 +207,11 @@ class ICTECHMigration extends Plugin
                 ],
                 [
                     'name' => 'custom_product_not_included',
-                    'type' => CustomFieldTypes::TEXT,
+                    'type' => CustomFieldTypes::HTML,
                     'config' => [
                         'componentName' => 'sw-text-editor',
                         'label' => [
-                            'de-DE' => 'Product Not Included',
+                            'de-DE' => 'Produkt nicht inbegriffen',
                             'en-GB' => 'Product Not Included',
                         ],
                         'customFieldPosition' => 13,
@@ -208,11 +219,11 @@ class ICTECHMigration extends Plugin
                 ],
                 [
                     'name' => 'custom_product_summary',
-                    'type' => CustomFieldTypes::TEXT,
+                    'type' => CustomFieldTypes::HTML,
                     'config' => [
                         'componentName' => 'sw-text-editor',
                         'label' => [
-                            'de-DE' => 'Product Summary',
+                            'de-DE' => 'Produkt-Zusammenfassung',
                             'en-GB' => 'Product Summary',
                         ],
                         'customFieldPosition' => 14,
@@ -223,7 +234,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product link to info',
+                            'de-DE' => 'Produktlink zur Info',
                             'en-GB' => 'Product link to info',
                         ],
                         'customFieldPosition' => 15,
@@ -231,11 +242,11 @@ class ICTECHMigration extends Plugin
                 ],
                 [
                     'name' => 'custom_product_link_to_info_text',
-                    'type' => CustomFieldTypes::TEXT,
+                    'type' => CustomFieldTypes::HTML,
                     'config' => [
                         'componentName' => 'sw-text-editor',
                         'label' => [
-                            'de-DE' => 'Product link to info text',
+                            'de-DE' => 'Produktlink zum Infotext',
                             'en-GB' => 'Product link to info text',
                         ],
                         'customFieldPosition' => 16,
@@ -247,7 +258,7 @@ class ICTECHMigration extends Plugin
                     'config' => [
                         'componentName' => 'sw-media-field',
                         'label' => [
-                            'de-DE' => 'Product pdf',
+                            'de-DE' => 'Produkt pdf',
                             'en-GB' => 'Product pdf',
                         ],
                         'customFieldPosition' => 17,
@@ -259,7 +270,7 @@ class ICTECHMigration extends Plugin
                     'config' => [
                         'componentName' => 'sw-media-field',
                         'label' => [
-                            'de-DE' => 'Product pdf1',
+                            'de-DE' => 'Produkt pdf1',
                             'en-GB' => 'Product pdf1',
                         ],
                         'customFieldPosition' => 18,
@@ -269,8 +280,9 @@ class ICTECHMigration extends Plugin
                     'name' => 'custom_product_video',
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
+                        'type' => 'url',
                         'label' => [
-                            'de-DE' => 'Product Video',
+                            'de-DE' => 'Produkt-Video',
                             'en-GB' => 'Product Video',
                         ],
                         'customFieldPosition' => 19,
@@ -282,7 +294,7 @@ class ICTECHMigration extends Plugin
                     'config' => [
                         'componentName' => 'sw-media-field',
                         'label' => [
-                            'de-DE' => 'Product Video Image',
+                            'de-DE' => 'Produkt-Video-Bild',
                             'en-GB' => 'Product Video Image',
                         ],
                         'customFieldPosition' => 20,
@@ -290,11 +302,11 @@ class ICTECHMigration extends Plugin
                 ],
                 [
                     'name' => 'custom_product_video_text',
-                    'type' => CustomFieldTypes::TEXT,
+                    'type' => CustomFieldTypes::HTML,
                     'config' => [
                         'componentName' => 'sw-text-editor',
                         'label' => [
-                            'de-DE' => 'Product Video Text',
+                            'de-DE' => 'Produkt Video Text',
                             'en-GB' => 'Product Video Text',
                         ],
                         'customFieldPosition' => 21,
@@ -304,8 +316,9 @@ class ICTECHMigration extends Plugin
                     'name' => 'custom_product_video2',
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
+                        'type' => 'url',
                         'label' => [
-                            'de-DE' => 'Product Video2',
+                            'de-DE' => 'Produkt Video2',
                             'en-GB' => 'Product Video2',
                         ],
                         'customFieldPosition' => 22,
@@ -317,7 +330,7 @@ class ICTECHMigration extends Plugin
                     'config' => [
                         'componentName' => 'sw-media-field',
                         'label' => [
-                            'de-DE' => 'Product Video Image',
+                            'de-DE' => 'Produkt-Video-Bild',
                             'en-GB' => 'Product Video Image',
                         ],
                         'customFieldPosition' => 23,
@@ -325,11 +338,11 @@ class ICTECHMigration extends Plugin
                 ],
                 [
                     'name' => 'custom_product_video2_text',
-                    'type' => CustomFieldTypes::TEXT,
+                    'type' => CustomFieldTypes::HTML,
                     'config' => [
                         'componentName' => 'sw-text-editor',
                         'label' => [
-                            'de-DE' => 'Product Video Text',
+                            'de-DE' => 'Produkt Video Text',
                             'en-GB' => 'Product Video Text',
                         ],
                         'customFieldPosition' => 24,
@@ -339,9 +352,10 @@ class ICTECHMigration extends Plugin
                     'name' => 'custom_product_video3',
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
+                        'type' => 'url',
                         'label' => [
-                            'de-DE' => 'Product Video2',
-                            'en-GB' => 'Product Video2',
+                            'de-DE' => 'Produkt Video3',
+                            'en-GB' => 'Product Video3',
                         ],
                         'customFieldPosition' => 25,
                     ],
@@ -352,7 +366,7 @@ class ICTECHMigration extends Plugin
                     'config' => [
                         'componentName' => 'sw-media-field',
                         'label' => [
-                            'de-DE' => 'Product Video Image',
+                            'de-DE' => 'Produkt-Video-Bild',
                             'en-GB' => 'Product Video Image',
                         ],
                         'customFieldPosition' => 26,
@@ -360,11 +374,11 @@ class ICTECHMigration extends Plugin
                 ],
                 [
                     'name' => 'custom_product_video3_text',
-                    'type' => CustomFieldTypes::TEXT,
+                    'type' => CustomFieldTypes::HTML,
                     'config' => [
                         'componentName' => 'sw-text-editor',
                         'label' => [
-                            'de-DE' => 'Product Video Text',
+                            'de-DE' => 'Produkt Video Text',
                             'en-GB' => 'Product Video Text',
                         ],
                         'customFieldPosition' => 27,
@@ -374,8 +388,9 @@ class ICTECHMigration extends Plugin
                     'name' => 'custom_product_producer_link',
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
+                        'type' => 'url',
                         'label' => [
-                            'de-DE' => 'Product Producer Link',
+                            'de-DE' => 'Link zum Produkthersteller',
                             'en-GB' => 'Product Producer Link',
                         ],
                         'customFieldPosition' => 28,
@@ -386,7 +401,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product Gallery id',
+                            'de-DE' => 'Produktgalerie id',
                             'en-GB' => 'Product Gallery id',
                         ],
                         'customFieldPosition' => 29,
@@ -397,7 +412,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::SWITCH,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product In header',
+                            'de-DE' => 'Produkt In der Kopfzeile',
                             'en-GB' => 'Product In header',
                         ],
                         'customFieldPosition' => 30,
@@ -408,8 +423,8 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::SWITCH,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product In promotion',
-                            'en-GB' => 'Product In promotion',
+                            'de-DE' => 'Produkt In Förderung',
+                            'en-GB' => 'Product In Promotion',
                         ],
                         'customFieldPosition' => 31,
                     ],
@@ -419,7 +434,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::SWITCH,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product against animals',
+                            'de-DE' => 'Produkt gegen Tiere',
                             'en-GB' => 'Product against animals',
                         ],
                         'customFieldPosition' => 32,
@@ -430,7 +445,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::SWITCH,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product against birds',
+                            'de-DE' => 'Produkt gegen Vögel',
                             'en-GB' => 'Product against birds',
                         ],
                         'customFieldPosition' => 33,
@@ -441,7 +456,7 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product sound level calculator',
+                            'de-DE' => 'Schallpegelrechner für Produkte',
                             'en-GB' => 'Product sound level calculator',
                         ],
                         'customFieldPosition' => 34,
@@ -452,10 +467,34 @@ class ICTECHMigration extends Plugin
                     'type' => CustomFieldTypes::TEXT,
                     'config' => [
                         'label' => [
-                            'de-DE' => 'Product faq anker',
+                            'de-DE' => 'Produkt-Faq anker',
                             'en-GB' => 'Product faq anker',
                         ],
                         'customFieldPosition' => 35,
+                    ],
+                ],
+                [
+                    'name' => 'custom_product_id',
+                    'type' => CustomFieldTypes::TEXT,
+                    'config' => [
+                        'label' => [
+                            'de-DE' => 'Produkt-ID',
+                            'en-GB' => 'Product Id',
+                        ],
+                        'disabled' => 'disabled',
+                        'customFieldPosition' => 36,
+                    ],
+                ],
+                [
+                    'name' => 'custom_product_data_id',
+                    'type' => CustomFieldTypes::TEXT,
+                    'config' => [
+                        'label' => [
+                            'de-DE' => 'Produktdaten-ID',
+                            'en-GB' => 'Product Data Id',
+                        ],
+                        'disabled' => 'disabled',
+                        'customFieldPosition' => 37,
                     ],
                 ],
             ],

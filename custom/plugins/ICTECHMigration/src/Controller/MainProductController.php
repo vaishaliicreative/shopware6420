@@ -75,7 +75,12 @@ class MainProductController extends AbstractController
 
         if (mysqli_num_rows($productDetails) > 0) {
             while($row = mysqli_fetch_assoc($productDetails)) {
-                $this->mainProductInsert($row, $context, $conn);
+                $productDetail = $this->checkProductExistsInProductTable($context, $row['p_id']);
+                if(!$productDetail->count()) {
+                    $this->mainProductInsert($row, $context, $conn);
+                }else{
+                    $this->mainProductUpdate($productDetail, $row, $context, $conn);
+                }
             }
         }
         if($offSet < $totalProduct){
@@ -102,23 +107,54 @@ class MainProductController extends AbstractController
         $productArray = [];
         if (mysqli_num_rows($productDataDetails) > 0) {
             while ($product = mysqli_fetch_assoc($productDataDetails)){
-                foreach ($languageDetails as $_language){
-                    $languageCode = $_language->getTranslationCode()->getCode();
-                    $languageArray = explode('-',$languageCode);
-                    if($product['language'] === $languageArray[0]){
-                        $productArray['name'][$languageCode] = $product['title'] == null ? '' : $product['title'];
-                        $productArray['description'][$languageCode] = $product['description'] ? ' ' : $product['description'];
-                        $productArray['metaTitle'][$languageCode] = $product['seo_title'] ? ' ' : $product['seo_title'];
-                        $productArray['metaDescription'][$languageCode] = $product['seo_description'] ? ' ' : $product['seo_description'];
+                $productExists = $this->checkProductExistsInProductTranslationsTable($context, $product['pd_id'], $product['product_id']);
+
+                if($productExists <= 0) {
+                    foreach ($languageDetails as $_language) {
+                        $languageCode = $_language->getTranslationCode()->getCode();
+                        $languageArray = explode('-', $languageCode);
+                        if ($product['language'] === $languageArray[0]) {
+                            $productArray['name'][$languageCode] = $product['title'] == null ? '' : $product['title'];
+                            $productArray['description'][$languageCode] = $product['description'] == null ? '' : $product['description'];
+                            $productArray['metaTitle'][$languageCode] = $product['seo_title'] == null ? '' : $product['seo_title'];
+                            $productArray['metaDescription'][$languageCode] = $product['seo_description'] == null ? '' : $product['seo_description'];
+
+                            $additionalData = json_decode($product['additional_data']);
+                            $customFieldsData = [];
+                            foreach ($additionalData as $key => $value) {
+                                $customFieldName = "custom_" . $key;
+                                $customFieldsData[$customFieldName] = $value;
+                            }
+                            $customFieldsData['custom_product_id'] = $product['product_id'];
+                            $customFieldsData['custom_product_data_id'] = $product['pd_id'];
+                            $customFieldsData['custom_product_video_url'] = $product['video'];
+                            $customFieldsData['custom_product_audio'] = $product['audio'];
+                            $customFieldsData['custom_product_www'] = $product['www'];
+                            $productArray['translations'][$languageCode]['customFields'] = $customFieldsData;
+                        }
+                    }
+                    if (empty($productArray['name'][$defaultLanguageCode])) {
+                        $productArray['name'][$defaultLanguageCode] = $product['title'] == null ? '' : $product['title'];
+                        $productArray['description'][$defaultLanguageCode] = $product['description'] == null ? '' : $product['description'];
+                        $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] == null ? '' : $product['seo_title'];
+                        $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] == null ? '' : $product['seo_description'];
+
+                        $additionalData = json_decode($product['additional_data']);
+                        $customFieldsData = [];
+                        foreach ($additionalData as $key => $value) {
+                            $customFieldName = "custom_" . $key;
+                            $customFieldsData[$customFieldName] = $value;
+                        }
+                        $customFieldsData['custom_product_id'] = $product['product_id'];
+                        $customFieldsData['custom_product_data_id'] = $product['pd_id'];
+                        $customFieldsData['custom_product_video_url'] = $product['video'];
+                        $customFieldsData['custom_product_audio'] = $product['audio'];
+                        $customFieldsData['custom_product_www'] = $product['www'];
+                        $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
                     }
                 }
-                if(empty($productArray['name'][$defaultLanguageCode])){
-                    $productArray['name'][$defaultLanguageCode] = $product['title'] == null ? '' : $product['title'];
-                    $productArray['description'][$defaultLanguageCode] = $product['description'] ? ' ' : $product['description'];
-                    $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] ? ' ' : $product['seo_title'];
-                    $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] ? ' ' : $product['seo_description'];
-                }
             }
+//            dd($productArray);
             $productArray['taxId'] = $taxDetails->getId();
             $productArray['productNumber'] = bin2hex(random_bytes(16));
             $productArray['price'] = [
@@ -161,5 +197,103 @@ class MainProductController extends AbstractController
         $defaultLanguage = $this->languageRepository->search($criteriaLanguage,$context)->first();
 
         return $defaultLanguage->getTranslationCode()->getCode();
+    }
+
+    public function checkProductExistsInProductTranslationsTable($context, $productDataId, $productId): int
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customFields.custom_product_id', $productId));
+//        $criteria->addFilter(new EqualsFilter('customFields.custom_product_data_id', $productDataId));
+
+        $productDetails = $this->productsRepository->search($criteria, $context);
+        dd($productDetails);
+
+        return $productDetails->getTotal();
+    }
+
+    public function checkProductExistsInProductTable($context, $productId): EntitySearchResult
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customFields.custom_product_id',$productId));
+        return $this->productsRepository->search($criteria, $context);
+    }
+
+    public function mainProductUpdate($productDetail, $row, $context, $conn)
+    {
+        $products = array();
+        $currencyId = $context->getCurrencyId();
+        $taxDetails = $this->getTaxDetails($context);
+        $languageDetails = $this->getLanguagesDetail($context);
+        $defaultLanguageCode = $this->getDefaultLanguageCode($context);
+        $productDataSql = 'SELECT * from product_data where product_id = '.$row['p_id'];
+        $productDataDetails = mysqli_query($conn, $productDataSql);
+        $productArray = [];
+        if (mysqli_num_rows($productDataDetails) > 0) {
+            while ($product = mysqli_fetch_assoc($productDataDetails)){
+                $productExists = $this->checkProductExistsInProductTranslationsTable($context, $product['pd_id'], $product['product_id']);
+                if($productExists <= 0) {
+                    foreach ($languageDetails as $_language) {
+                        $languageCode = $_language->getTranslationCode()->getCode();
+                        $languageArray = explode('-', $languageCode);
+                        if ($product['language'] === $languageArray[0]) {
+                            $productArray['name'][$languageCode] = $product['title'] == null ? '' : $product['title'];
+                            $productArray['description'][$languageCode] = $product['description'] == null ? '' : $product['description'];
+                            $productArray['metaTitle'][$languageCode] = $product['seo_title'] == null ? '' : $product['seo_title'];
+                            $productArray['metaDescription'][$languageCode] = $product['seo_description'] == null ? '' : $product['seo_description'];
+
+                            $additionalData = json_decode($product['additional_data']);
+                            $customFieldsData = [];
+                            foreach ($additionalData as $key => $value) {
+                                $customFieldName = "custom_" . $key;
+                                $customFieldsData[$customFieldName] = $value;
+                            }
+                            $customFieldsData['custom_product_id'] = $product['product_id'];
+                            $customFieldsData['custom_product_data_id'] = $product['pd_id'];
+                            $customFieldsData['custom_product_video_url'] = $product['video'];
+                            $customFieldsData['custom_product_audio'] = $product['audio'];
+                            $customFieldsData['custom_product_www'] = $product['www'];
+                            $productArray['translations'][$languageCode]['customFields'] = $customFieldsData;
+                        }
+                    }
+                    if (empty($productArray['name'][$defaultLanguageCode])) {
+                        $productArray['name'][$defaultLanguageCode] = $product['title'] == null ? '' : $product['title'];
+                        $productArray['description'][$defaultLanguageCode] = $product['description'] == null ? '' : $product['description'];
+                        $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] == null ? '' : $product['seo_title'];
+                        $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] == null ? '' : $product['seo_description'];
+
+                        $additionalData = json_decode($product['additional_data']);
+                        $customFieldsData = [];
+                        foreach ($additionalData as $key => $value) {
+                            $customFieldName = "custom_" . $key;
+                            $customFieldsData[$customFieldName] = $value;
+                        }
+                        $customFieldsData['custom_product_id'] = $product['product_id'];
+                        $customFieldsData['custom_product_data_id'] = $product['pd_id'];
+                        $customFieldsData['custom_product_video_url'] = $product['video'];
+                        $customFieldsData['custom_product_audio'] = $product['audio'];
+                        $customFieldsData['custom_product_www'] = $product['www'];
+                        $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
+                    }
+                }
+            }
+            dd($productArray);
+            $productArray['taxId'] = $taxDetails->getId();
+            $productArray['productNumber'] = bin2hex(random_bytes(16));
+            $productArray['price'] = [
+                [
+                    'currencyId' => $currencyId,
+                    'gross' => $row['price_brutto'] == null ? 0 : $row['price_brutto'],
+                    'net' => $row['price_netto'] == null ? 0 : $row['price_netto'],
+                    "linked" => true,
+                ],
+            ];
+            $productArray['stock'] = (int)$row['quantity_available'];
+            $productArray['weight'] = $row['weight'];
+            $productArray['width'] = $row['width'];
+            $productArray['height'] = $row['height'];
+            $productArray['id'] = $productDetail->getId();
+            $products[] = $productArray;
+            $this->productsRepository->update($products, $context);
+        }
     }
 }

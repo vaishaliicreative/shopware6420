@@ -6,10 +6,15 @@
         },
         "detail": {
             "property": "Properties",
-            "propertyvalue": "Properties Values",
+            "propertyValue": "Properties Values",
             "category": "Categories",
-            "productvariant": "Product Variants",
-            "mainproduct": "Main Products"
+            "productVariant": "Product Variants",
+            "mainProduct": "Main Products"
+        }
+    },
+    "sw-settings-custom-field": {
+        "types": {
+            "html": "Text editor"
         }
     }
 }

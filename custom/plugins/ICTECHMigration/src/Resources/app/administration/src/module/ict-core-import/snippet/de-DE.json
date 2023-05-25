@@ -1,15 +1,20 @@
 {
     "ict-core-import-config": {
         "general": {
-            "mainMenuItemGeneral": "Import Data",
-            "descriptionTextModule": "Import Data"
+            "mainMenuItemGeneral": "Daten importieren",
+            "descriptionTextModule": "Daten importieren"
         },
         "detail": {
-            "property": "Properties",
-            "propertyvalue": "Properties Values",
-            "category": "Categories",
-            "mainproduct": "Main Products",
-            "productvariant": "Product Variants"
+            "property": "Eigenschaften",
+            "propertyValue": "Eigenschaften Werte",
+            "category": "Kategorien",
+            "mainProduct": "Wichtigste Produkte",
+            "productVariant": "Produkt-Varianten"
+        }
+    },
+    "sw-settings-custom-field": {
+        "types": {
+            "html": "Text-Editor"
         }
     }
 }

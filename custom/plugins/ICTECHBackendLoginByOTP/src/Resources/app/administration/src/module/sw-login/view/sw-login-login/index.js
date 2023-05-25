@@ -88,9 +88,9 @@ Component.override('sw-login-login', {
                                 document.getElementById('countDownId').innerText = "";
                                 document.getElementById('resendOtpBtn').style.display = 'inline-block';
                             }else {
+                                document.getElementById('resendOtpBtn').style.display = 'none';
                                 let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
                                 document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
-                                document.getElementById('resendOtpBtn').style.display = 'none';
 
                                 time2 = seconds;
                                 window.sessionStorage.setItem('timerEnd',time2);
@@ -183,6 +183,7 @@ Component.override('sw-login-login', {
         },
 
         resendOtpWithEmail(){
+            document.getElementById('resendOtpBtn').style.display = 'none';
             clearInterval(this.interval);
             clearInterval(this.resendInterval);
             this.timer = 30;
@@ -213,19 +214,21 @@ Component.override('sw-login-login', {
                                 document.getElementById('resendOtpBtn').style.display = 'inline-block';
                             }else{
                                 let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
+                                document.getElementById('resendOtpBtn').style.display = 'none';
                                 document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
                                 timer2 = seconds;
                                 window.sessionStorage.setItem('timerEnd',timer2);
-                                document.getElementById('resendOtpBtn').style.display = 'none';
                             }
 
                         },1000);
                     }else if(response.data.type === 'notfound'){
+                        document.getElementById('resendOtpBtn').style.display = 'inline-block';
                         this.createNotificationError({
                             title: 'Error',
                             message: this.$tc('sw-login.detail.pluginNotFoundMessage')
                         });
                     }else{
+                        document.getElementById('resendOtpBtn').style.display = 'inline-block';
                         this.createNotificationError({
                             title: this.$tc('sw-login.detail.pluginErrorTitle'),
                             message: this.$tc('sw-login.detail.pluginErrorMessage')
@@ -259,9 +262,10 @@ Component.override('sw-login-login', {
                     document.getElementById('countDownId').innerText = "";
                     document.getElementById('resendOtpBtn').style.display = 'inline-block';
                 }else {
+                    document.getElementById('resendOtpBtn').style.display = 'none';
                     let countDownElementInnerHTLM = 'Resend OTP only after ' + displaySeconds + ' seconds';
                     document.getElementById('countDownId').innerText = countDownElementInnerHTLM;
-                    document.getElementById('resendOtpBtn').style.display = 'none';
+
                     timer2 = seconds;
                     window.sessionStorage.setItem('timerEnd',timer2);
                 }
