@@ -25,6 +25,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="tax.repository"/>
+            <argument type="service" id="tag.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

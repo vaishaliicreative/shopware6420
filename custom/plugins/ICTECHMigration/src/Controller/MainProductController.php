@@ -32,16 +32,20 @@ class MainProductController extends AbstractController
 
     private EntityRepository $taxRepository;
 
+    private EntityRepository $tagRepository;
+
     public function __construct(
         SystemConfigService $systemConfigService,
         EntityRepository $languageRepository,
         EntityRepository $productsRepository,
-        EntityRepository $taxRepository
+        EntityRepository $taxRepository,
+        EntityRepository $tagRepository
     ) {
         $this->systemConfigService = $systemConfigService;
         $this->languageRepository = $languageRepository;
         $this->productsRepository = $productsRepository;
         $this->taxRepository = $taxRepository;
+        $this->tagRepository = $tagRepository;
     }
 
     /**
@@ -76,10 +80,11 @@ class MainProductController extends AbstractController
         if (mysqli_num_rows($productDetails) > 0) {
             while($row = mysqli_fetch_assoc($productDetails)) {
                 $productDetail = $this->checkProductExistsInProductTable($context, $row['p_id']);
-                if(!$productDetail->count()) {
+
+                if($productDetail === null) {
                     $this->mainProductInsert($row, $context, $conn);
                 }else{
-                    $this->mainProductUpdate($productDetail, $row, $context, $conn);
+//                    $this->mainProductUpdate($productDetail, $row, $context, $conn);
                 }
             }
         }
@@ -106,38 +111,17 @@ class MainProductController extends AbstractController
         $productDataDetails = mysqli_query($conn, $productDataSql);
         $productArray = [];
         if (mysqli_num_rows($productDataDetails) > 0) {
+            $tagIds = '';
+            $mediaArray = array();
             while ($product = mysqli_fetch_assoc($productDataDetails)){
-                $productExists = $this->checkProductExistsInProductTranslationsTable($context, $product['pd_id'], $product['product_id']);
-
-                if($productExists <= 0) {
-                    foreach ($languageDetails as $_language) {
-                        $languageCode = $_language->getTranslationCode()->getCode();
-                        $languageArray = explode('-', $languageCode);
-                        if ($product['language'] === $languageArray[0]) {
-                            $productArray['name'][$languageCode] = $product['title'] == null ? '' : $product['title'];
-                            $productArray['description'][$languageCode] = $product['description'] == null ? '' : $product['description'];
-                            $productArray['metaTitle'][$languageCode] = $product['seo_title'] == null ? '' : $product['seo_title'];
-                            $productArray['metaDescription'][$languageCode] = $product['seo_description'] == null ? '' : $product['seo_description'];
-
-                            $additionalData = json_decode($product['additional_data']);
-                            $customFieldsData = [];
-                            foreach ($additionalData as $key => $value) {
-                                $customFieldName = "custom_" . $key;
-                                $customFieldsData[$customFieldName] = $value;
-                            }
-                            $customFieldsData['custom_product_id'] = $product['product_id'];
-                            $customFieldsData['custom_product_data_id'] = $product['pd_id'];
-                            $customFieldsData['custom_product_video_url'] = $product['video'];
-                            $customFieldsData['custom_product_audio'] = $product['audio'];
-                            $customFieldsData['custom_product_www'] = $product['www'];
-                            $productArray['translations'][$languageCode]['customFields'] = $customFieldsData;
-                        }
-                    }
-                    if (empty($productArray['name'][$defaultLanguageCode])) {
-                        $productArray['name'][$defaultLanguageCode] = $product['title'] == null ? '' : $product['title'];
-                        $productArray['description'][$defaultLanguageCode] = $product['description'] == null ? '' : $product['description'];
-                        $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] == null ? '' : $product['seo_title'];
-                        $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] == null ? '' : $product['seo_description'];
+                foreach ($languageDetails as $_language) {
+                    $languageCode = $_language->getTranslationCode()->getCode();
+                    $languageArray = explode('-', $languageCode);
+                    if ($product['language'] === $languageArray[0]) {
+                        $productArray['name'][$languageCode] = $product['title'] == null ? '' : $product['title'];
+                        $productArray['description'][$languageCode] = $product['description'] == null ? '' : $product['description'];
+                        $productArray['metaTitle'][$languageCode] = $product['seo_title'] == null ? '' : $product['seo_title'];
+                        $productArray['metaDescription'][$languageCode] = $product['seo_description'] == null ? '' : $product['seo_description'];
 
                         $additionalData = json_decode($product['additional_data']);
                         $customFieldsData = [];
@@ -150,13 +134,37 @@ class MainProductController extends AbstractController
                         $customFieldsData['custom_product_video_url'] = $product['video'];
                         $customFieldsData['custom_product_audio'] = $product['audio'];
                         $customFieldsData['custom_product_www'] = $product['www'];
-                        $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
+                        $productArray['translations'][$languageCode]['customFields'] = $customFieldsData;
+
+//                        $mediaArray[] = $this->mediaCoverInsert($context, $product);
                     }
+                }
+                if (empty($productArray['name'][$defaultLanguageCode])) {
+                    $productArray['name'][$defaultLanguageCode] = $product['title'] == null ? '' : $product['title'];
+                    $productArray['description'][$defaultLanguageCode] = $product['description'] == null ? '' : $product['description'];
+                    $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] == null ? '' : $product['seo_title'];
+                    $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] == null ? '' : $product['seo_description'];
+
+                    $additionalData = json_decode($product['additional_data']);
+                    $customFieldsData = [];
+                    foreach ($additionalData as $key => $value) {
+                        $customFieldName = "custom_" . $key;
+                        $customFieldsData[$customFieldName] = $value;
+                    }
+                    $customFieldsData['custom_product_id'] = $product['product_id'];
+                    $customFieldsData['custom_product_data_id'] = $product['pd_id'];
+                    $customFieldsData['custom_product_video_url'] = $product['video'];
+                    $customFieldsData['custom_product_audio'] = $product['audio'];
+                    $customFieldsData['custom_product_www'] = $product['www'];
+                    $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
+                }
+                if ($product['tags'] !== null && $product['tags'] !== "") {
+                    $tagIds = $this->tagInsert($context, $product['tags']);
                 }
             }
 //            dd($productArray);
             $productArray['taxId'] = $taxDetails->getId();
-            $productArray['productNumber'] = bin2hex(random_bytes(16));
+            $productArray['productNumber'] = $row['article_number'] == '' ? bin2hex(random_bytes(16)) : $row['article_number'];
             $productArray['price'] = [
                 [
                     'currencyId' => $currencyId,
@@ -169,8 +177,19 @@ class MainProductController extends AbstractController
             $productArray['weight'] = $row['weight'];
             $productArray['width'] = $row['width'];
             $productArray['height'] = $row['height'];
+//            $productArray['tagIds'][] = $tagIds;
+//            dd($productArray);
+
             $products[] = $productArray;
-            $this->productsRepository->create($products, $context);
+            $result = $this->productsRepository->create($products, $context);
+//            $productInsertId = $result->getPrimaryKeys('product');
+//
+//            $productDetail = $this->productsRepository->search(new Criteria([$productInsertId]), $context)->first();
+//            $tagDetails = $this->tagRepository->search(new Criteria([$tagIds]), $context)->getEntities();
+//            if(!empty($tagIds)) {
+//                $productDetail->setTags($tagDetails);
+//                $productDetail->setTagIds($tagIds);
+//            }
         }
     }
 
@@ -206,16 +225,15 @@ class MainProductController extends AbstractController
 //        $criteria->addFilter(new EqualsFilter('customFields.custom_product_data_id', $productDataId));
 
         $productDetails = $this->productsRepository->search($criteria, $context);
-        dd($productDetails);
 
         return $productDetails->getTotal();
     }
 
-    public function checkProductExistsInProductTable($context, $productId): EntitySearchResult
+    public function checkProductExistsInProductTable($context, $productId)
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customFields.custom_product_id',$productId));
-        return $this->productsRepository->search($criteria, $context);
+        return $this->productsRepository->search($criteria, $context)->first();
     }
 
     public function mainProductUpdate($productDetail, $row, $context, $conn)
@@ -276,7 +294,6 @@ class MainProductController extends AbstractController
                     }
                 }
             }
-            dd($productArray);
             $productArray['taxId'] = $taxDetails->getId();
             $productArray['productNumber'] = bin2hex(random_bytes(16));
             $productArray['price'] = [
@@ -293,7 +310,59 @@ class MainProductController extends AbstractController
             $productArray['height'] = $row['height'];
             $productArray['id'] = $productDetail->getId();
             $products[] = $productArray;
+//            dd($products);
             $this->productsRepository->update($products, $context);
         }
+    }
+
+    public function tagInsert($context, $tags)
+    {
+        $tags = rtrim($tags,",");
+        $tagArray = explode(",", $tags);
+        $tagIds  = [];
+        foreach ($tagArray as $tag){
+            $tagDetail = $this->searchTagsInTable($context, trim($tag));
+            $tagId = '';
+            $tagData = [];
+            if ($tagDetail !== null) {
+                $tagIds[] = $tagDetail->getId();
+                $tagData = [
+                    'id' => $tagDetail->getId(),
+                    'name' => trim($tag),
+                ];
+            } else{
+                $tagId = Uuid::randomHex();
+                $tagIds[] = $tagId;
+                $tagData = [
+                    'id' => $tagId,
+                    'name' => trim($tag),
+                ];
+            }
+            $this->tagRepository->upsert([$tagData], $context);
+        }
+//        dd($tagIds);
+        return $tagIds;
+    }
+
+    public function searchTagsInTable($context, $tag)
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name',$tag));
+        return $this->tagRepository->search($criteria, $context)->first();
+    }
+
+    public function mediaCoverInsert($context, $row)
+    {
+        $baseURL = "https://www.purivox.com/uploads/shop/";
+
+        $baseURL .= $row['product_id'];
+        $coverImageUrl = $baseURL . "/" . $row['image'];
+//        dd($coverImageUrl);
+
+    }
+
+    public function mediaInsert($context, $row)
+    {
+        $baseURL = "https://www.purivox.com/uploads/shop/";
     }
 }
