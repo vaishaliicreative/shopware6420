@@ -24,8 +24,11 @@ Component.register('ict-core-import-config', {
             totalProduct: null,
             importProductMessage: null,
             offSet: 0,
+            categoryOffSet: 0,
             incrementalValue: null,
-
+            importCategoryMessage: null,
+            importCategoryCount: null,
+            totalCategory: null
         }
     },
     methods: {
@@ -93,5 +96,35 @@ Component.register('ict-core-import-config', {
                     this.isLoading = false;
                 });
         },
+
+        importCategory(){
+            let headers = this.configService.getBasicHeaders();
+
+            let data = new FormData();
+            data.append('type', 'category');
+            data.append('offSet',this.categoryOffSet);
+
+            return this.configService.httpClient.post('/_action/migration/addcategory', data, {headers})
+                .then((response) => {
+                    this.isLoading = false;
+                    let data = response.data;
+                    if(data.type === 'Pending'){
+                        this.categoryOffSet++;
+                        this.importCategoryCount = data.importCategoryCount;
+                        this.totalCategory = data.totalCategory;
+                        this.importCategoryMessage =this.importCategoryCount +' import From total '+ this.totalCategory+' Categories';
+                        return;
+                        this.importCategory(this.categoryOffSet);
+                    }else{
+                        this.createNotificationSuccess({
+                            title: response.data.type,
+                            message: response.data.message
+                        });
+                    }
+                })
+                .catch((exception) => {
+                    this.isLoading = false;
+                });
+        }
     }
 })

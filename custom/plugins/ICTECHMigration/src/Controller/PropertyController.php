@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ICTECHMigration\Controller;
 
@@ -19,34 +21,25 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PropertyController extends AbstractController
 {
-    /*** @var SystemConfigService */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /*** @var EntityRepositoryInterface */
-    private $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
-    /*** @var EntityRepositoryInterface */
-    private $propertyRepository;
+    private EntityRepositoryInterface $propertyRepository;
 
-    /*** @var EntityRepositoryInterface */
-    private $productsRepository;
+    private EntityRepositoryInterface $productsRepository;
 
-    /*** @var EntityRepositoryInterface */
-    private $propertyOptionsRepository;
+    private EntityRepositoryInterface $propertyOptionsRepository;
 
-    /*** @var EntityRepositoryInterface */
-    private $productPropertyRepository;
-    private $categoryRepository;
+    private EntityRepositoryInterface $productPropertyRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
-    /*** @var EntityRepositoryInterface */
-    private $seoUrlRepository;
+    private EntityRepositoryInterface $seoUrlRepository;
 
-    /*** @var EntityRepositoryInterface */
-    private $salesChannelRepository;
-
+    private EntityRepositoryInterface $salesChannelRepository;
 
     public function __construct(
-        SystemConfigService       $systemConfigService,
+        SystemConfigService $systemConfigService,
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $propertyRepository,
         EntityRepositoryInterface $productsRepository,
@@ -55,8 +48,7 @@ class PropertyController extends AbstractController
         EntityRepositoryInterface $categoryRepository,
         EntityRepositoryInterface $seoUrlRepository,
         EntityRepositoryInterface $salesChannelRepository
-    )
-    {
+    ) {
         $this->systemConfigService = $systemConfigService;
         $this->languageRepository = $languageRepository;
         $this->propertyRepository = $propertyRepository;
@@ -93,40 +85,43 @@ class PropertyController extends AbstractController
 
         //     Connection With MySQL and Get Data
         $conn = new mysqli($servername, $username, $password, $database);
-        $startFromData = (int)$request->get('startingValue');
+//        $startFromData = (int) $request->get('startingValue');
         $sql = 'SELECT cms_art_menu_text,cms_art_menu_speaking_url,cms_art_article_browser_title,cms_art_article_description,cms_art_article_content,cms_art_article_content_title FROM cms_articles LIMIT 1';
         $result = mysqli_query($conn, $sql);
 
         if (mysqli_num_rows($result) > 0) {
-            $i = (int)$request->get('startingValue');
+            $i = (int) $request->get('startingValue');
             while ($row = mysqli_fetch_assoc($result)) {
-                $i = $i + 1;
+                $i += 1;
                 $categoryId = Uuid::randomHex();
                 $this->categoryInsert($getParentDataId->id, $categoryId, $row, $context);
-                if ($i % 10 == 0) {
+                if ($i % 10 === 0) {
                     return new JsonResponse([
                         'type' => 'Pending',
-                        'message' => $i
+                        'message' => $i,
                     ]);
                 }
             }
         }
         return new JsonResponse([
             'type' => 'Success',
-            'message' => 'Categories Imported'
+            'message' => 'Categories Imported',
         ]);
     }
 
-    private function categoryInsert($getParentDataId, $categoryId, $row, $context): void
+    /**
+     * @param array $row
+     */
+    private function categoryInsert(string $getParentDataId, string $categoryId, array $row, Context $context): void
     {
         $data = [
             'id' => $categoryId,
             'parentId' => $getParentDataId,
-            'name' => $row['cms_art_menu_text'] == '' ? '' : $row['cms_art_menu_text'],
-            'metaTitle' => $row['cms_art_article_browser_title'] == '' ? '' : $row['cms_art_article_browser_title'],
-            'metaDescription' => $row['cms_art_article_description'] == '' ? '' : $row['cms_art_article_description'],
-            'description' => $row['cms_art_article_content'] == '' ? '' : $row['cms_art_article_content'],
-            'customFields' => ["custom_category_has_migration" => $row['cms_art_article_content_title']]
+            'name' => $row['cms_art_menu_text'] === '' ? '' : $row['cms_art_menu_text'],
+            'metaTitle' => $row['cms_art_article_browser_title'] === '' ? '' : $row['cms_art_article_browser_title'],
+            'metaDescription' => $row['cms_art_article_description'] === '' ? '' : $row['cms_art_article_description'],
+            'description' => $row['cms_art_article_content'] === '' ? '' : $row['cms_art_article_content'],
+            'customFields' => ['custom_category_has_migration' => $row['cms_art_article_content_title']],
         ];
         $this->categoryRepository->create([$data], $context);
     }

@@ -12,9 +12,9 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 class InstallCustomField
 {
-    public const CUSTOM_FIELD_NAME     = 'custom_category_has_migration';
+    public const CUSTOM_FIELD_NAME = 'custom_category_has_migration';
     public const CUSTOM_FIELD_SET_NAME = 'custom_category';
-    
+
     /** * @var EntityRepository */
     private EntityRepository $customFieldSetRepository;
 
@@ -24,7 +24,7 @@ class InstallCustomField
     public function __construct(EntityRepository $customFieldSetRepository, EntityRepository $customFieldRepository)
     {
         $this->customFieldSetRepository = $customFieldSetRepository;
-        $this->customFieldRepository    = $customFieldRepository;
+        $this->customFieldRepository = $customFieldRepository;
     }
 
     public function install(Context $context): void
@@ -55,29 +55,40 @@ class InstallCustomField
     {
         $customField = [
             [
-                'id'           => \md5(self::CUSTOM_FIELD_SET_NAME),
-                'name'         => self::CUSTOM_FIELD_SET_NAME,
-                'config'       => [
+                'id' => \md5(self::CUSTOM_FIELD_SET_NAME),
+                'name' => self::CUSTOM_FIELD_SET_NAME,
+                'config' => [
                     'label' => [
                         'en-GB' => 'Custom category',
-                        'de-DE' => 'Custom category',
+                        'de-DE' => 'Benutzerdefinierte Kategorie',
                     ],
                 ],
                 'customFields' => [
                     [
-                        'id'     => \md5(self::CUSTOM_FIELD_NAME),
-                        'name'   => self::CUSTOM_FIELD_NAME,
-                        'type'   => CustomFieldTypes::TEXT,
+                        'id' => \md5(self::CUSTOM_FIELD_NAME),
+                        'name' => self::CUSTOM_FIELD_NAME,
+                        'type' => CustomFieldTypes::TEXT,
                         'config' => [
-                            'label'               => [
+                            'label' => [
                                 'en-GB' => 'Custom category has migration',
-                                'de-DE' => 'Custom category has migration',
+                                'de-DE' => 'Benutzerdefinierte Kategorie hat Migration',
                             ],
                             'customFieldPosition' => 10,
                         ],
                     ],
+                    [
+                        'name' => 'custom_category_id',
+                        'type' => CustomFieldTypes::TEXT,
+                        'config' => [
+                            'label' => [
+                                'en-GB' => 'Custom category id',
+                                'de-DE' => 'Benutzerdefinierte Kategorie-ID',
+                            ],
+                            'customFieldPosition' => 11,
+                        ],
+                    ],
                 ],
-                'relations'    => [
+                'relations' => [
                     [
                         'entityName' => 'category',
                     ],
