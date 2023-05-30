@@ -35,11 +35,21 @@
             <argument type="service" id="media_thumbnail_size.repository" />
             <argument type="service" id="media_folder.repository" />
             <argument type="service" id="sales_channel.repository" />
+            <argument type="service" id="category.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
         <!-- End Main Product Controller -->
+
+        <service id="ICTECHMigration\Controller\CategoryController" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="category.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
 
     </services>
 </container>

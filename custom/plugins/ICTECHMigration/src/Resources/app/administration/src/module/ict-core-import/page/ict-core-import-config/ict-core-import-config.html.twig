@@ -34,9 +34,22 @@
                                     {{ $tc('ict-core-import-config.detail.propertyValue') }}
                                 </sw-button>
                             </sw-card>
+{#                            <sw-card>#}
+{#                                <sw-button#}
+{#                                    @click="propertyFunction(0)"#}
+{#                                    ref="ictCoreImportConfigContentCategory"#}
+{#                                    id="ict_core_import_config_content_category"#}
+{#                                    variant="primary"#}
+{#                                    :square="false"#}
+{#                                    :block="false"#}
+{#                                    :isLoading="isLoading">#}
+{#                                    {{ $tc('ict-core-import-config.detail.category') }}#}
+{#                                </sw-button>#}
+{#                                {{ incrementalValue }}#}
+{#                            </sw-card>#}
                             <sw-card>
                                 <sw-button
-                                    @click="propertyFunction(0)"
+                                    @click="importCategory()"
                                     ref="ictCoreImportConfigContentCategory"
                                     id="ict_core_import_config_content_category"
                                     variant="primary"
@@ -45,7 +58,7 @@
                                     :isLoading="isLoading">
                                     {{ $tc('ict-core-import-config.detail.category') }}
                                 </sw-button>
-                                {{ incrementalValue }}
+                                {{ importCategoryMessage }}
                             </sw-card>
                             <sw-card>
                                 <sw-button
