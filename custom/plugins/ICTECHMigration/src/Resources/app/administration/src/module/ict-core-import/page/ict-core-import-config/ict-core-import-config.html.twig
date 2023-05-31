@@ -76,6 +76,7 @@
                             </sw-card>
                             <sw-card>
                                 <sw-button
+                                    @click="importVariantProduct()"
                                     ref="ictCoreImportConfigContentProductVariant"
                                     id="ict_core_import_config_content_product_variant"
                                     variant="primary"
@@ -84,6 +85,7 @@
                                     :isLoading="isLoading">
                                     {{ $tc('ict-core-import-config.detail.productVariant') }}
                                 </sw-button>
+                                {{ importVariantMessage }}
                             </sw-card>
                         {% endblock %}
                         </sw-card>

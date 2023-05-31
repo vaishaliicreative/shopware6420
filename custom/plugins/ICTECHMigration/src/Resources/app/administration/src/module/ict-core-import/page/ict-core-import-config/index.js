@@ -28,7 +28,11 @@ Component.register('ict-core-import-config', {
             incrementalValue: null,
             importCategoryMessage: null,
             importCategoryCount: null,
-            totalCategory: null
+            totalCategory: null,
+            importVariant: null,
+            totalVariant: null,
+            importVariantMessage: null,
+            variantOffSet: 0
         }
     },
     methods: {
@@ -78,7 +82,7 @@ Component.register('ict-core-import-config', {
                         this.importProduct = data.importProduct;
                         this.totalProduct = data.totalProduct;
                         this.importProductMessage =this.importProduct +' import From total '+ this.totalProduct+' Products';
-                        return;
+                        // return;
                         this.importMainProduct(this.offSet);
                     }else{
                         this.createNotificationSuccess({
@@ -113,8 +117,38 @@ Component.register('ict-core-import-config', {
                         this.importCategoryCount = data.importCategoryCount;
                         this.totalCategory = data.totalCategory;
                         this.importCategoryMessage =this.importCategoryCount +' import From total '+ this.totalCategory+' Categories';
-                        return;
+                        // return;
                         this.importCategory(this.categoryOffSet);
+                    }else{
+                        this.createNotificationSuccess({
+                            title: response.data.type,
+                            message: response.data.message
+                        });
+                    }
+                })
+                .catch((exception) => {
+                    this.isLoading = false;
+                });
+        },
+
+        importVariantProduct(){
+            let headers = this.configService.getBasicHeaders();
+
+            let data = new FormData();
+            data.append('type', 'variant product');
+            data.append('offSet',this.variantOffSet);
+
+            return this.configService.httpClient.post('/_action/migration/addvariantproduct', data, {headers})
+                .then((response) => {
+                    this.isLoading = false;
+                    let data = response.data;
+                    if(data.type === 'Pending'){
+                        this.variantOffSet++;
+                        this.importVariant = data.importVariant;
+                        this.totalVariant = data.totalVariant;
+                        this.importVariantMessage =this.importVariant +' import From total '+ this.totalVariant+' Variant Product';
+                        // return;
+                        this.importCategory(this.variantOffSet);
                     }else{
                         this.createNotificationSuccess({
                             title: response.data.type,

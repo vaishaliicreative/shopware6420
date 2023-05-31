@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,22 +27,21 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route(defaults={"_routeScope"={"api"}})
  */
-class MainProductController extends AbstractController
+class VariantProductController extends AbstractController
 {
     private SystemConfigService $systemConfigService;
     private EntityRepository $languageRepository;
     private EntityRepository $productsRepository;
-    private EntityRepository $taxRepository;
-    private EntityRepository $tagRepository;
     private FileSaver $fileSaver;
     private EntityRepository $mediaRepository;
     private MediaService $mediaService;
     private EntityRepository $productMediaRepository;
     private EntityRepository $mediaThumbnailSize;
     private EntityRepository $mediaFolderRepository;
-    private EntityRepository $salesChannelRepository;
-    private EntityRepository $categoryRepository;
 
+    private EntityRepository $propertyGroupRepository;
+
+    private EntityRepository $propertyGroupOptionRepository;
     private string $baseURL = 'https://www.purivox.com/uploads/shop/';
 
     private array $folderName = [
@@ -56,39 +56,35 @@ class MainProductController extends AbstractController
         SystemConfigService $systemConfigService,
         EntityRepository $languageRepository,
         EntityRepository $productsRepository,
-        EntityRepository $taxRepository,
-        EntityRepository $tagRepository,
         EntityRepository $mediaRepository,
         EntityRepository $productMediaRepository,
         MediaService $mediaService,
         FileSaver $fileSaver,
         EntityRepository $mediaThumbnailSize,
         EntityRepository $mediaFolderRepository,
-        EntityRepository $salesChannelRepository,
-        EntityRepository $categoryRepository
+        EntityRepository $propertyGroupRepository,
+        EntityRepository $propertyGroupOptionRepository
     ) {
         $this->systemConfigService = $systemConfigService;
         $this->languageRepository = $languageRepository;
         $this->productsRepository = $productsRepository;
-        $this->taxRepository = $taxRepository;
-        $this->tagRepository = $tagRepository;
         $this->mediaRepository = $mediaRepository;
         $this->productMediaRepository = $productMediaRepository;
         $this->mediaService = $mediaService;
         $this->fileSaver = $fileSaver;
         $this->mediaThumbnailSize = $mediaThumbnailSize;
         $this->mediaFolderRepository = $mediaFolderRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->categoryRepository = $categoryRepository;
+        $this->propertyGroupRepository = $propertyGroupRepository;
+        $this->propertyGroupOptionRepository = $propertyGroupOptionRepository;
     }
 
     /**
-     * @Route("/api/_action/migration/mainproduct",name="api.custom.migration.mainproduct", methods={"POST"})
+     * @Route("/api/_action/migration/addvariantproduct",name="api.custom.migration.addvariantproduct", methods={"POST"})
      */
-    public function mainProduct(Request $request): Response
+    public function variantProduct(Context $context, Request $request): Response
     {
         $responseArray = [];
-        $context = Context::createDefaultContext();
+
         $servername = $this->systemConfigService->get('ICTECHMigration.config.databaseHost');
         $username = $this->systemConfigService->get('ICTECHMigration.config.databaseUser');
         $password = $this->systemConfigService->get('ICTECHMigration.config.databasePassword');
@@ -99,7 +95,7 @@ class MainProductController extends AbstractController
         $offSet = $request->request->get('offSet');
         $totalProduct = 0;
 
-        $productCountSql = 'SELECT COUNT(*) as total_products FROM product WHERE referto_id = 0';
+        $productCountSql = 'SELECT COUNT(*) as total_products FROM product WHERE referto_id != 0';
         $productCountDetails = mysqli_query($conn, $productCountSql);
 
         if (mysqli_num_rows($productCountDetails) > 0) {
@@ -107,49 +103,51 @@ class MainProductController extends AbstractController
 
             $totalProduct = $row['total_products'];
         }
-        $responseArray['totalProduct'] = $totalProduct;
+        $responseArray['totalVariant'] = $totalProduct;
 
-        $productSql = 'SELECT * FROM product WHERE referto_id = 0 ORDER BY p_id ASC LIMIT 1 OFFSET '.$offSet;
-        $productDetails = mysqli_query($conn, $productSql);
+        $productSql = 'SELECT * FROM product WHERE referto_id != 0 ORDER BY p_id ASC LIMIT 1 OFFSET '.$offSet;
+        $variantProductDetails = mysqli_query($conn, $productSql);
 
-        if (mysqli_num_rows($productDetails) > 0) {
-            while ($row = mysqli_fetch_assoc($productDetails)) {
+        if (mysqli_num_rows($variantProductDetails) > 0) {
+            while ($row = mysqli_fetch_assoc($variantProductDetails)) {
                 $productDetail = $this->checkProductExistsInProductTable($context, $row['p_id']);
-//                dd($row);
+
                 if ($productDetail === null) {
-                    $this->mainProductInsert($row, $context, $conn);
+                    $this->variantProductInsert($row, $context, $conn);
                 } else {
-                    $this->mainProductUpdate($productDetail, $row, $context, $conn);
+                    $this->variantProductUpdate($productDetail, $row, $context, $conn);
                 }
             }
         }
+
         if ($offSet < $totalProduct) {
             $responseArray['type'] = 'Pending';
-            $responseArray['importProduct'] = $offSet + 1;
+            $responseArray['importVariant'] = $offSet + 1;
             $responseArray['message'] = 'Product remaining';
         } else {
             $responseArray['type'] = 'Success';
-            $responseArray['importProduct'] = $offSet + 1;
-            $responseArray['message'] = 'Main Product Imported';
+            $responseArray['importVariant'] = $offSet + 1;
+            $responseArray['message'] = 'Variant Product Imported';
         }
         return new JsonResponse($responseArray);
     }
 
-    // product insert
-    public function mainProductInsert(array $row, Context $context, $conn): void
+    public function variantProductInsert(array $row, Context $context, $conn): void
     {
         $products = [];
         $currencyId = $context->getCurrencyId();
-        $taxDetails = $this->getTaxDetails($context);
         $languageDetails = $this->getLanguagesDetail($context);
         $defaultLanguageCode = $this->getDefaultLanguageCode($context);
         $productDataSql = 'SELECT * from product_data where product_id = '.$row['p_id'];
         $productDataDetails = mysqli_query($conn, $productDataSql);
         $productArray = [];
         $media_array = [];
-        $tag_array = [];
+        $variantArray = [];
+
+        $parentData = $this->getProductParentId($context, $row['referto_id']);
+        $parentId = $parentData->getId();
+
         if (mysqli_num_rows($productDataDetails) > 0) {
-            $tagIds = [];
             $mediaIds = [];
             while ($product = mysqli_fetch_assoc($productDataDetails)) {
                 foreach ($languageDetails as $_language) {
@@ -163,6 +161,10 @@ class MainProductController extends AbstractController
                         $productArray['description'][$languageCode] = $product['description'] === null ? '' : $product['description'];
                         $productArray['metaTitle'][$languageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
                         $productArray['metaDescription'][$languageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
+
+                        // add variant id
+
+                        $variantArray['name'][$languageCode] = $product['subtitle'] === null ? '' : $product['subtitle'];
 
                         $additionalData = json_decode($product['additional_data']);
                         $customFieldsData = [];
@@ -218,6 +220,7 @@ class MainProductController extends AbstractController
                         }
 
                         $productArray['media'] = $mediaIds ?? '';
+
                     }
                 }
                 if (! isset($productArray['name'][$defaultLanguageCode])) {
@@ -225,6 +228,8 @@ class MainProductController extends AbstractController
                     $productArray['description'][$defaultLanguageCode] = $product['description'] === null ? '' : $product['description'];
                     $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
                     $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
+
+                    $variantArray['name'][$defaultLanguageCode] = $product['subtitle'] === null ? '' : $product['subtitle'];
 
                     $additionalData = json_decode($product['additional_data']);
                     $customFieldsData = [];
@@ -239,11 +244,18 @@ class MainProductController extends AbstractController
                     $customFieldsData['custom_product_www'] = $product['www'];
                     $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
                 }
-                // get Tag ID
-                if ($product['tags'] !== null && $product['tags'] !== '') {
-                    $tagIds = $this->tagInsert($context, $product['tags']);
-                }
             }
+
+            $variants= $this->addPropertyGroupOption($variantArray, $context);
+
+            $variant_array = [];
+            if ($variants !== null) {
+                $variant_array[] = [
+                    'id' => $variants,
+                ];
+            }
+            $productArray['properties'] = $variant_array;
+
             $i = 0;
             if ($productArray['media']) {
                 foreach ($productArray['media'] as $mediaData) {
@@ -261,7 +273,6 @@ class MainProductController extends AbstractController
                 return $x['position'] <=> $y['position'];
             });
 
-            $productArray['taxId'] = $taxDetails->getId();
             $productArray['productNumber'] = $row['article_number'] === '' ? bin2hex(random_bytes(16)) : $row['article_number'];
             $productArray['price'] = [
                 [
@@ -279,55 +290,15 @@ class MainProductController extends AbstractController
             if (isset($media_array[0]['id']) && $media_array[0]['id']) {
                 $productArray['coverId'] = $media_array[0]['id'];
             }
-
-            // assign sales channel
-            $saleChannelIds = $this->getSalesChannelId($context);
-            $salesChannelArray = [];
-            foreach ($saleChannelIds as $saleChannelId) {
-                $salesChannelArray[] = [
-                    'salesChannelId' => $saleChannelId,
-                    'visibility' => 30,
-                ];
-            }
-
-            if ($salesChannelArray) {
-                $salesChannelArray = array_map('unserialize', array_unique(array_map('serialize', $salesChannelArray)));
-            }
-            $productArray['visibilities'] = $salesChannelArray;
-
-            // assign tags
-            $tag_array = [];
-            if ($tagIds) {
-                foreach ($tagIds as $tagId) {
-                    $tag_array[] = $tagId;
-                }
-            }
-//            dd($tag_array);
-            if ($tag_array) {
-                $tag_array = array_map('unserialize', array_unique(array_map('serialize', $tag_array)));
-            }
-            $productArray['tags'] = $tag_array;
-
-            // assign categories
-            $categories = $this->getCategoryData($context, $row['main_category']);
-            $category_array = [];
-            if ($categories !== null) {
-                $category_array[] = [
-                    'id' => $categories->getId(),
-                ];
-            }
-            $productArray['categories'] = $category_array;
-
+            $productArray['parentId'] = $parentId;
             $products[] = $productArray;
-
 //            dd($productArray);
-
             $this->productsRepository->create($products, $context);
         }
     }
 
-    // update product
-    public function mainProductUpdate($productDetail, array $row, Context $context, $conn): void
+    // update variant product
+    public function variantProductUpdate($productDetail, array $row, Context $context, $conn): void
     {
         $products = [];
         $currencyId = $context->getCurrencyId();
@@ -335,7 +306,9 @@ class MainProductController extends AbstractController
         $productDataSql = 'SELECT * from product_data where product_id = '.$row['p_id'];
         $productDataDetails = mysqli_query($conn, $productDataSql);
         $productArray = [];
-        $media_array = [];
+        $variantArray = [];
+        $parentData = $this->getProductParentId($context, $row['referto_id']);
+        $parentId = $parentData->getId();
         if (mysqli_num_rows($productDataDetails) > 0) {
             while ($product = mysqli_fetch_assoc($productDataDetails)) {
                 $mediaIds = [];
@@ -350,6 +323,8 @@ class MainProductController extends AbstractController
                         $productArray['description'][$languageCode] = $product['description'] === null ? '' : $product['description'];
                         $productArray['metaTitle'][$languageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
                         $productArray['metaDescription'][$languageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
+
+                        $variantArray['name'][$languageCode] = $product['subtitle'] === null ? '' : $product['subtitle'];
 
                         $additionalData = json_decode($product['additional_data']);
                         $customFieldsData = [];
@@ -406,6 +381,15 @@ class MainProductController extends AbstractController
                     }
                 }
             }
+            $variants= $this->addPropertyGroupOption($variantArray, $context);
+
+            $variant_array = [];
+            if ($variants !== null) {
+                $variant_array[] = [
+                    'id' => $variants,
+                ];
+            }
+            $productArray['properties'] = $variant_array;
             $j = 0;
             $prID = $productDetail->getId();
             // set media
@@ -443,28 +427,18 @@ class MainProductController extends AbstractController
             if (isset($media_array[0]['id']) && $media_array[0]['id']) {
                 $productArray['coverId'] = $media_array[0]['id'];
             }
-
-            // assign categories
-            $categories = $this->getCategoryData($context, $row['main_category']);
-            $category_array = [];
-            if ($categories !== null) {
-                $category_array[] = [
-                    'id' => $categories->getId(),
-                ];
-            }
-            $productArray['categories'] = $category_array;
 //            dd($productArray);
             $products[] = $productArray;
             $this->productsRepository->update($products, $context);
         }
     }
 
-    // get Tax Details
-    public function getTaxDetails(Context $context)
+    // check product in product repository using product id
+    public function checkProductExistsInProductTable(Context $context, string $productId)
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('position', 1));
-        return $this->taxRepository->search($criteria, $context)->first();
+        $criteria->addFilter(new EqualsFilter('customFields.custom_product_id', $productId));
+        return $this->productsRepository->search($criteria, $context)->first();
     }
 
     // get Language detail
@@ -485,63 +459,6 @@ class MainProductController extends AbstractController
         $defaultLanguage = $this->languageRepository->search($criteriaLanguage, $context)->first();
 
         return $defaultLanguage->getTranslationCode()->getCode();
-    }
-
-    // check product in product repository
-    public function checkProductExistsInProductTranslationsTable(Context $context, string $productDataId, string $productId): int
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customFields.custom_product_id', $productId));
-        $criteria->addFilter(new EqualsFilter('customFields.custom_product_data_id', $productDataId));
-
-        $productDetails = $this->productsRepository->search($criteria, $context);
-
-        return $productDetails->getTotal();
-    }
-
-    // check product in product repository using product id
-    public function checkProductExistsInProductTable(Context $context, string $productId)
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customFields.custom_product_id', $productId));
-        return $this->productsRepository->search($criteria, $context)->first();
-    }
-
-    // Insert tag
-    public function tagInsert(Context $context, string $tags): array
-    {
-        $tags = rtrim($tags, ',');
-        $tagArray = explode(',', $tags);
-        $tagIds = [];
-        foreach ($tagArray as $tag) {
-            $tag_array = [];
-            $tagDetail = $this->searchTagsInTable($context, trim($tag));
-            $tagId = '';
-            if ($tagDetail !== null) {
-//                $tag_array['name'] = trim($tag);
-//                $tag_array['id'] = $tagDetail->getId();
-                $tagIds[] = ['id' => $tagDetail->getId()];
-            } else {
-                $tagId = Uuid::randomHex();
-                $tag_array['name'] = trim($tag);
-                $tag_array['id'] = $tagId;
-                $tagIds[] = ['id' => $tagId];
-                $this->tagRepository->create([$tag_array], $context);
-            }
-        }
-        return $tagIds;
-    }
-
-    // check tag in repository
-
-    /**
-     * @return mixed|null
-     */
-    public function searchTagsInTable(Context $context, string $tag)
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $tag));
-        return $this->tagRepository->search($criteria, $context)->first();
     }
 
     // add cover image in Media
@@ -725,22 +642,43 @@ class MainProductController extends AbstractController
         return $mediaFolderObject->firstId();
     }
 
-    // get All sales channel IDs
-    private function getSalesChannelId(Context $context): array
+    public function getProductParentId(Context $context, $parentId)
     {
         $criteria = new Criteria();
-        return $this->salesChannelRepository->searchIds($criteria, $context)->getIds();
+        $criteria->addFilter(new EqualsFilter('customFields.custom_product_id', $parentId));
+        return $this->productsRepository->search($criteria, $context)->first();
     }
 
-    // get Category Data
+    public function addPropertyGroupOption($data, Context $context)
+    {
+        $variantId = '';
+        $propertyGroupData = $this->getPropertyGroup($context);
+        $propertyGroupId = $propertyGroupData->getId();
 
-    /**
-     * @return mixed|null
-     */
-    private function getCategoryData(Context $context, string $categoryId)
+        $propertyGroupOptionData = $this->checkPropertyGroupOption($data['name'], $context);
+        if($propertyGroupOptionData !== null){
+            $variantId = $propertyGroupOptionData->getId();
+            $data['id'] = $propertyGroupOptionData->getId();
+        } else {
+            $variantId = Uuid::randomHex();
+            $data['id'] = $variantId;
+        }
+        $data['groupId'] = $propertyGroupId;
+
+        $this->propertyGroupOptionRepository->upsert([$data], $context);
+        return $variantId;
+    }
+
+    public function getPropertyGroup(Context $context){
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'custom_property'));
+        return $this->propertyGroupRepository->search($criteria, $context)->first();
+    }
+
+    public function checkPropertyGroupOption($name, Context $context)
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customFields.custom_category_id', $categoryId));
-        return $this->categoryRepository->search($criteria, $context)->first();
+        $criteria->addFilter(new EqualsAnyFilter('name', $name));
+        return $this->propertyGroupOptionRepository->search($criteria, $context)->first();
     }
 }

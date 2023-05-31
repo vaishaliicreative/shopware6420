@@ -16,6 +16,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 class ICTECHMigration extends Plugin
 {
     public const CUSTOM_FIELD_SET_NAME_FOR_PRODUCT = 'custom_product';
+    public const CUSTOM_PROPERTY = 'custom_property';
     public function install(InstallContext $installContext): void
     {
         parent::install($installContext);
@@ -29,6 +30,8 @@ class ICTECHMigration extends Plugin
         (new InstallCustomField($customFieldSetRepository, $customFieldRepository))->install($installContext->getContext());
 
         $this->addCustomFieldsForProduct($installContext);
+
+        $this->addCustomProperty($installContext);
     }
 
     public function uninstall(UninstallContext $uninstallContext): void
@@ -48,6 +51,8 @@ class ICTECHMigration extends Plugin
         (new InstallCustomField($customFieldSetRepository, $customFieldRepository))->unInstall($uninstallContext->getContext());
 
         $this->deleteCustomFieldsForProduct($uninstallContext);
+
+        $this->deleteCustomProperty($uninstallContext);
     }
 
     public function addCustomFieldsForProduct(InstallContext $installContext): void
@@ -520,6 +525,32 @@ class ICTECHMigration extends Plugin
         if ($result->getTotal() > 0) {
             $data = $result->getDataOfId($result->firstId());
             $customFieldSetRepository->delete([$data], $uninstallContext->getContext());
+        }
+    }
+
+    public function addCustomProperty(InstallContext $installContext)
+    {
+        $propertyGroupRepository = $this->container->get('property_group.repository');
+        $propertyGroupRepository->create([
+            [
+                'name' => [
+                  'de-DE' => 'Benutzerdefinierte Eigenschaft',
+                  'en-GB' => self::CUSTOM_PROPERTY,
+                ],
+            ]
+        ], $installContext->getContext());
+    }
+
+    public function deleteCustomProperty(UninstallContext $uninstallContext): void
+    {
+        $propertyGroupRepository = $this->container->get('property_group.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', self::CUSTOM_PROPERTY));
+        $result = $propertyGroupRepository->searchIds($criteria, $uninstallContext->getContext());
+
+        if ($result->getTotal() > 0) {
+            $data = $result->getDataOfId($result->firstId());
+            $propertyGroupRepository->delete([$data], $uninstallContext->getContext());
         }
     }
 }
