@@ -6,6 +6,7 @@ namespace ICTECHMigration\Controller;
 
 use mysqli;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -177,7 +178,7 @@ class CategoryController extends AbstractController
         }
     }
 
-    public function checkCategoryExistsInCategoryTable(Context $context, string $categoryId)
+    public function checkCategoryExistsInCategoryTable(Context $context, string $categoryId): ?Entity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customFields.custom_category_id', $categoryId));
@@ -194,7 +195,7 @@ class CategoryController extends AbstractController
     }
 
     // get default language code
-    public function getDefaultLanguageCode(Context $context)
+    public function getDefaultLanguageCode(Context $context): ?string
     {
         $criteriaLanguage = new Criteria();
         $criteriaLanguage->addAssociation('translationCode');
@@ -205,14 +206,14 @@ class CategoryController extends AbstractController
     }
 
     //get default parent id
-    public function getFirstLevelParentId(Context $context)
+    public function getFirstLevelParentId(Context $context): ?Entity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('level', '1'));
         return $this->categoryRepository->search($criteria, $context)->first();
     }
 
-    public function getParentId(Context $context, $parentId)
+    public function getParentId(Context $context, $parentId): ?Entity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customFields.custom_category_id', $parentId));

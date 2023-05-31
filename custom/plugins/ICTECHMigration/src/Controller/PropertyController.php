@@ -125,5 +125,4 @@ class PropertyController extends AbstractController
         ];
         $this->categoryRepository->create([$data], $context);
     }
-
 }

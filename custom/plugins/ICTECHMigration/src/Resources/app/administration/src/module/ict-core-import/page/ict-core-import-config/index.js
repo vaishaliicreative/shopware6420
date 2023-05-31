@@ -20,6 +20,9 @@ Component.register('ict-core-import-config', {
     data() {
         return {
             isLoading: false,
+            isProductLoading: false,
+            isCategoryLoading: false,
+            isVariantLoading: false,
             importProduct: null,
             totalProduct: null,
             importProductMessage: null,
@@ -66,6 +69,7 @@ Component.register('ict-core-import-config', {
         },
 
         importMainProduct(){
+            this.isProductLoading = true;
             let headers = this.configService.getBasicHeaders();
 
             let data = new FormData();
@@ -75,6 +79,7 @@ Component.register('ict-core-import-config', {
             return this.configService.httpClient.post('/_action/migration/mainproduct', data, {headers})
                 .then((response) => {
                     this.isLoading = false;
+                    this.isProductLoading = false;
                     let data = response.data;
                     if(data.type === 'Pending'){
                         // offSet++;
@@ -85,16 +90,12 @@ Component.register('ict-core-import-config', {
                         // return;
                         this.importMainProduct(this.offSet);
                     }else{
+                        this.offSet = 0;
                         this.createNotificationSuccess({
                             title: response.data.type,
                             message: response.data.message
                         });
                     }
-                    // this.createNotificationSuccess({
-                    //     title: response.data.type,
-                    //     message: response.data.message
-                    // });
-
                 })
                 .catch((exception) => {
                     this.isLoading = false;
@@ -102,6 +103,7 @@ Component.register('ict-core-import-config', {
         },
 
         importCategory(){
+            this.isCategoryLoading = true;
             let headers = this.configService.getBasicHeaders();
 
             let data = new FormData();
@@ -111,6 +113,7 @@ Component.register('ict-core-import-config', {
             return this.configService.httpClient.post('/_action/migration/addcategory', data, {headers})
                 .then((response) => {
                     this.isLoading = false;
+                    this.isCategoryLoading = false;
                     let data = response.data;
                     if(data.type === 'Pending'){
                         this.categoryOffSet++;
@@ -120,6 +123,7 @@ Component.register('ict-core-import-config', {
                         // return;
                         this.importCategory(this.categoryOffSet);
                     }else{
+                        this.categoryOffSet = 0;
                         this.createNotificationSuccess({
                             title: response.data.type,
                             message: response.data.message
@@ -132,6 +136,7 @@ Component.register('ict-core-import-config', {
         },
 
         importVariantProduct(){
+            this.isVariantLoading = true;
             let headers = this.configService.getBasicHeaders();
 
             let data = new FormData();
@@ -141,6 +146,7 @@ Component.register('ict-core-import-config', {
             return this.configService.httpClient.post('/_action/migration/addvariantproduct', data, {headers})
                 .then((response) => {
                     this.isLoading = false;
+                    this.isVariantLoading = false;
                     let data = response.data;
                     if(data.type === 'Pending'){
                         this.variantOffSet++;
@@ -148,8 +154,9 @@ Component.register('ict-core-import-config', {
                         this.totalVariant = data.totalVariant;
                         this.importVariantMessage =this.importVariant +' import From total '+ this.totalVariant+' Variant Product';
                         // return;
-                        this.importCategory(this.variantOffSet);
+                        this.importVariantProduct(this.variantOffSet);
                     }else{
+                        this.variantOffSet = 0;
                         this.createNotificationSuccess({
                             title: response.data.type,
                             message: response.data.message
