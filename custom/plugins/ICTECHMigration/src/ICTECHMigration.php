@@ -528,16 +528,16 @@ class ICTECHMigration extends Plugin
         }
     }
 
-    public function addCustomProperty(InstallContext $installContext)
+    public function addCustomProperty(InstallContext $installContext): void
     {
         $propertyGroupRepository = $this->container->get('property_group.repository');
         $propertyGroupRepository->create([
             [
                 'name' => [
-                  'de-DE' => 'Benutzerdefinierte Eigenschaft',
-                  'en-GB' => self::CUSTOM_PROPERTY,
+                    'de-DE' => 'Benutzerdefinierte Eigenschaft',
+                    'en-GB' => self::CUSTOM_PROPERTY,
                 ],
-            ]
+            ],
         ], $installContext->getContext());
     }
 
