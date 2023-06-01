@@ -167,7 +167,7 @@ class MainProductController extends AbstractController
                         if ($product['title'] !== '' && $product['title'] !== null) {
                             $productArray['name'][$languageCode] = $product['title'];
                         } else {
-                            $productArray['name'][$languageCode] = 'dummy';
+                            $productArray['name'][$languageCode] = 'dummy migration';
                         }
 
                         $productArray['description'][$languageCode] = $product['description'] === null ? '' : $product['description'];
@@ -203,6 +203,7 @@ class MainProductController extends AbstractController
                             }
                         }
                         $mediaImage['product_id'] = $product['product_id'];
+
                         if ($product['image_1'] !== '') {
                             $mediaImage['image'] = $product['image_1'];
                             $mediaId = $this->addImageToMedia($context, $mediaImage);
@@ -235,7 +236,6 @@ class MainProductController extends AbstractController
                                 $mediaIds[] = $mediaIdArray;
                             }
                         }
-
                         $productArray['media'] = $mediaIds ?? '';
                     }
                 }
@@ -244,7 +244,7 @@ class MainProductController extends AbstractController
                     if ($product['title'] !== '' && $product['title'] !== null) {
                         $productArray['name'][$defaultLanguageCode] = $product['title'];
                     } else {
-                        $productArray['name'][$defaultLanguageCode] = 'dummy';
+                        $productArray['name'][$defaultLanguageCode] = 'dummy migration';
                     }
 //                    $productArray['name'][$defaultLanguageCode] = $product['title'] === null ? '' : $product['title'];
                     $productArray['description'][$defaultLanguageCode] = $product['description'] === null ? '' : $product['description'];
@@ -438,7 +438,7 @@ class MainProductController extends AbstractController
                         if ($product['title'] !== '' && $product['title'] !== null) {
                             $productArray['name'][$languageCode] = $product['title'];
                         } else {
-                            $productArray['name'][$languageCode] = 'dummy';
+                            $productArray['name'][$languageCode] = 'dummy migration';
                         }
 //                        $productArray['name'][$languageCode] = $product['title'] === null ? '' : $product['title'];
                         $productArray['description'][$languageCode] = $product['description'] === null ? '' : $product['description'];
@@ -673,9 +673,12 @@ class MainProductController extends AbstractController
         if ($row['image'] === '') {
             return null;
         }
-        $imageUrl = $this->baseURL.$row['product_id']. '/poster/' . $row['image'];
+        $imageUrl = $this->baseURL.$row['product_id']. '/' . $row['image'];
         $mediaId = null;
 
+        if (! @file_get_contents($imageUrl)) {
+            $imageUrl = $this->baseURL.$row['product_id']. '/poster/' . $row['image'];
+        }
         $fileNameParts = explode('.', $row['image']);
 
         $fileName = $fileNameParts[0];
@@ -726,7 +729,7 @@ class MainProductController extends AbstractController
 
             $this->fileSaver->persistFileToMedia($mediaFile, $fileName, $mediaId, $context);
         } catch (DuplicatedMediaFileNameException | \Exception $e) {
-            /*echo($e->getMessage());*/
+//            echo($e->getMessage());
             $mediaId = $this->mediaCleanup($mediaId, $context);
 
             if (isset($mediaId)) {
@@ -743,6 +746,7 @@ class MainProductController extends AbstractController
                 }
             } catch (DuplicatedMediaFileNameException | \Exception $e) {
                 echo $e->getMessage();
+                dd($mediaId);
             }
         }
         return $mediaId;

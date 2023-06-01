@@ -161,7 +161,7 @@ class VariantProductController extends AbstractController
                         if ($product['title'] !== '' && $product['title'] !== null) {
                             $productArray['name'][$languageCode] = $product['title'];
                         } else {
-                            $productArray['name'][$languageCode] = 'dummy';
+                            $productArray['name'][$languageCode] = 'dummy migration';
                         }
 //                        $productArray['name'][$languageCode] = $product['title'] === null ? '' : $product['title'];
                         $productArray['description'][$languageCode] = $product['description'] === null ? '' : $product['description'];
@@ -182,6 +182,8 @@ class VariantProductController extends AbstractController
                         $customFieldsData['custom_product_audio'] = $product['audio'];
                         $customFieldsData['custom_product_www'] = $product['www'];
                         $productArray['translations'][$languageCode]['customFields'] = $customFieldsData;
+
+                        $variantArray['name'][$languageCode] = $product['subtitle'] === null ? '' : $product['subtitle'];
                         // get Media Id
                         if ($product['image'] !== '') {
                             $coverImage['product_id'] = $product['product_id'];
@@ -237,7 +239,7 @@ class VariantProductController extends AbstractController
                     if ($product['title'] !== '' && $product['title'] !== null) {
                         $productArray['name'][$defaultLanguageCode] = $product['title'];
                     } else {
-                        $productArray['name'][$defaultLanguageCode] = 'dummy';
+                        $productArray['name'][$defaultLanguageCode] = 'dummy migration';
                     }
 //                    $productArray['name'][$defaultLanguageCode] = $product['title'] === null ? '' : $product['title'];
                     $productArray['description'][$defaultLanguageCode] = $product['description'] === null ? '' : $product['description'];
@@ -258,6 +260,8 @@ class VariantProductController extends AbstractController
                     $customFieldsData['custom_product_audio'] = $product['audio'];
                     $customFieldsData['custom_product_www'] = $product['www'];
                     $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
+
+                    $variantArray['name'][$defaultLanguageCode] = $product['subtitle'] === null ? '' : $product['subtitle'];
                     if (! isset($productArray['media'])) {
                         if ($product['image'] !== '') {
                             $coverImage['product_id'] = $product['product_id'];
@@ -311,7 +315,7 @@ class VariantProductController extends AbstractController
                 }
 
                 // add variant id
-                $variantArray['name'] = $product['subtitle'] === null ? '' : $product['subtitle'];
+//                $variantArray['name'] = $product['subtitle'] === null ? '' : $product['subtitle'];
             }
 
             $variants = $this->addPropertyGroupOption($variantArray, $context);
@@ -322,7 +326,8 @@ class VariantProductController extends AbstractController
                     'id' => $variants,
                 ];
             }
-            $productArray['properties'] = $variant_array;
+//            $productArray['properties'] = $variant_array;
+            $productArray['options'] = $variant_array;
 
             $i = 0;
             if (isset($productArray['media'])) {
@@ -400,7 +405,7 @@ class VariantProductController extends AbstractController
                         if ($product['title'] !== '' && $product['title'] !== null) {
                             $productArray['name'][$languageCode] = $product['title'];
                         } else {
-                            $productArray['name'][$languageCode] = 'dummy';
+                            $productArray['name'][$languageCode] = 'dummy migration';
                         }
 //                        $productArray['name'][$languageCode] = $product['title'] === null ? '' : $product['title'];
                         $productArray['description'][$languageCode] = $product['description'] === null ? '' : $product['description'];
@@ -582,9 +587,12 @@ class VariantProductController extends AbstractController
         if ($row['image'] === '') {
             return null;
         }
-        $imageUrl = $this->baseURL.$row['product_id']. '/poster/' . $row['image'];
+        $imageUrl = $this->baseURL.$row['product_id']. '/' . $row['image'];
         $mediaId = null;
 
+        if (! @file_get_contents($imageUrl)) {
+            $imageUrl = $this->baseURL.$row['product_id']. '/poster/' . $row['image'];
+        }
         $fileNameParts = explode('.', $row['image']);
 
         $fileName = $fileNameParts[0];
@@ -650,10 +658,10 @@ class VariantProductController extends AbstractController
     }
 
     // check property in property group repository
-    public function checkPropertyGroupOption(string $name, Context $context): ?Entity
+    public function checkPropertyGroupOption(array $name, Context $context): ?Entity
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $name));
+        $criteria->addFilter(new EqualsAnyFilter('name', $name));
         return $this->propertyGroupOptionRepository->search($criteria, $context)->first();
     }
 
