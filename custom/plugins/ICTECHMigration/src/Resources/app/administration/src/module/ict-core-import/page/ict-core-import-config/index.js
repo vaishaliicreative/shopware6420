@@ -26,7 +26,7 @@ Component.register('ict-core-import-config', {
             importProduct: null,
             totalProduct: null,
             importProductMessage: null,
-            offSet: 0,
+            offSet: 126,
             categoryOffSet: 0,
             incrementalValue: null,
             importCategoryMessage: null,
@@ -153,7 +153,7 @@ Component.register('ict-core-import-config', {
                         this.importVariant = data.importVariant;
                         this.totalVariant = data.totalVariant;
                         this.importVariantMessage =this.importVariant +' import From total '+ this.totalVariant+' Variant Product';
-                        // return;
+                        return;
                         this.importVariantProduct(this.variantOffSet);
                     }else{
                         this.variantOffSet = 0;
