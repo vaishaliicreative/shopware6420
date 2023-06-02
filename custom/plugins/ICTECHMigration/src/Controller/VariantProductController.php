@@ -163,7 +163,6 @@ class VariantProductController extends AbstractController
                         } else {
                             $productArray['name'][$languageCode] = 'dummy migration';
                         }
-//                        $productArray['name'][$languageCode] = $product['title'] === null ? '' : $product['title'];
                         $productArray['description'][$languageCode] = $product['description'] === null ? '' : $product['description'];
                         $productArray['metaTitle'][$languageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
                         $productArray['metaDescription'][$languageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
@@ -183,6 +182,7 @@ class VariantProductController extends AbstractController
                         $customFieldsData['custom_product_www'] = $product['www'];
                         $productArray['translations'][$languageCode]['customFields'] = $customFieldsData;
 
+                        // add variant id
                         $variantArray['name'][$languageCode] = $product['subtitle'] === null ? '' : $product['subtitle'];
                         // get Media Id
                         if ($product['image'] !== '') {
@@ -241,7 +241,6 @@ class VariantProductController extends AbstractController
                     } else {
                         $productArray['name'][$defaultLanguageCode] = 'dummy migration';
                     }
-//                    $productArray['name'][$defaultLanguageCode] = $product['title'] === null ? '' : $product['title'];
                     $productArray['description'][$defaultLanguageCode] = $product['description'] === null ? '' : $product['description'];
                     $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
                     $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
@@ -261,6 +260,7 @@ class VariantProductController extends AbstractController
                     $customFieldsData['custom_product_www'] = $product['www'];
                     $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
 
+                    // add variant id
                     $variantArray['name'][$defaultLanguageCode] = $product['subtitle'] === null ? '' : $product['subtitle'];
                     if (! isset($productArray['media'])) {
                         if ($product['image'] !== '') {
@@ -313,9 +313,6 @@ class VariantProductController extends AbstractController
                         $productArray['media'] = $mediaIds ?? '';
                     }
                 }
-
-                // add variant id
-//                $variantArray['name'] = $product['subtitle'] === null ? '' : $product['subtitle'];
             }
 
             $variants = $this->addPropertyGroupOption($variantArray, $context);
@@ -326,7 +323,6 @@ class VariantProductController extends AbstractController
                     'id' => $variants,
                 ];
             }
-//            $productArray['properties'] = $variant_array;
             $productArray['options'] = $variant_array;
 
             $i = 0;
@@ -356,7 +352,7 @@ class VariantProductController extends AbstractController
             } else {
                 $productArray['productNumber'] = bin2hex(random_bytes(16));
             }
-//            $productArray['productNumber'] = $row['article_number'] === '' ? bin2hex(random_bytes(16)) : $row['article_number'];
+
             $productArray['price'] = [
                 [
                     'currencyId' => $currencyId,
@@ -377,6 +373,12 @@ class VariantProductController extends AbstractController
             $products[] = $productArray;
 //            dd($productArray);
             $this->productsRepository->create($products, $context);
+            $parentProductData = [];
+            if($parentData !== null) {
+                $parentProductData['id'] = $parentData->getId();
+                $parentProductData['displayParent'] = true;
+                $this->productsRepository->update([$parentProductData], $context);
+            }
         }
     }
 
@@ -407,11 +409,11 @@ class VariantProductController extends AbstractController
                         } else {
                             $productArray['name'][$languageCode] = 'dummy migration';
                         }
-//                        $productArray['name'][$languageCode] = $product['title'] === null ? '' : $product['title'];
                         $productArray['description'][$languageCode] = $product['description'] === null ? '' : $product['description'];
                         $productArray['metaTitle'][$languageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
                         $productArray['metaDescription'][$languageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
 
+                        // add variant id
                         $variantArray['name'][$languageCode] = $product['subtitle'] === null ? '' : $product['subtitle'];
                         $customFieldsData = [];
                         if ($product['additional_data'] !== '' && $product['additional_data'] !== null) {
@@ -529,6 +531,12 @@ class VariantProductController extends AbstractController
 //            dd($productArray);
             $products[] = $productArray;
             $this->productsRepository->update($products, $context);
+            $parentProductData = [];
+            if($parentData !== null) {
+                $parentProductData['id'] = $parentData->getId();
+                $parentProductData['displayParent'] = true;
+                $this->productsRepository->update([$parentProductData], $context);
+            }
         }
     }
 
