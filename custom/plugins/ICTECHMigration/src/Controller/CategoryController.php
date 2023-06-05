@@ -55,8 +55,8 @@ class CategoryController extends AbstractController
 
         $conn = new mysqli($servername, $username, $password, $database);
 
-        $offSet = $request->request->get('offSet');
         $totalCategory = 0;
+        $offSet = $this->systemConfigService->get('ICTECHMigration.config.categoryCount');
 
         $categoryCountSql = 'SELECT COUNT(*) as total_categories FROM product_category';
         $categoryCountDetails = mysqli_query($conn, $categoryCountSql);
@@ -68,7 +68,7 @@ class CategoryController extends AbstractController
         }
         $responseArray['totalCategory'] = $totalCategory;
 
-        $categorySql = 'SELECT * FROM product_category LIMIT 1 OFFSET '.$offSet;
+        $categorySql = 'SELECT * FROM product_category ORDER BY pc_id ASC LIMIT 1 OFFSET '.$offSet;
         $categoryDetails = mysqli_query($conn, $categorySql);
 
         if (mysqli_num_rows($categoryDetails) > 0) {
@@ -80,13 +80,19 @@ class CategoryController extends AbstractController
                 } else {
                     $this->mainCategoryUpdate($categoryDetail, $row, $context, $conn);
                 }
+                $currentCount = $offSet + 1;
+                $this->systemConfigService->set('ICTECHMigration.config.categoryCount',$currentCount);
             }
         }
         if ($offSet < $totalCategory) {
             $responseArray['type'] = 'Pending';
             $responseArray['importCategoryCount'] = $offSet + 1;
             $responseArray['message'] = 'Category remaining';
+        } elseif ($offSet > $totalCategory) {
+            $responseArray['type'] = 'Success';
+            $responseArray['message'] = 'Category Already Imported';
         } else {
+//            $this->systemConfigService->set('ICTECHMigration.config.categoryCount',0);
             $responseArray['type'] = 'Success';
             $responseArray['importCategoryCount'] = $offSet + 1;
             $responseArray['message'] = 'Category Imported';

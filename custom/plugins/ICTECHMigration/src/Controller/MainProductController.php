@@ -97,8 +97,8 @@ class MainProductController extends AbstractController
 
         $conn = new mysqli($servername, $username, $password, $database);
 
-        $offSet = $request->request->get('offSet');
         $totalProduct = 0;
+        $offSet = $this->systemConfigService->get('ICTECHMigration.config.mainProductCount');
 
         $productCountSql = 'SELECT COUNT(*) as total_products FROM product WHERE referto_id = 0';
         $productCountDetails = mysqli_query($conn, $productCountSql);
@@ -122,6 +122,8 @@ class MainProductController extends AbstractController
                 } else {
                     $this->mainProductUpdate($productDetail, $row, $context, $conn);
                 }
+                $currentCount = $offSet + 1;
+                $this->systemConfigService->set('ICTECHMigration.config.mainProductCount',$currentCount);
             }
         }
         if ($offSet < $totalProduct) {
@@ -130,9 +132,9 @@ class MainProductController extends AbstractController
             $responseArray['message'] = 'Product remaining';
         } elseif ($offSet > $totalProduct) {
             $responseArray['type'] = 'Success';
-//            $responseArray['importProduct'] = $offSet + 1;
             $responseArray['message'] = 'Main Product Already Imported';
         } else {
+//            $this->systemConfigService->set('ICTECHMigration.config.mainProductCount',0);
             $responseArray['type'] = 'Success';
             $responseArray['importProduct'] = $offSet + 1;
             $responseArray['message'] = 'Main Product Imported';

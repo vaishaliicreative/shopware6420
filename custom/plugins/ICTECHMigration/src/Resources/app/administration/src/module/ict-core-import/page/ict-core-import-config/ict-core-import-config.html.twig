@@ -55,7 +55,9 @@
                                     variant="primary"
                                     :square="false"
                                     :block="false"
-                                    :isLoading="isCategoryLoading">
+                                    :isLoading="isCategoryLoading"
+                                    :disabled="isProductLoading || isVariantLoading"
+                                >
                                     {{ $tc('ict-core-import-config.detail.category') }}
                                 </sw-button>
                                 {{ importCategoryMessage }}
@@ -68,7 +70,9 @@
                                     variant="primary"
                                     :square="false"
                                     :block="false"
-                                    :isLoading="isProductLoading">
+                                    :isLoading="isProductLoading"
+                                    :disabled="isCategoryLoading || isVariantLoading"
+                                >
                                     {{ $tc('ict-core-import-config.detail.mainProduct') }}
                                 </sw-button>
                                 {{ importProductMessage }}
@@ -82,7 +86,9 @@
                                     variant="primary"
                                     :square="false"
                                     :block="false"
-                                    :isLoading="isVariantLoading">
+                                    :isLoading="isVariantLoading"
+                                    :disabled="isCategoryLoading || isProductLoading"
+                                >
                                     {{ $tc('ict-core-import-config.detail.productVariant') }}
                                 </sw-button>
                                 {{ importVariantMessage }}
