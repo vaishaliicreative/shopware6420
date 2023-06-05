@@ -26,7 +26,7 @@ Component.register('ict-core-import-config', {
             importProduct: null,
             totalProduct: null,
             importProductMessage: null,
-            offSet: 126,
+            offSet: 0,
             categoryOffSet: 0,
             incrementalValue: null,
             importCategoryMessage: null,
@@ -35,7 +35,34 @@ Component.register('ict-core-import-config', {
             importVariant: null,
             totalVariant: null,
             importVariantMessage: null,
-            variantOffSet: 0
+            variantOffSet: 1
+        }
+    },
+    created() {
+
+        let categoryOffSet = window.localStorage.getItem('categoryOffSet');
+
+        if(categoryOffSet !== null){
+            this.categoryOffSet = categoryOffSet;
+        } else {
+            this.categoryOffSet = 0;
+        }
+
+        let offSet = window.localStorage.getItem('offSet');
+
+        if(offSet !== null){
+            this.offSet = offSet;
+        }else{
+            this.offSet = 0;
+        }
+
+        let variantOffSet = window.localStorage.getItem('variantOffSet');
+        console.log(variantOffSet);
+
+        if(variantOffSet !== null){
+            this.variantOffSet = variantOffSet;
+        }else{
+            this.variantOffSet = 0;
         }
     },
     methods: {
@@ -87,10 +114,12 @@ Component.register('ict-core-import-config', {
                         this.importProduct = data.importProduct;
                         this.totalProduct = data.totalProduct;
                         this.importProductMessage =this.importProduct +' import From total '+ this.totalProduct+' Products';
+                        window.localStorage.setItem('offSet',this.offSet);
                         // return;
-                        this.importMainProduct(this.offSet);
+                        this.importMainProduct();
                     }else{
                         this.offSet = 0;
+                        window.localStorage.removeItem('offSet');
                         this.createNotificationSuccess({
                             title: response.data.type,
                             message: response.data.message
@@ -120,10 +149,12 @@ Component.register('ict-core-import-config', {
                         this.importCategoryCount = data.importCategoryCount;
                         this.totalCategory = data.totalCategory;
                         this.importCategoryMessage =this.importCategoryCount +' import From total '+ this.totalCategory+' Categories';
+                        window.localStorage.setItem('categoryOffSet',this.categoryOffSet);
                         // return;
-                        this.importCategory(this.categoryOffSet);
+                        this.importCategory();
                     }else{
                         this.categoryOffSet = 0;
+                        window.localStorage.removeItem('categoryOffSet');
                         this.createNotificationSuccess({
                             title: response.data.type,
                             message: response.data.message
@@ -153,10 +184,12 @@ Component.register('ict-core-import-config', {
                         this.importVariant = data.importVariant;
                         this.totalVariant = data.totalVariant;
                         this.importVariantMessage =this.importVariant +' import From total '+ this.totalVariant+' Variant Product';
+                        window.localStorage.setItem('variantOffSet',this.variantOffSet);
                         return;
-                        this.importVariantProduct(this.variantOffSet);
+                        this.importVariantProduct();
                     }else{
                         this.variantOffSet = 0;
+                        window.localStorage.removeItem('variantOffSet');
                         this.createNotificationSuccess({
                             title: response.data.type,
                             message: response.data.message
