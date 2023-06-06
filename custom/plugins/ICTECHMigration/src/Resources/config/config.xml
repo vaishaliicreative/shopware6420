@@ -6,11 +6,11 @@
         <title>Settings</title>
         <title lang="de-DE">Einstellungen</title>
 
-        <input-field type="text">
-            <name>coreUrl</name>
-            <label>Server/Database URL</label>
-            <label lang="de-DE">Server/Datenbank-URL</label>
-        </input-field>
+<!--        <input-field type="text">-->
+<!--            <name>coreUrl</name>-->
+<!--            <label>Server/Database URL</label>-->
+<!--            <label lang="de-DE">Server/Datenbank-URL</label>-->
+<!--        </input-field>-->
 
         <input-field type="text">
             <name>databaseHost</name>
@@ -28,6 +28,12 @@
             <name>databasePassword</name>
             <label>Database Password</label>
             <label lang="de-DE">Datenbank-Passwort</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>databaseName</name>
+            <label>Database Name</label>
+            <label lang="de-DE">Name der Datenbank</label>
         </input-field>
 
         <input-field type="text">

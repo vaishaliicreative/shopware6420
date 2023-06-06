@@ -1,4 +1,5 @@
 import template from './ict-core-import-config.html.twig';
+import './ict-core-import-config.scss';
 
 const {Component, Mixin} = Shopware;
 
@@ -81,7 +82,7 @@ Component.register('ict-core-import-config', {
                         // offSet++;
                         this.importProduct = data.importProduct;
                         this.totalProduct = data.totalProduct;
-                        this.importProductMessage =this.importProduct +' import From total '+ this.totalProduct+' Products';
+                        this.importProductMessage =this.importProduct +' '+ this.$tc('ict-core-import-config.detail.totalImportText') +' '+ this.totalProduct+' '+this.$tc('ict-core-import-config.detail.mainProduct');
                         // return;
                         this.importMainProduct();
                     }else{
@@ -111,7 +112,7 @@ Component.register('ict-core-import-config', {
                     if(data.type === 'Pending'){
                         this.importCategoryCount = data.importCategoryCount;
                         this.totalCategory = data.totalCategory;
-                        this.importCategoryMessage =this.importCategoryCount +' import From total '+ this.totalCategory+' Categories';
+                        this.importCategoryMessage =this.importCategoryCount +' '+this.$tc('ict-core-import-config.detail.totalImportText')+' '+ this.totalCategory+' '+this.$tc('ict-core-import-config.detail.category');
                         // return;
                         this.importCategory();
                     }else{
@@ -141,7 +142,7 @@ Component.register('ict-core-import-config', {
                     if(data.type === 'Pending'){;
                         this.importVariant = data.importVariant;
                         this.totalVariant = data.totalVariant;
-                        this.importVariantMessage =this.importVariant +' import From total '+ this.totalVariant+' Variant Product';
+                        this.importVariantMessage =this.importVariant +' '+ this.$tc('ict-core-import-config.detail.totalImportText') + ' '+ this.totalVariant+' '+this.$tc('ict-core-import-config.detail.productVariant');
                         // return;
                         this.importVariantProduct();
                     }else{

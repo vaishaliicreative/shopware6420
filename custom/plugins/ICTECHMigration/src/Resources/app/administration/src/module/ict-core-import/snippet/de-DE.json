@@ -9,7 +9,11 @@
             "propertyValue": "Eigenschaften Werte",
             "category": "Kategorien",
             "mainProduct": "Wichtigste Produkte",
-            "productVariant": "Produkt-Varianten"
+            "productVariant": "Produkt-Varianten",
+            "categoryText": "Klicken Sie auf die Schaltfläche für Kategorieimport",
+            "mainProductText": "Klicken Sie auf die Schaltfläche für den Hauptproduktimport",
+            "productVariantText": "Klicken Sie auf die Schaltfläche für Variantenproduktimport",
+            "totalImportText": "importieren Von insgesamt"
         }
     },
     "sw-settings-custom-field": {

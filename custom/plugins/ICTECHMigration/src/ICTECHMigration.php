@@ -533,7 +533,7 @@ class ICTECHMigration extends Plugin
         $propertyGroupRepository = $this->container->get('property_group.repository');
         $propertyGroupRepository->create([
             [
-                'name' =>  self::CUSTOM_PROPERTY,
+                'name' => self::CUSTOM_PROPERTY,
             ],
         ], $installContext->getContext());
     }
