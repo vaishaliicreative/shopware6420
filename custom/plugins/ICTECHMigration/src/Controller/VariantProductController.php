@@ -93,8 +93,8 @@ class VariantProductController extends AbstractController
 
         $conn = new mysqli($servername, $username, $password, $database);
 
-        $offSet = $request->request->get('offSet');
         $totalProduct = 0;
+        $offSet = $this->systemConfigService->get('ICTECHMigration.config.variantProductCount');
 
         $productCountSql = 'SELECT COUNT(*) as total_products FROM product WHERE referto_id != 0';
         $productCountDetails = mysqli_query($conn, $productCountSql);
@@ -118,6 +118,8 @@ class VariantProductController extends AbstractController
                 } else {
                     $this->variantProductUpdate($productDetail, $row, $context, $conn);
                 }
+                $currentCount = $offSet + 1;
+                $this->systemConfigService->set('ICTECHMigration.config.variantProductCount', $currentCount);
             }
         }
 
@@ -125,7 +127,11 @@ class VariantProductController extends AbstractController
             $responseArray['type'] = 'Pending';
             $responseArray['importVariant'] = $offSet + 1;
             $responseArray['message'] = 'Product remaining';
+        } elseif ($offSet > $totalProduct) {
+            $responseArray['type'] = 'Success';
+            $responseArray['message'] = 'Variant Product Already Imported';
         } else {
+//            $this->systemConfigService->set('ICTECHMigration.config.variantProductCount', 0);
             $responseArray['type'] = 'Success';
             $responseArray['importVariant'] = $offSet + 1;
             $responseArray['message'] = 'Variant Product Imported';

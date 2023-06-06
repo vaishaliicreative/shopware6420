@@ -9,25 +9,49 @@
         <input-field type="text">
             <name>coreUrl</name>
             <label>Server/Database URL</label>
-            <label lang="de-DE">Server/Database URL</label>
+            <label lang="de-DE">Server/Datenbank-URL</label>
         </input-field>
 
         <input-field type="text">
             <name>databaseHost</name>
             <label>Database Host</label>
-            <label lang="de-DE">Database Host</label>
+            <label lang="de-DE">Datenbank-Host</label>
         </input-field>
 
         <input-field type="text">
             <name>databaseUser</name>
             <label>Database Username</label>
-            <label lang="de-DE">Database Username</label>
+            <label lang="de-DE">Datenbank-Benutzername</label>
         </input-field>
 
         <input-field type="text">
             <name>databasePassword</name>
             <label>Database Password</label>
-            <label lang="de-DE">Database Password</label>
+            <label lang="de-DE">Datenbank-Passwort</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>categoryCount</name>
+            <defaultValue>0</defaultValue>
+            <disabled>true</disabled>
+            <label>Category Count</label>
+            <label lang="de-DE">Kategorie Zählung</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>mainProductCount</name>
+            <defaultValue>0</defaultValue>
+            <disabled>true</disabled>
+            <label>Main Product Count</label>
+            <label lang="de-DE">Anzahl der Hauptprodukte</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>variantProductCount</name>
+            <defaultValue>0</defaultValue>
+            <disabled>true</disabled>
+            <label>Variant Product Count</label>
+            <label lang="de-DE">Variante Produktanzahl</label>
         </input-field>
     </card>
 </config>
