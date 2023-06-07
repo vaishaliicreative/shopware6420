@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -43,22 +42,27 @@ class CategoryController extends AbstractController
     /**
      * @Route("/api/_action/migration/addcategory",name="api.custom.migration.category", methods={"POST"})
      */
-    public function insertCategory(Context $context, Request $request): Response
+    public function insertCategory(Context $context): Response
     {
         $responseArray = [];
-        $type = $request->request->get('type');
 
-        $servername = $this->systemConfigService->get('ICTECHMigration.config.databaseHost');
-        $username = $this->systemConfigService->get('ICTECHMigration.config.databaseUser');
-        $password = $this->systemConfigService->get('ICTECHMigration.config.databasePassword');
-        $database = $this->systemConfigService->get('ICTECHMigration.config.databaseName');
+        $servername = $this->systemConfigService
+            ->get('ICTECHMigration.config.databaseHost');
+        $username = $this->systemConfigService
+            ->get('ICTECHMigration.config.databaseUser');
+        $password = $this->systemConfigService
+            ->get('ICTECHMigration.config.databasePassword');
+        $database = $this->systemConfigService
+            ->get('ICTECHMigration.config.databaseName');
 
         $conn = new mysqli($servername, $username, $password, $database);
 
         $totalCategory = 0;
-        $offSet = $this->systemConfigService->get('ICTECHMigration.config.categoryCount');
+        $offSet = $this->systemConfigService
+            ->get('ICTECHMigration.config.categoryCount');
 
-        $categoryCountSql = 'SELECT COUNT(*) as total_categories FROM product_category';
+        $categoryCountSql = 'SELECT COUNT(*) as total_categories
+                            FROM product_category';
         $categoryCountDetails = mysqli_query($conn, $categoryCountSql);
 
         if (mysqli_num_rows($categoryCountDetails) > 0) {
@@ -68,20 +72,30 @@ class CategoryController extends AbstractController
         }
         $responseArray['totalCategory'] = $totalCategory;
 
-        $categorySql = 'SELECT * FROM product_category ORDER BY pc_id ASC LIMIT 1 OFFSET '.$offSet;
+        $categorySql = 'SELECT * FROM product_category
+                        ORDER BY pc_id ASC LIMIT 1 OFFSET '.$offSet;
         $categoryDetails = mysqli_query($conn, $categorySql);
 
         if (mysqli_num_rows($categoryDetails) > 0) {
             while ($row = mysqli_fetch_assoc($categoryDetails)) {
-                $categoryDetail = $this->checkCategoryExistsInCategoryTable($context, $row['pc_id']);
+                $categoryDetail = $this->checkCategoryExistsInCategoryTable(
+                    $context,
+                    $row['pc_id']
+                );
 
                 if ($categoryDetail === null) {
                     $this->mainCategoryInsert($row, $context, $conn);
                 } else {
-                    $this->mainCategoryUpdate($categoryDetail, $row, $context, $conn);
+                    $this->mainCategoryUpdate(
+                        $categoryDetail,
+                        $row,
+                        $context,
+                        $conn
+                    );
                 }
                 $currentCount = $offSet + 1;
-                $this->systemConfigService->set('ICTECHMigration.config.categoryCount', $currentCount);
+                $this->systemConfigService
+                    ->set('ICTECHMigration.config.categoryCount', $currentCount);
             }
         }
         if ($offSet < $totalCategory) {
@@ -92,22 +106,25 @@ class CategoryController extends AbstractController
             $responseArray['type'] = 'Success';
             $responseArray['message'] = 'Category Already Imported';
         } else {
-            $this->systemConfigService->set('ICTECHMigration.config.categoryCount', 0);
+            $this->systemConfigService
+                ->set('ICTECHMigration.config.categoryCount', 0);
             $responseArray['type'] = 'Success';
             $responseArray['importCategoryCount'] = $offSet + 1;
             $responseArray['message'] = 'Category Imported';
         }
-
         return new JsonResponse($responseArray);
     }
 
-    public function mainCategoryInsert(array $row, Context $context, $conn): void
-    {
+    public function mainCategoryInsert(
+        array $row,
+        Context $context,
+        $conn
+    ): void {
         $categories = [];
         $categoryArray = [];
         $languageDetails = $this->getLanguagesDetail($context);
         $defaultLanguageCode = $this->getDefaultLanguageCode($context);
-        $categoryDataSql = 'SELECT * from product_category_data where category_id = '.$row['pc_id'];
+        $categoryDataSql = 'SELECT * from product_category_data WHERE category_id = '.$row['pc_id'];
         $categoryDataDetails = mysqli_query($conn, $categoryDataSql);
 
         if ($row['referto_pc_id'] === '0') {
@@ -147,12 +164,17 @@ class CategoryController extends AbstractController
         }
     }
 
-    public function mainCategoryUpdate($categoryDetail, array $row, Context $context, $conn): void
-    {
+    public function mainCategoryUpdate(
+        $categoryDetail,
+        array $row,
+        Context $context,
+        $conn
+    ): void {
         $categories = [];
         $categoryArray = [];
         $languageDetails = $this->getLanguagesDetail($context);
-        $categoryDataSql = 'SELECT * from product_category_data where category_id = '.$row['pc_id'];
+        $categoryDataSql = 'SELECT * from product_category_data
+                            WHERE category_id = '.$row['pc_id'];
         $categoryDataDetails = mysqli_query($conn, $categoryDataSql);
 
         if ($row['referto_pc_id'] === '0') {
@@ -184,10 +206,17 @@ class CategoryController extends AbstractController
         }
     }
 
-    public function checkCategoryExistsInCategoryTable(Context $context, string $categoryId): ?Entity
-    {
+    public function checkCategoryExistsInCategoryTable(
+        Context $context,
+        string $categoryId
+    ): ?Entity {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customFields.custom_category_id', $categoryId));
+        $criteria->addFilter(
+            new EqualsFilter(
+                'customFields.custom_category_id',
+                $categoryId
+            )
+        );
         return $this->categoryRepository->search($criteria, $context)->first();
     }
 
@@ -205,8 +234,16 @@ class CategoryController extends AbstractController
     {
         $criteriaLanguage = new Criteria();
         $criteriaLanguage->addAssociation('translationCode');
-        $criteriaLanguage->addFilter(new EqualsFilter('id', $context->getLanguageId()));
-        $defaultLanguage = $this->languageRepository->search($criteriaLanguage, $context)->first();
+        $criteriaLanguage->addFilter(
+            new EqualsFilter(
+                'id',
+                $context->getLanguageId()
+            )
+        );
+        $defaultLanguage = $this->languageRepository->search(
+            $criteriaLanguage,
+            $context
+        )->first();
 
         return $defaultLanguage->getTranslationCode()->getCode();
     }
@@ -222,7 +259,12 @@ class CategoryController extends AbstractController
     public function getParentId(Context $context, $parentId): ?Entity
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customFields.custom_category_id', $parentId));
+        $criteria->addFilter(
+            new EqualsFilter(
+                'customFields.custom_category_id',
+                $parentId
+            )
+        );
         return $this->categoryRepository->search($criteria, $context)->first();
     }
 }

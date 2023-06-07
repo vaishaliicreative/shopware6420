@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -82,19 +81,22 @@ class VariantProductController extends AbstractController
     /**
      * @Route("/api/_action/migration/addvariantproduct",name="api.custom.migration.addvariantproduct", methods={"POST"})
      */
-    public function variantProduct(Context $context, Request $request): Response
+    public function variantProduct(Context $context): Response
     {
         $responseArray = [];
 
-        $servername = $this->systemConfigService->get('ICTECHMigration.config.databaseHost');
-        $username = $this->systemConfigService->get('ICTECHMigration.config.databaseUser');
-        $password = $this->systemConfigService->get('ICTECHMigration.config.databasePassword');
-        $database = $this->systemConfigService->get('ICTECHMigration.config.databaseName');
+        $servername = $this->systemConfigService
+            ->get('ICTECHMigration.config.databaseHost');
+        $username = $this->systemConfigService
+            ->get('ICTECHMigration.config.databaseUser');
+        $password = $this->systemConfigService
+            ->get('ICTECHMigration.config.databasePassword');
+        $database = $this->systemConfigService
+            ->get('ICTECHMigration.config.databaseName');
 
         $conn = new mysqli($servername, $username, $password, $database);
 
         $totalProduct = 0;
-        $type = $request->request->get('type');
         $offSet = $this->systemConfigService->get('ICTECHMigration.config.variantProductCount');
 
         $productCountSql = 'SELECT COUNT(*) as total_products FROM product WHERE referto_id != 0';
@@ -112,7 +114,10 @@ class VariantProductController extends AbstractController
 
         if (mysqli_num_rows($variantProductDetails) > 0) {
             while ($row = mysqli_fetch_assoc($variantProductDetails)) {
-                $productDetail = $this->checkProductExistsInProductTable($context, $row['p_id']);
+                $productDetail = $this->checkProductExistsInProductTable(
+                    $context,
+                    $row['p_id']
+                );
 
                 if ($productDetail === null) {
                     $this->variantProductInsert($row, $context, $conn);
@@ -120,7 +125,8 @@ class VariantProductController extends AbstractController
                     $this->variantProductUpdate($productDetail, $row, $context, $conn);
                 }
                 $currentCount = $offSet + 1;
-                $this->systemConfigService->set('ICTECHMigration.config.variantProductCount', $currentCount);
+                $this->systemConfigService
+                    ->set('ICTECHMigration.config.variantProductCount', $currentCount);
             }
         }
 
@@ -132,7 +138,8 @@ class VariantProductController extends AbstractController
             $responseArray['type'] = 'Success';
             $responseArray['message'] = 'Variant Product Already Imported';
         } else {
-            $this->systemConfigService->set('ICTECHMigration.config.variantProductCount', 0);
+            $this->systemConfigService
+                ->set('ICTECHMigration.config.variantProductCount', 0);
             $responseArray['type'] = 'Success';
             $responseArray['importVariant'] = $offSet + 1;
             $responseArray['message'] = 'Variant Product Imported';
@@ -196,7 +203,10 @@ class VariantProductController extends AbstractController
                             $coverImage['product_id'] = $product['product_id'];
                             $coverImage['image'] = $product['image'];
 
-                            $coverMediaId = $this->addCoverImageToMedia($context, $coverImage);
+                            $coverMediaId = $this->addCoverImageToMedia(
+                                $context,
+                                $coverImage
+                            );
 
                             if ($coverMediaId) {
                                 $mediaIdArray['mediaId'] = $coverMediaId;
@@ -208,7 +218,10 @@ class VariantProductController extends AbstractController
                         $mediaImage['product_id'] = $product['product_id'];
                         if ($product['image_1'] !== '') {
                             $mediaImage['image'] = $product['image_1'];
-                            $mediaId = $this->addImageToMedia($context, $mediaImage);
+                            $mediaId = $this->addImageToMedia(
+                                $context,
+                                $mediaImage
+                            );
 
                             if ($mediaId) {
                                 $mediaIdArray['mediaId'] = $mediaId;
@@ -219,7 +232,10 @@ class VariantProductController extends AbstractController
 
                         if ($product['image_2'] !== '') {
                             $mediaImage['image'] = $product['image_2'];
-                            $mediaIdImage2 = $this->addImageToMedia($context, $mediaImage);
+                            $mediaIdImage2 = $this->addImageToMedia(
+                                $context,
+                                $mediaImage
+                            );
 
                             if ($mediaIdImage2) {
                                 $mediaIdArray['mediaId'] = $mediaIdImage2;
@@ -230,7 +246,10 @@ class VariantProductController extends AbstractController
 
                         if ($product['image_3'] !== '') {
                             $mediaImage['image'] = $product['image_3'];
-                            $mediaIdImage3 = $this->addImageToMedia($context, $mediaImage);
+                            $mediaIdImage3 = $this->addImageToMedia(
+                                $context,
+                                $mediaImage
+                            );
 
                             if ($mediaIdImage3) {
                                 $mediaIdArray['mediaId'] = $mediaIdImage3;
@@ -274,7 +293,10 @@ class VariantProductController extends AbstractController
                             $coverImage['product_id'] = $product['product_id'];
                             $coverImage['image'] = $product['image'];
 
-                            $coverMediaId = $this->addCoverImageToMedia($context, $coverImage);
+                            $coverMediaId = $this->addCoverImageToMedia(
+                                $context,
+                                $coverImage
+                            );
 
                             if ($coverMediaId) {
                                 $mediaIdArray['mediaId'] = $coverMediaId;
@@ -286,7 +308,10 @@ class VariantProductController extends AbstractController
                         $mediaImage['product_id'] = $product['product_id'];
                         if ($product['image_1'] !== '') {
                             $mediaImage['image'] = $product['image_1'];
-                            $mediaId = $this->addImageToMedia($context, $mediaImage);
+                            $mediaId = $this->addImageToMedia(
+                                $context,
+                                $mediaImage
+                            );
 
                             if ($mediaId) {
                                 $mediaIdArray['mediaId'] = $mediaId;
@@ -297,7 +322,10 @@ class VariantProductController extends AbstractController
 
                         if ($product['image_2'] !== '') {
                             $mediaImage['image'] = $product['image_2'];
-                            $mediaIdImage2 = $this->addImageToMedia($context, $mediaImage);
+                            $mediaIdImage2 = $this->addImageToMedia(
+                                $context,
+                                $mediaImage
+                            );
 
                             if ($mediaIdImage2) {
                                 $mediaIdArray['mediaId'] = $mediaIdImage2;
@@ -308,7 +336,10 @@ class VariantProductController extends AbstractController
 
                         if ($product['image_3'] !== '') {
                             $mediaImage['image'] = $product['image_3'];
-                            $mediaIdImage3 = $this->addImageToMedia($context, $mediaImage);
+                            $mediaIdImage3 = $this->addImageToMedia(
+                                $context,
+                                $mediaImage
+                            );
 
                             if ($mediaIdImage3) {
                                 $mediaIdArray['mediaId'] = $mediaIdImage3;
@@ -343,7 +374,10 @@ class VariantProductController extends AbstractController
                     }
                 }
             }
-            $media_array = array_map('unserialize', array_unique(array_map('serialize', $media_array)));
+            $media_array = array_map(
+                'unserialize',
+                array_unique(array_map('serialize', $media_array))
+            );
 
             usort($media_array, function ($x, $y) {
                 return $x['position'] <=> $y['position'];
@@ -378,13 +412,15 @@ class VariantProductController extends AbstractController
             }
             $productArray['parentId'] = $parentId;
             $products[] = $productArray;
-//            dd($productArray);
             $this->productsRepository->create($products, $context);
             $parentProductData = [];
             if ($parentData !== null) {
                 $parentProductData['id'] = $parentData->getId();
                 $parentProductData['displayParent'] = true;
-                $this->productsRepository->update([$parentProductData], $context);
+                $this->productsRepository->update(
+                    [$parentProductData],
+                    $context
+                );
             }
         }
     }
@@ -441,7 +477,10 @@ class VariantProductController extends AbstractController
                             $coverImage['product_id'] = $product['product_id'];
                             $coverImage['image'] = $product['image'];
 
-                            $coverMediaId = $this->addCoverImageToMedia($context, $coverImage);
+                            $coverMediaId = $this->addCoverImageToMedia(
+                                $context,
+                                $coverImage
+                            );
 
                             if ($coverMediaId) {
                                 $mediaIdArray['mediaId'] = $coverMediaId;
@@ -454,7 +493,10 @@ class VariantProductController extends AbstractController
 
                         if ($product['image_1'] !== '') {
                             $mediaImage['image'] = $product['image_1'];
-                            $mediaId = $this->addImageToMedia($context, $mediaImage);
+                            $mediaId = $this->addImageToMedia(
+                                $context,
+                                $mediaImage
+                            );
 
                             if ($mediaId) {
                                 $mediaIdArray['mediaId'] = $mediaId;
@@ -465,7 +507,10 @@ class VariantProductController extends AbstractController
 
                         if ($product['image_2'] !== '') {
                             $mediaImage['image'] = $product['image_2'];
-                            $mediaIdImage2 = $this->addImageToMedia($context, $mediaImage);
+                            $mediaIdImage2 = $this->addImageToMedia(
+                                $context,
+                                $mediaImage
+                            );
 
                             if ($mediaIdImage2) {
                                 $mediaIdArray['mediaId'] = $mediaIdImage2;
@@ -476,7 +521,10 @@ class VariantProductController extends AbstractController
 
                         if ($product['image_3'] !== '') {
                             $mediaImage['image'] = $product['image_3'];
-                            $mediaIdImage3 = $this->addImageToMedia($context, $mediaImage);
+                            $mediaIdImage3 = $this->addImageToMedia(
+                                $context,
+                                $mediaImage
+                            );
 
                             if ($mediaIdImage3) {
                                 $mediaIdArray['mediaId'] = $mediaIdImage3;
@@ -511,7 +559,10 @@ class VariantProductController extends AbstractController
                     }
                 }
             }
-            $media_array = array_map('unserialize', array_unique(array_map('serialize', $media_array)));
+            $media_array = array_map(
+                'unserialize',
+                array_unique(array_map('serialize', $media_array))
+            );
 
             usort($media_array, function ($x, $y) {
                 return $x['position'] <=> $y['position'];
@@ -535,23 +586,32 @@ class VariantProductController extends AbstractController
                 $productArray['coverId'] = $media_array[0]['id'];
             }
             $productArray['parentId'] = $parentId;
-//            dd($productArray);
             $products[] = $productArray;
             $this->productsRepository->update($products, $context);
             $parentProductData = [];
             if ($parentData !== null) {
                 $parentProductData['id'] = $parentData->getId();
                 $parentProductData['displayParent'] = true;
-                $this->productsRepository->update([$parentProductData], $context);
+                $this->productsRepository->update(
+                    [$parentProductData],
+                    $context
+                );
             }
         }
     }
 
     // check product in product repository using product id
-    public function checkProductExistsInProductTable(Context $context, string $productId): ?Entity
-    {
+    public function checkProductExistsInProductTable(
+        Context $context,
+        string $productId
+    ): ?Entity {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customFields.custom_product_id', $productId));
+        $criteria->addFilter(
+            new EqualsFilter(
+                'customFields.custom_product_id',
+                $productId
+            )
+        );
         return $this->productsRepository->search($criteria, $context)->first();
     }
 
@@ -569,8 +629,16 @@ class VariantProductController extends AbstractController
     {
         $criteriaLanguage = new Criteria();
         $criteriaLanguage->addAssociation('translationCode');
-        $criteriaLanguage->addFilter(new EqualsFilter('id', $context->getLanguageId()));
-        $defaultLanguage = $this->languageRepository->search($criteriaLanguage, $context)->first();
+        $criteriaLanguage->addFilter(
+            new EqualsFilter(
+                'id',
+                $context->getLanguageId()
+            )
+        );
+        $defaultLanguage = $this->languageRepository->search(
+            $criteriaLanguage,
+            $context
+        )->first();
 
         return $defaultLanguage->getTranslationCode()->getCode();
     }
@@ -586,12 +654,17 @@ class VariantProductController extends AbstractController
         $fileExtension = $fileNameParts[1];
 
         if ($fileName && $fileExtension) {
-            //copy the file from the URL to the newly created local temporary file
             $filePath = tempnam(sys_get_temp_dir(), $fileName);
 
             @file_put_contents($filePath, @file_get_contents($coverImageUrl));
             //create media record from the image
-            $mediaId = $this->createMediaFromFile($filePath, $fileName, $fileExtension, $this->folderName, $context);
+            $mediaId = $this->createMediaFromFile(
+                $filePath,
+                $fileName,
+                $fileExtension,
+                $this->folderName,
+                $context
+            );
         }
         return $mediaId;
     }
@@ -606,7 +679,7 @@ class VariantProductController extends AbstractController
         $mediaId = null;
 
         if (! @file_get_contents($imageUrl)) {
-            $imageUrl = $this->baseURL.$row['product_id']. '/poster/' . $row['image'];
+            $imageUrl = $this->baseURL.$row['product_id'].'/poster/'.$row['image'];
         }
         $fileNameParts = explode('.', $row['image']);
 
@@ -614,11 +687,16 @@ class VariantProductController extends AbstractController
         $fileExtension = $fileNameParts[1];
 
         if ($fileName && $fileExtension) {
-            //copy the file from the URL to the newly created local temporary file
             $filePath = tempnam(sys_get_temp_dir(), $fileName);
             @file_put_contents($filePath, @file_get_contents($imageUrl));
             //create media record from the image
-            $mediaId = $this->createMediaFromFile($filePath, $fileName, $fileExtension, $this->folderName, $context);
+            $mediaId = $this->createMediaFromFile(
+                $filePath,
+                $fileName,
+                $fileExtension,
+                $this->folderName,
+                $context
+            );
         }
         return $mediaId;
     }
@@ -628,29 +706,47 @@ class VariantProductController extends AbstractController
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productId', $prID));
-        $productMediaObjects = $this->productMediaRepository->search($criteria, $context);
+        $productMediaObjects = $this->productMediaRepository->search(
+            $criteria,
+            $context
+        );
         foreach ($productMediaObjects as $productMediaObject) {
-            $this->productMediaRepository->delete([['id' => $productMediaObject->getID()]], $context);
+            $this->productMediaRepository->delete(
+                [['id' => $productMediaObject->getID()]],
+                $context
+            );
         }
         return $prID;
     }
 
     // get parent id from product repository
-    public function getProductParentId(Context $context, string $parentId): ?Entity
-    {
+    public function getProductParentId(
+        Context $context,
+        string $parentId
+    ): ?Entity {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customFields.custom_product_id', $parentId));
+        $criteria->addFilter(
+            new EqualsFilter(
+                'customFields.custom_product_id',
+                $parentId
+            )
+        );
         return $this->productsRepository->search($criteria, $context)->first();
     }
 
     // add property option in property group option repository
-    public function addPropertyGroupOption(array $data, Context $context): ?string
-    {
+    public function addPropertyGroupOption(
+        array $data,
+        Context $context
+    ): ?string {
         $variantId = '';
         $propertyGroupData = $this->getPropertyGroup($context);
         $propertyGroupId = $propertyGroupData->getId();
 
-        $propertyGroupOptionData = $this->checkPropertyGroupOption($data['name'], $context);
+        $propertyGroupOptionData = $this->checkPropertyGroupOption(
+            $data['name'],
+            $context
+        );
         if ($propertyGroupOptionData !== null) {
             $variantId = $propertyGroupOptionData->getId();
             $data['id'] = $propertyGroupOptionData->getId();
@@ -669,23 +765,36 @@ class VariantProductController extends AbstractController
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'custom_property'));
-        return $this->propertyGroupRepository->search($criteria, $context)->first();
+        return $this->propertyGroupRepository->search(
+            $criteria,
+            $context
+        )->first();
     }
 
     // check property in property group repository
-    public function checkPropertyGroupOption(array $name, Context $context): ?Entity
-    {
+    public function checkPropertyGroupOption(
+        array $name,
+        Context $context
+    ): ?Entity {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('name', $name));
-        return $this->propertyGroupOptionRepository->search($criteria, $context)->first();
+        return $this->propertyGroupOptionRepository->search(
+            $criteria,
+            $context
+        )->first();
     }
 
     // create media from file
     /**
      * @param array $folderName
      */
-    private function createMediaFromFile(string $filePath, string $fileName, string $fileExtension, array $folderName, Context $context): ?string
-    {
+    private function createMediaFromFile(
+        string $filePath,
+        string $fileName,
+        string $fileExtension,
+        array $folderName,
+        Context $context
+    ): ?string {
         $mediaId = null;
 
         //get additional info on the file
@@ -693,21 +802,39 @@ class VariantProductController extends AbstractController
         $mimeType = mime_content_type($filePath);
 
         //create and save new media file to the Shopware's media library
-        $mediaFile = new MediaFile($filePath, $mimeType, $fileExtension, $fileSize);
+        $mediaFile = new MediaFile(
+            $filePath,
+            $mimeType,
+            $fileExtension,
+            $fileSize
+        );
         $languageKey = $this->getDefaultLanguageCode($context);
         $languageKeyArray = explode('-', $languageKey);
 
         try {
-            $folderId = $this->createFolderInMedia($folderName[$languageKeyArray[0]], $context);
+            $folderId = $this->createFolderInMedia(
+                $folderName[$languageKeyArray[0]],
+                $context
+            );
             $mediaId = $this->createMediaId($folderId, $context);
 
-            $this->fileSaver->persistFileToMedia($mediaFile, $fileName, $mediaId, $context);
+            $this->fileSaver->persistFileToMedia(
+                $mediaFile,
+                $fileName,
+                $mediaId,
+                $context
+            );
         } catch (DuplicatedMediaFileNameException | \Exception $e) {
             /*echo($e->getMessage());*/
             $mediaId = $this->mediaCleanup($mediaId, $context);
 
             if (isset($mediaId)) {
-                $this->fileSaver->persistFileToMedia($mediaFile, $fileName, $mediaId, $context);
+                $this->fileSaver->persistFileToMedia(
+                    $mediaFile,
+                    $fileName,
+                    $mediaId,
+                    $context
+                );
             }
         }
 
@@ -715,8 +842,15 @@ class VariantProductController extends AbstractController
         if (! isset($mediaId)) {
             $mediaId = $this->checkImageExist($fileName, $mimeType, $context);
             try {
-                if (isset($mediaFile) && $fileName !== null && $mediaId !== null) {
-                    $this->fileSaver->persistFileToMedia($mediaFile, $fileName, $mediaId, $context);
+                if (isset($mediaFile) && $fileName !== null &&
+                    $mediaId !== null
+                ) {
+                    $this->fileSaver->persistFileToMedia(
+                        $mediaFile,
+                        $fileName,
+                        $mediaId,
+                        $context
+                    );
                 }
             } catch (DuplicatedMediaFileNameException | \Exception $e) {
                 echo $e->getMessage();
@@ -726,11 +860,16 @@ class VariantProductController extends AbstractController
     }
 
     // create folder in sw media
-    private function createFolderInMedia(string $folderName, Context $context): ?string
-    {
+    private function createFolderInMedia(
+        string $folderName,
+        Context $context
+    ): ?string {
         $folderId = $this->checkFolderInMedia($folderName, $context);
         $criteria = new Criteria();
-        $mediaThumbnailObject = $this->mediaThumbnailSize->searchIds($criteria, $context)->getData();
+        $mediaThumbnailObject = $this->mediaThumbnailSize->searchIds(
+            $criteria,
+            $context
+        )->getData();
         $mediaThumbnailArray = [];
         foreach ($mediaThumbnailObject as $media) {
             $mediaThumbnailArray[] = $media;
@@ -785,8 +924,11 @@ class VariantProductController extends AbstractController
     }
 
     // check image in media repository
-    private function checkImageExist(string $fileName, string $mimeType, Context $context): ?string
-    {
+    private function checkImageExist(
+        string $fileName,
+        string $mimeType,
+        Context $context
+    ): ?string {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('fileName', $fileName));
         $criteria->addFilter(new EqualsFilter('mimeType', $mimeType));
@@ -795,19 +937,29 @@ class VariantProductController extends AbstractController
     }
 
     // check folder in sw media
-    private function checkFolderInMedia(string $folderName, Context $context): ?string
-    {
+    private function checkFolderInMedia(
+        string $folderName,
+        Context $context
+    ): ?string {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $folderName));
-        $mediaFolderObject = $this->mediaFolderRepository->searchIds($criteria, $context);
+        $mediaFolderObject = $this->mediaFolderRepository->searchIds(
+            $criteria,
+            $context
+        );
         return $mediaFolderObject->firstId();
     }
 
     // check product number in product repository
-    private function checkProductNumberExistsInProductTable(string $productNumber, Context $context): int
-    {
+    private function checkProductNumberExistsInProductTable(
+        string $productNumber,
+        Context $context
+    ): int {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productNumber', $productNumber));
-        return $this->productsRepository->search($criteria, $context)->getTotal();
+        return $this->productsRepository->search(
+            $criteria,
+            $context
+        )->getTotal();
     }
 }
