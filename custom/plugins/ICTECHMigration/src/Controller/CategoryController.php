@@ -43,15 +43,15 @@ class CategoryController extends AbstractController
     /**
      * @Route("/api/_action/migration/addcategory",name="api.custom.migration.category", methods={"POST"})
      */
-    public function insertCategory(Request $request): Response
+    public function insertCategory(Context $context, Request $request): Response
     {
         $responseArray = [];
-        $context = Context::createDefaultContext();
+        $type = $request->request->get('type');
 
         $servername = $this->systemConfigService->get('ICTECHMigration.config.databaseHost');
         $username = $this->systemConfigService->get('ICTECHMigration.config.databaseUser');
         $password = $this->systemConfigService->get('ICTECHMigration.config.databasePassword');
-        $database = 'usrdb_amanwyeh5';
+        $database = $this->systemConfigService->get('ICTECHMigration.config.databaseName');
 
         $conn = new mysqli($servername, $username, $password, $database);
 
@@ -81,7 +81,7 @@ class CategoryController extends AbstractController
                     $this->mainCategoryUpdate($categoryDetail, $row, $context, $conn);
                 }
                 $currentCount = $offSet + 1;
-                $this->systemConfigService->set('ICTECHMigration.config.categoryCount',$currentCount);
+                $this->systemConfigService->set('ICTECHMigration.config.categoryCount', $currentCount);
             }
         }
         if ($offSet < $totalCategory) {
@@ -92,7 +92,7 @@ class CategoryController extends AbstractController
             $responseArray['type'] = 'Success';
             $responseArray['message'] = 'Category Already Imported';
         } else {
-//            $this->systemConfigService->set('ICTECHMigration.config.categoryCount',0);
+            $this->systemConfigService->set('ICTECHMigration.config.categoryCount', 0);
             $responseArray['type'] = 'Success';
             $responseArray['importCategoryCount'] = $offSet + 1;
             $responseArray['message'] = 'Category Imported';

@@ -9,7 +9,11 @@
             "propertyValue": "Properties Values",
             "category": "Categories",
             "productVariant": "Variant Products",
-            "mainProduct": "Main Products"
+            "mainProduct": "Main Products",
+            "categoryText": "Click button for Category Import",
+            "mainProductText": "Click button for Main Product Import",
+            "productVariantText": "Click button for Variant Product Import",
+            "totalImportText": "import From total"
         }
     },
     "sw-settings-custom-field": {

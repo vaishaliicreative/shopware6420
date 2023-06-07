@@ -48,6 +48,7 @@
 {#                                {{ incrementalValue }}#}
 {#                            </sw-card>#}
                             <sw-card>
+                                <p class="sw_text-info__info">{{ $tc('ict-core-import-config.detail.categoryText') }}</p>
                                 <sw-button
                                     @click="importCategory()"
                                     ref="ictCoreImportConfigContentCategory"
@@ -63,6 +64,7 @@
                                 {{ importCategoryMessage }}
                             </sw-card>
                             <sw-card>
+                                <p class="sw_text-info__info">{{ $tc('ict-core-import-config.detail.mainProductText') }}</p>
                                 <sw-button
                                     @click="importMainProduct()"
                                     ref="ictCoreImportConfigContentMainProduct"
@@ -79,6 +81,7 @@
 
                             </sw-card>
                             <sw-card>
+                                <p class="sw_text-info__info">{{ $tc('ict-core-import-config.detail.productVariantText') }}</p>
                                 <sw-button
                                     @click="importVariantProduct()"
                                     ref="ictCoreImportConfigContentProductVariant"

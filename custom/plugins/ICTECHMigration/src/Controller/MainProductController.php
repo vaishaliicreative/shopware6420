@@ -86,14 +86,14 @@ class MainProductController extends AbstractController
     /**
      * @Route("/api/_action/migration/mainproduct",name="api.custom.migration.mainproduct", methods={"POST"})
      */
-    public function mainProduct(Request $request): Response
+    public function mainProduct(Context $context, Request $request): Response
     {
         $responseArray = [];
-        $context = Context::createDefaultContext();
+        $type = $request->request->get('type');
         $servername = $this->systemConfigService->get('ICTECHMigration.config.databaseHost');
         $username = $this->systemConfigService->get('ICTECHMigration.config.databaseUser');
         $password = $this->systemConfigService->get('ICTECHMigration.config.databasePassword');
-        $database = 'usrdb_amanwyeh5';
+        $database = $this->systemConfigService->get('ICTECHMigration.config.databaseName');
 
         $conn = new mysqli($servername, $username, $password, $database);
 
@@ -123,7 +123,7 @@ class MainProductController extends AbstractController
                     $this->mainProductUpdate($productDetail, $row, $context, $conn);
                 }
                 $currentCount = $offSet + 1;
-                $this->systemConfigService->set('ICTECHMigration.config.mainProductCount',$currentCount);
+                $this->systemConfigService->set('ICTECHMigration.config.mainProductCount', $currentCount);
             }
         }
         if ($offSet < $totalProduct) {
@@ -134,7 +134,7 @@ class MainProductController extends AbstractController
             $responseArray['type'] = 'Success';
             $responseArray['message'] = 'Main Product Already Imported';
         } else {
-//            $this->systemConfigService->set('ICTECHMigration.config.mainProductCount',0);
+            $this->systemConfigService->set('ICTECHMigration.config.mainProductCount', 0);
             $responseArray['type'] = 'Success';
             $responseArray['importProduct'] = $offSet + 1;
             $responseArray['message'] = 'Main Product Imported';
@@ -268,56 +268,54 @@ class MainProductController extends AbstractController
                     $customFieldsData['custom_product_www'] = $product['www'];
                     $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
 
-//                    if (! isset($productArray['media'])) {
-                        if ($product['image'] !== '') {
-                            $coverImage['product_id'] = $product['product_id'];
-                            $coverImage['image'] = $product['image'];
+                    if ($product['image'] !== '') {
+                        $coverImage['product_id'] = $product['product_id'];
+                        $coverImage['image'] = $product['image'];
 
-                            $coverMediaId = $this->addCoverImageToMedia($context, $coverImage);
+                        $coverMediaId = $this->addCoverImageToMedia($context, $coverImage);
 
-                            if ($coverMediaId) {
-                                $mediaIdArray['mediaId'] = $coverMediaId;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
-                            }
+                        if ($coverMediaId) {
+                            $mediaIdArray['mediaId'] = $coverMediaId;
+                            $mediaIdArray['position'] = 1;
+                            $mediaIds[] = $mediaIdArray;
                         }
+                    }
 
-                        $mediaImage['product_id'] = $product['product_id'];
-                        if ($product['image_1'] !== '') {
-                            $mediaImage['image'] = $product['image_1'];
-                            $mediaId = $this->addImageToMedia($context, $mediaImage);
+                    $mediaImage['product_id'] = $product['product_id'];
+                    if ($product['image_1'] !== '') {
+                        $mediaImage['image'] = $product['image_1'];
+                        $mediaId = $this->addImageToMedia($context, $mediaImage);
 
-                            if ($mediaId) {
-                                $mediaIdArray['mediaId'] = $mediaId;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
-                            }
+                        if ($mediaId) {
+                            $mediaIdArray['mediaId'] = $mediaId;
+                            $mediaIdArray['position'] = 1;
+                            $mediaIds[] = $mediaIdArray;
                         }
+                    }
 
-                        if ($product['image_2'] !== '') {
-                            $mediaImage['image'] = $product['image_2'];
-                            $mediaIdImage2 = $this->addImageToMedia($context, $mediaImage);
+                    if ($product['image_2'] !== '') {
+                        $mediaImage['image'] = $product['image_2'];
+                        $mediaIdImage2 = $this->addImageToMedia($context, $mediaImage);
 
-                            if ($mediaIdImage2) {
-                                $mediaIdArray['mediaId'] = $mediaIdImage2;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
-                            }
+                        if ($mediaIdImage2) {
+                            $mediaIdArray['mediaId'] = $mediaIdImage2;
+                            $mediaIdArray['position'] = 1;
+                            $mediaIds[] = $mediaIdArray;
                         }
+                    }
 
-                        if ($product['image_3'] !== '') {
-                            $mediaImage['image'] = $product['image_3'];
-                            $mediaIdImage3 = $this->addImageToMedia($context, $mediaImage);
+                    if ($product['image_3'] !== '') {
+                        $mediaImage['image'] = $product['image_3'];
+                        $mediaIdImage3 = $this->addImageToMedia($context, $mediaImage);
 
-                            if ($mediaIdImage3) {
-                                $mediaIdArray['mediaId'] = $mediaIdImage3;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
-                            }
+                        if ($mediaIdImage3) {
+                            $mediaIdArray['mediaId'] = $mediaIdImage3;
+                            $mediaIdArray['position'] = 1;
+                            $mediaIds[] = $mediaIdArray;
                         }
+                    }
 
-                        $productArray['media'] = $mediaIds ?? '';
-//                    }
+                    $productArray['media'] = $mediaIds ?? '';
                 }
                 // get Tag ID
                 if ($product['tags'] !== null && $product['tags'] !== '') {

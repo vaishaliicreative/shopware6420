@@ -89,11 +89,12 @@ class VariantProductController extends AbstractController
         $servername = $this->systemConfigService->get('ICTECHMigration.config.databaseHost');
         $username = $this->systemConfigService->get('ICTECHMigration.config.databaseUser');
         $password = $this->systemConfigService->get('ICTECHMigration.config.databasePassword');
-        $database = 'usrdb_amanwyeh5';
+        $database = $this->systemConfigService->get('ICTECHMigration.config.databaseName');
 
         $conn = new mysqli($servername, $username, $password, $database);
 
         $totalProduct = 0;
+        $type = $request->request->get('type');
         $offSet = $this->systemConfigService->get('ICTECHMigration.config.variantProductCount');
 
         $productCountSql = 'SELECT COUNT(*) as total_products FROM product WHERE referto_id != 0';
@@ -131,7 +132,7 @@ class VariantProductController extends AbstractController
             $responseArray['type'] = 'Success';
             $responseArray['message'] = 'Variant Product Already Imported';
         } else {
-//            $this->systemConfigService->set('ICTECHMigration.config.variantProductCount', 0);
+            $this->systemConfigService->set('ICTECHMigration.config.variantProductCount', 0);
             $responseArray['type'] = 'Success';
             $responseArray['importVariant'] = $offSet + 1;
             $responseArray['message'] = 'Variant Product Imported';
@@ -380,7 +381,7 @@ class VariantProductController extends AbstractController
 //            dd($productArray);
             $this->productsRepository->create($products, $context);
             $parentProductData = [];
-            if($parentData !== null) {
+            if ($parentData !== null) {
                 $parentProductData['id'] = $parentData->getId();
                 $parentProductData['displayParent'] = true;
                 $this->productsRepository->update([$parentProductData], $context);
@@ -538,7 +539,7 @@ class VariantProductController extends AbstractController
             $products[] = $productArray;
             $this->productsRepository->update($products, $context);
             $parentProductData = [];
-            if($parentData !== null) {
+            if ($parentData !== null) {
                 $parentProductData['id'] = $parentData->getId();
                 $parentProductData['displayParent'] = true;
                 $this->productsRepository->update([$parentProductData], $context);
