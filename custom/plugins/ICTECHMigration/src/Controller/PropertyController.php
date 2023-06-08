@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -63,30 +64,31 @@ class PropertyController extends AbstractController
     /**
      * @Route("/api/_action/migration/property",name="api.custom.migration.property", methods={"POST"})
      */
-    public function property(\Symfony\Component\HttpFoundation\Request $request): Response
+    public function property(Request $request): Response
     {
-//        $servername = "amargo-preview.de";
-//        $username = "amanwyeh5";
-//        $password = "3R7hZEy!kW7O";
-
         //     create Context
         $context = Context::createDefaultContext();
 
         //     get parent data
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('level', '1'));
-        $getParentDataId = $this->categoryRepository->search($criteria, $context)->first();
+        $getParentDataId = $this->categoryRepository->search(
+            $criteria,
+            $context
+        )->first();
 
         //     get Configuration data
-        $servername = $this->systemConfigService->get('ICTECHMigration.config.databaseHost');
-        $username = $this->systemConfigService->get('ICTECHMigration.config.databaseUser');
-        $password = $this->systemConfigService->get('ICTECHMigration.config.databasePassword');
+        $servername = $this->systemConfigService
+            ->get('ICTECHMigration.config.databaseHost');
+        $username = $this->systemConfigService
+            ->get('ICTECHMigration.config.databaseUser');
+        $password = $this->systemConfigService
+            ->get('ICTECHMigration.config.databasePassword');
         $database = 'usrdb_amanwyeh5';
 
         //     Connection With MySQL and Get Data
         $conn = new mysqli($servername, $username, $password, $database);
-//        $startFromData = (int) $request->get('startingValue');
-        $sql = 'SELECT cms_art_menu_text,cms_art_menu_speaking_url,cms_art_article_browser_title,cms_art_article_description,cms_art_article_content,cms_art_article_content_title FROM cms_articles LIMIT 1';
+        $sql = 'SELECT * FROM cms_articles LIMIT 1';
         $result = mysqli_query($conn, $sql);
 
         if (mysqli_num_rows($result) > 0) {
@@ -94,7 +96,12 @@ class PropertyController extends AbstractController
             while ($row = mysqli_fetch_assoc($result)) {
                 $i += 1;
                 $categoryId = Uuid::randomHex();
-                $this->categoryInsert($getParentDataId->id, $categoryId, $row, $context);
+                $this->categoryInsert(
+                    $getParentDataId->id,
+                    $categoryId,
+                    $row,
+                    $context
+                );
                 if ($i % 10 === 0) {
                     return new JsonResponse([
                         'type' => 'Pending',
@@ -112,8 +119,12 @@ class PropertyController extends AbstractController
     /**
      * @param array $row
      */
-    private function categoryInsert(string $getParentDataId, string $categoryId, array $row, Context $context): void
-    {
+    private function categoryInsert(
+        string $getParentDataId,
+        string $categoryId,
+        array $row,
+        Context $context
+    ): void {
         $data = [
             'id' => $categoryId,
             'parentId' => $getParentDataId,

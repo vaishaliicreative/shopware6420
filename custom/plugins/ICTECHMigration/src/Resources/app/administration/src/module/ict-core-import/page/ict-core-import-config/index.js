@@ -37,8 +37,6 @@ Component.register('ict-core-import-config', {
     },
     methods: {
         propertyFunction(value) {
-            console.log(value);
-            // this.isLoading = true;
             let headers = this.configService.getBasicHeaders();
 
             let data = new FormData();
@@ -71,7 +69,6 @@ Component.register('ict-core-import-config', {
 
             let data = new FormData();
             data.append('type', 'main_product');
-            // data.append('offSet',this.offSet);
 
             return this.configService.httpClient.post('/_action/migration/mainproduct', data, {headers})
                 .then((response) => {
@@ -79,11 +76,9 @@ Component.register('ict-core-import-config', {
                     this.isProductLoading = false;
                     let data = response.data;
                     if(data.type === 'Pending'){
-                        // offSet++;
                         this.importProduct = data.importProduct;
                         this.totalProduct = data.totalProduct;
                         this.importProductMessage =this.importProduct +' '+ this.$tc('ict-core-import-config.detail.totalImportText') +' '+ this.totalProduct+' '+this.$tc('ict-core-import-config.detail.mainProduct');
-                        // return;
                         this.importMainProduct();
                     }else{
                         this.createNotificationSuccess({
@@ -113,7 +108,6 @@ Component.register('ict-core-import-config', {
                         this.importCategoryCount = data.importCategoryCount;
                         this.totalCategory = data.totalCategory;
                         this.importCategoryMessage =this.importCategoryCount +' '+this.$tc('ict-core-import-config.detail.totalImportText')+' '+ this.totalCategory+' '+this.$tc('ict-core-import-config.detail.category');
-                        // return;
                         this.importCategory();
                     }else{
                         this.createNotificationSuccess({
@@ -143,7 +137,6 @@ Component.register('ict-core-import-config', {
                         this.importVariant = data.importVariant;
                         this.totalVariant = data.totalVariant;
                         this.importVariantMessage =this.importVariant +' '+ this.$tc('ict-core-import-config.detail.totalImportText') + ' '+ this.totalVariant+' '+this.$tc('ict-core-import-config.detail.productVariant');
-                        // return;
                         this.importVariantProduct();
                     }else{
                         this.variantOffSet = 0;
