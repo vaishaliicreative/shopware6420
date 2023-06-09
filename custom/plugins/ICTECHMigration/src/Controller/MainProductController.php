@@ -41,6 +41,8 @@ class MainProductController extends AbstractController
     private EntityRepository $mediaFolderRepository;
     private EntityRepository $salesChannelRepository;
     private EntityRepository $categoryRepository;
+    private EntityRepository $ruleRepository;
+    private EntityRepository $productPriceRepository;
 
     private string $baseURL = 'https://www.purivox.com/uploads/shop/';
 
@@ -65,7 +67,9 @@ class MainProductController extends AbstractController
         EntityRepository $mediaThumbnailSize,
         EntityRepository $mediaFolderRepository,
         EntityRepository $salesChannelRepository,
-        EntityRepository $categoryRepository
+        EntityRepository $categoryRepository,
+        EntityRepository $ruleRepository,
+        EntityRepository $productPriceRepository
     ) {
         $this->systemConfigService = $systemConfigService;
         $this->languageRepository = $languageRepository;
@@ -80,6 +84,8 @@ class MainProductController extends AbstractController
         $this->mediaFolderRepository = $mediaFolderRepository;
         $this->salesChannelRepository = $salesChannelRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->ruleRepository = $ruleRepository;
+        $this->productPriceRepository = $productPriceRepository;
     }
 
     /**
@@ -453,6 +459,19 @@ class MainProductController extends AbstractController
                     'id' => $categories->getId(),
                 ];
             }
+
+            $subCategories = $this->getAllCategoryData($row['p_id'], $conn, $context);
+            if (isset($subCategories) && !empty($subCategories)) {
+                foreach ($subCategories as $category){
+                    $category_array[] = [
+                        'id' => $category->getId(),
+                    ];
+                }
+            }
+            $category_array = array_map(
+                "unserialize",
+                array_unique(array_map("serialize", $category_array))
+            );
             $productArray['categories'] = $category_array;
 
             $products[] = $productArray;
@@ -468,7 +487,7 @@ class MainProductController extends AbstractController
         $conn
     ): void {
         $products = [];
-        $currencyId = $context->getCurrencyId();
+
         $languageDetails = $this->getLanguagesDetail($context);
         $productDataSql = 'SELECT * from product_data WHERE product_id = '.$row['p_id'];
         $productDataDetails = mysqli_query($conn, $productDataSql);
@@ -595,14 +614,8 @@ class MainProductController extends AbstractController
             });
             $productArray['media'] = $media_array;
 
-            $productArray['price'] = [
-                [
-                    'currencyId' => $currencyId,
-                    'gross' => $row['price_brutto'] === null ? 0 : $row['price_brutto'],
-                    'net' => $row['price_netto'] === null ? 0 : $row['price_netto'],
-                    'linked' => true,
-                ],
-            ];
+            $productArray['price'] = $this->getPrices($row, $context);
+//            dd($productArray['price']);
             $productArray['stock'] = (int) $row['quantity_available'];
             $productArray['weight'] = $row['weight'];
             $productArray['width'] = $row['width'];
@@ -623,8 +636,26 @@ class MainProductController extends AbstractController
                     'id' => $categories->getId(),
                 ];
             }
+            $subCategories = $this->getAllCategoryData($row['p_id'], $conn, $context);
+            if (isset($subCategories) && !empty($subCategories)) {
+                foreach ($subCategories as $category){
+                    $category_array[] = [
+                        'id' => $category->getId(),
+                    ];
+                }
+            }
+            $category_array = array_map(
+                "unserialize",
+                array_unique(array_map("serialize", $category_array))
+            );
             $productArray['categories'] = $category_array;
+            $prices = $this->getAdvancedPrices($row['p_id'], $conn, $context, $prID);
+//            dd($row);
+            if (! empty($prices)) {
+                $productArray['prices'] = $prices;
+            }
             $products[] = $productArray;
+//            dd($productArray);
             $this->productsRepository->update($products, $context);
         }
     }
@@ -972,5 +1003,136 @@ class MainProductController extends AbstractController
             $criteria,
             $context
         )->getTotal();
+    }
+
+    private function getAdvancedPrices($product_id, $conn, Context $context, $currentProduct): array
+    {
+        $priceArray = [];
+        $currencyId = $context->getCurrencyId();
+        $ruleDetails = $this->getRuleId($context);
+        $rule_id = $ruleDetails->getId();
+        $priceSql = 'SELECT * FROM product_prices WHERE product_id = '.$product_id;
+        $priceDetails = mysqli_query($conn, $priceSql);
+
+        $productPrice = $this->checkProductPrice($currentProduct, $context);
+        if ($productPrice) {
+            $this->removeProductPrice($currentProduct, $context);
+        }
+
+        if (mysqli_num_rows($priceDetails) > 0) {
+            $price_array = [];
+            while ($price = mysqli_fetch_assoc($priceDetails)) {
+                $price_array = [
+                    'productId' => $currentProduct,
+                    'quantityStart' => (int) $price['number_of_pieces'],
+                    'ruleId' => $rule_id,
+                    'price' => [
+                        [
+                            'currencyId' => $currencyId,
+                            'gross' => $price['price_per_piece_brutto'] === null ? 0 : $price['price_per_piece_brutto'],
+                            'net' => $price['price_per_piece_netto'] === null ? 0 : $price['price_per_piece_netto'],
+                            'linked' => true,
+                        ],
+                    ],
+                ];
+
+                $this->productPriceRepository->create([$price_array], $context);
+//                $priceArray[] = $price_array;
+            }
+        }
+//        dd($priceArray);
+        return $priceArray;
+    }
+
+    private function checkProductPrice($productId, Context $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter(
+                'productId',
+                $productId
+            )
+        );
+        return $this->productPriceRepository->search($criteria, $context)->getIds();
+    }
+
+    private function removeProductPrice($productId, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $productPriceObjects = $this->productPriceRepository->search(
+            $criteria,
+            $context
+        );
+        foreach ($productPriceObjects as $productPriceObject) {
+            $this->productPriceRepository->delete(
+                [['id' => $productPriceObject->getID()]],
+                $context
+            );
+        }
+    }
+
+    private function getRuleId(Context $context)
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter(
+                'priority',
+                1
+            )
+        );
+        $criteria->addSorting(
+            new FieldSorting('name', 'ASC')
+        );
+
+        return $this->ruleRepository->search($criteria, $context)->first();
+    }
+
+    private function getAllCategoryData($product_id, $conn, Context $context): array
+    {
+        $categoryArray = [];
+        $categorySql = 'SELECT * FROM product2category WHERE product_id = '.$product_id;
+        $categoryDetails = mysqli_query($conn, $categorySql);
+        if (mysqli_num_rows($categoryDetails) > 0) {
+            while ($category = mysqli_fetch_assoc($categoryDetails)) {
+                $categoryDetail = $this->getCategoryData($context, $category['category_id']);
+                $categoryArray[] = $categoryDetail;
+            }
+        }
+        return $categoryArray;
+    }
+
+    private function getPrices($row, Context $context): array
+    {
+//        dd($row);
+        $priceArray = [];
+        $currencyId = $context->getCurrencyId();
+        $price_array = [];
+        if (($row['price_special_brutto'] === null || $row['price_special_brutto'] === '0.00') &&
+            ($row['price_special_netto'] === null || $row['price_special_netto'] === '0.00')) {
+            $price_array = [
+                'currencyId' => $currencyId,
+                'gross' => $row['price_brutto'] === null ? 0 : $row['price_brutto'],
+                'net' => $row['price_netto'] === null ? 0 : $row['price_netto'],
+                'linked' => true,
+            ];
+        } else {
+            $price_array = [
+                'currencyId' => $currencyId,
+                'gross' => $row['price_special_brutto'] === null ? 0 : $row['price_special_brutto'],
+                'net' => $row['price_special_netto'] === null ? 0 : $row['price_special_netto'],
+                'linked' => true,
+            ];
+            $list_price = [
+                'currencyId' => $currencyId,
+                'gross' => $row['price_brutto'] === null ? 0 : $row['price_brutto'],
+                'net' => $row['price_netto'] === null ? 0 : $row['price_netto'],
+                'linked' => true,
+            ];
+            $price_array['listPrice'] = $list_price;
+        }
+        $priceArray[] = $price_array;
+//        dd($priceArray);
+        return $priceArray;
     }
 }

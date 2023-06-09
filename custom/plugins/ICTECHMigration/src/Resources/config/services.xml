@@ -34,6 +34,8 @@
             <argument type="service" id="media_folder.repository" />
             <argument type="service" id="sales_channel.repository" />
             <argument type="service" id="category.repository"/>
+            <argument type="service" id="rule.repository"/>
+            <argument type="service" id="product_price.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
