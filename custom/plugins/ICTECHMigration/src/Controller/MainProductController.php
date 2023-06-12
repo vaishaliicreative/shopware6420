@@ -166,7 +166,6 @@ class MainProductController extends AbstractController
         $conn
     ): void {
         $products = [];
-        $currencyId = $context->getCurrencyId();
         $taxDetails = $this->getTaxDetails($context);
         $languageDetails = $this->getLanguagesDetail($context);
         $defaultLanguageCode = $this->getDefaultLanguageCode($context);
@@ -185,6 +184,7 @@ class MainProductController extends AbstractController
                 foreach ($languageDetails as $_language) {
                     $languageCode = $_language->getTranslationCode()->getCode();
                     $languageArray = explode('-', $languageCode);
+                    $customFieldsData = [];
                     if ($product['language'] === $languageArray[0]) {
                         if ($product['title'] !== '' && $product['title'] !== null) {
                             $productArray['name'][$languageCode] = $product['title'];
@@ -196,7 +196,6 @@ class MainProductController extends AbstractController
                         $productArray['metaTitle'][$languageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
                         $productArray['metaDescription'][$languageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
 
-                        $customFieldsData = [];
                         if ($product['additional_data'] !== '' && $product['additional_data'] !== null) {
                             $additionalData = json_decode($product['additional_data']);
                             foreach ($additionalData as $key => $value) {
@@ -211,7 +210,97 @@ class MainProductController extends AbstractController
                         $customFieldsData['custom_product_www'] = $product['www'];
                         $productArray['translations'][$languageCode]['customFields'] = $customFieldsData;
 
-                        // get Media Id
+                        if (! isset($productArray['media'])) {
+                            // get Media Id
+                            if ($product['image'] !== '') {
+                                $coverImage['product_id'] = $product['product_id'];
+                                $coverImage['image'] = $product['image'];
+
+                                $coverMediaId = $this->addCoverImageToMedia(
+                                    $context,
+                                    $coverImage
+                                );
+
+                                if ($coverMediaId) {
+                                    $mediaIdArray['mediaId'] = $coverMediaId;
+                                    $mediaIdArray['position'] = 1;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
+                            }
+                            $mediaImage['product_id'] = $product['product_id'];
+
+                            if ($product['image_1'] !== '') {
+                                $mediaImage['image'] = $product['image_1'];
+                                $mediaId = $this->addImageToMedia(
+                                    $context,
+                                    $mediaImage
+                                );
+
+                                if ($mediaId) {
+                                    $mediaIdArray['mediaId'] = $mediaId;
+                                    $mediaIdArray['position'] = 1;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
+                            }
+
+                            if ($product['image_2'] !== '') {
+                                $mediaImage['image'] = $product['image_2'];
+                                $mediaIdImage2 = $this->addImageToMedia(
+                                    $context,
+                                    $mediaImage
+                                );
+
+                                if ($mediaIdImage2) {
+                                    $mediaIdArray['mediaId'] = $mediaIdImage2;
+                                    $mediaIdArray['position'] = 1;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
+                            }
+
+                            if ($product['image_3'] !== '') {
+                                $mediaImage['image'] = $product['image_3'];
+                                $mediaIdImage3 = $this->addImageToMedia(
+                                    $context,
+                                    $mediaImage
+                                );
+
+                                if ($mediaIdImage3) {
+                                    $mediaIdArray['mediaId'] = $mediaIdImage3;
+                                    $mediaIdArray['position'] = 1;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
+                            }
+                            $productArray['media'] = $mediaIds ?? '';
+                        }
+                    }
+                }
+
+                if (! isset($productArray['name'][$defaultLanguageCode])) {
+                    if ($product['title'] !== '' && $product['title'] !== null) {
+                        $productArray['name'][$defaultLanguageCode] = $product['title'];
+                    } else {
+                        $productArray['name'][$defaultLanguageCode] = 'dummy migration';
+                    }
+                    $productArray['description'][$defaultLanguageCode] = $product['description'] === null ? '' : $product['description'];
+                    $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
+                    $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
+
+                    $customFieldsData = [];
+                    if ($product['additional_data'] !== '' && $product['additional_data'] !== null) {
+                        $additionalData = json_decode($product['additional_data']);
+                        foreach ($additionalData as $key => $value) {
+                            $customFieldName = 'custom_' . $key;
+                            $customFieldsData[$customFieldName] = $value;
+                        }
+                    }
+                    $customFieldsData['custom_product_id'] = $product['product_id'];
+                    $customFieldsData['custom_product_data_id'] = $product['pd_id'];
+                    $customFieldsData['custom_product_video_url'] = $product['video'];
+                    $customFieldsData['custom_product_audio'] = $product['audio'];
+                    $customFieldsData['custom_product_www'] = $product['www'];
+                    $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
+
+                    if (! isset($productArray['media'])) {
                         if ($product['image'] !== '') {
                             $coverImage['product_id'] = $product['product_id'];
                             $coverImage['image'] = $product['image'];
@@ -227,8 +316,8 @@ class MainProductController extends AbstractController
                                 $mediaIds[] = $mediaIdArray;
                             }
                         }
-                        $mediaImage['product_id'] = $product['product_id'];
 
+                        $mediaImage['product_id'] = $product['product_id'];
                         if ($product['image_1'] !== '') {
                             $mediaImage['image'] = $product['image_1'];
                             $mediaId = $this->addImageToMedia(
@@ -270,95 +359,9 @@ class MainProductController extends AbstractController
                                 $mediaIds[] = $mediaIdArray;
                             }
                         }
+
                         $productArray['media'] = $mediaIds ?? '';
                     }
-                }
-
-                if (! isset($productArray['name'][$defaultLanguageCode])) {
-                    if ($product['title'] !== '' && $product['title'] !== null) {
-                        $productArray['name'][$defaultLanguageCode] = $product['title'];
-                    } else {
-                        $productArray['name'][$defaultLanguageCode] = 'dummy migration';
-                    }
-                    $productArray['description'][$defaultLanguageCode] = $product['description'] === null ? '' : $product['description'];
-                    $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
-                    $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
-
-                    $customFieldsData = [];
-                    if ($product['additional_data'] !== '' && $product['additional_data'] !== null) {
-                        $additionalData = json_decode($product['additional_data']);
-                        foreach ($additionalData as $key => $value) {
-                            $customFieldName = 'custom_' . $key;
-                            $customFieldsData[$customFieldName] = $value;
-                        }
-                    }
-                    $customFieldsData['custom_product_id'] = $product['product_id'];
-                    $customFieldsData['custom_product_data_id'] = $product['pd_id'];
-                    $customFieldsData['custom_product_video_url'] = $product['video'];
-                    $customFieldsData['custom_product_audio'] = $product['audio'];
-                    $customFieldsData['custom_product_www'] = $product['www'];
-                    $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
-
-                    if ($product['image'] !== '') {
-                        $coverImage['product_id'] = $product['product_id'];
-                        $coverImage['image'] = $product['image'];
-
-                        $coverMediaId = $this->addCoverImageToMedia(
-                            $context,
-                            $coverImage
-                        );
-
-                        if ($coverMediaId) {
-                            $mediaIdArray['mediaId'] = $coverMediaId;
-                            $mediaIdArray['position'] = 1;
-                            $mediaIds[] = $mediaIdArray;
-                        }
-                    }
-
-                    $mediaImage['product_id'] = $product['product_id'];
-                    if ($product['image_1'] !== '') {
-                        $mediaImage['image'] = $product['image_1'];
-                        $mediaId = $this->addImageToMedia(
-                            $context,
-                            $mediaImage
-                        );
-
-                        if ($mediaId) {
-                            $mediaIdArray['mediaId'] = $mediaId;
-                            $mediaIdArray['position'] = 1;
-                            $mediaIds[] = $mediaIdArray;
-                        }
-                    }
-
-                    if ($product['image_2'] !== '') {
-                        $mediaImage['image'] = $product['image_2'];
-                        $mediaIdImage2 = $this->addImageToMedia(
-                            $context,
-                            $mediaImage
-                        );
-
-                        if ($mediaIdImage2) {
-                            $mediaIdArray['mediaId'] = $mediaIdImage2;
-                            $mediaIdArray['position'] = 1;
-                            $mediaIds[] = $mediaIdArray;
-                        }
-                    }
-
-                    if ($product['image_3'] !== '') {
-                        $mediaImage['image'] = $product['image_3'];
-                        $mediaIdImage3 = $this->addImageToMedia(
-                            $context,
-                            $mediaImage
-                        );
-
-                        if ($mediaIdImage3) {
-                            $mediaIdArray['mediaId'] = $mediaIdImage3;
-                            $mediaIdArray['position'] = 1;
-                            $mediaIds[] = $mediaIdArray;
-                        }
-                    }
-
-                    $productArray['media'] = $mediaIds ?? '';
                 }
                 // get Tag ID
                 if ($product['tags'] !== null && $product['tags'] !== '') {
@@ -401,18 +404,12 @@ class MainProductController extends AbstractController
                 $productArray['productNumber'] = bin2hex(random_bytes(16));
             }
 
-            $productArray['price'] = [
-                [
-                    'currencyId' => $currencyId,
-                    'gross' => $row['price_brutto'] === null ? 0 : $row['price_brutto'],
-                    'net' => $row['price_netto'] === null ? 0 : $row['price_netto'],
-                    'linked' => true,
-                ],
-            ];
+            $productArray['price'] = $this->getPrices($row, $context);
             $productArray['stock'] = (int) $row['quantity_available'];
             $productArray['weight'] = $row['weight'];
             $productArray['width'] = $row['width'];
             $productArray['height'] = $row['height'];
+            $productArray['length'] = $row['depth'];
             $productArray['media'] = $media_array;
             if (isset($media_array[0]['id']) && $media_array[0]['id']) {
                 $productArray['coverId'] = $media_array[0]['id'];
@@ -503,6 +500,7 @@ class MainProductController extends AbstractController
                     $languageCode = $_language->getTranslationCode()->getCode();
                     $languageArray = explode('-', $languageCode);
                     if ($product['language'] === $languageArray[0]) {
+                        $customFieldsData = [];
                         if ($product['title'] !== '' && $product['title'] !== null) {
                             $productArray['name'][$languageCode] = $product['title'];
                         } else {
@@ -512,7 +510,6 @@ class MainProductController extends AbstractController
                         $productArray['metaTitle'][$languageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
                         $productArray['metaDescription'][$languageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
 
-                        $customFieldsData = [];
                         if ($product['additional_data'] !== '' && $product['additional_data'] !== null) {
                             $additionalData = json_decode($product['additional_data']);
 
@@ -528,65 +525,67 @@ class MainProductController extends AbstractController
                         $customFieldsData['custom_product_www'] = $product['www'];
                         $productArray['translations'][$languageCode]['customFields'] = $customFieldsData;
 
-                        if ($product['image'] !== '') {
-                            $coverImage['product_id'] = $product['product_id'];
-                            $coverImage['image'] = $product['image'];
+                        if (! isset($productArray['media'])) {
+                            if ($product['image'] !== '') {
+                                $coverImage['product_id'] = $product['product_id'];
+                                $coverImage['image'] = $product['image'];
 
-                            $coverMediaId = $this->addCoverImageToMedia(
-                                $context,
-                                $coverImage
-                            );
+                                $coverMediaId = $this->addCoverImageToMedia(
+                                    $context,
+                                    $coverImage
+                                );
 
-                            if ($coverMediaId) {
-                                $mediaIdArray['mediaId'] = $coverMediaId;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
+                                if ($coverMediaId) {
+                                    $mediaIdArray['mediaId'] = $coverMediaId;
+                                    $mediaIdArray['position'] = 1;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
                             }
-                        }
 
-                        $mediaImage['product_id'] = $product['product_id'];
-                        if ($product['image_1'] !== '') {
-                            $mediaImage['image'] = $product['image_1'];
-                            $mediaId = $this->addImageToMedia(
-                                $context,
-                                $mediaImage
-                            );
+                            $mediaImage['product_id'] = $product['product_id'];
+                            if ($product['image_1'] !== '') {
+                                $mediaImage['image'] = $product['image_1'];
+                                $mediaId = $this->addImageToMedia(
+                                    $context,
+                                    $mediaImage
+                                );
 
-                            if ($mediaId) {
-                                $mediaIdArray['mediaId'] = $mediaId;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
+                                if ($mediaId) {
+                                    $mediaIdArray['mediaId'] = $mediaId;
+                                    $mediaIdArray['position'] = 1;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
                             }
-                        }
 
-                        if ($product['image_2'] !== '') {
-                            $mediaImage['image'] = $product['image_2'];
-                            $mediaIdImage2 = $this->addImageToMedia(
-                                $context,
-                                $mediaImage
-                            );
+                            if ($product['image_2'] !== '') {
+                                $mediaImage['image'] = $product['image_2'];
+                                $mediaIdImage2 = $this->addImageToMedia(
+                                    $context,
+                                    $mediaImage
+                                );
 
-                            if ($mediaIdImage2) {
-                                $mediaIdArray['mediaId'] = $mediaIdImage2;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
+                                if ($mediaIdImage2) {
+                                    $mediaIdArray['mediaId'] = $mediaIdImage2;
+                                    $mediaIdArray['position'] = 1;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
                             }
-                        }
 
-                        if ($product['image_3'] !== '') {
-                            $mediaImage['image'] = $product['image_3'];
-                            $mediaIdImage3 = $this->addImageToMedia(
-                                $context,
-                                $mediaImage
-                            );
+                            if ($product['image_3'] !== '') {
+                                $mediaImage['image'] = $product['image_3'];
+                                $mediaIdImage3 = $this->addImageToMedia(
+                                    $context,
+                                    $mediaImage
+                                );
 
-                            if ($mediaIdImage3) {
-                                $mediaIdArray['mediaId'] = $mediaIdImage3;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
+                                if ($mediaIdImage3) {
+                                    $mediaIdArray['mediaId'] = $mediaIdImage3;
+                                    $mediaIdArray['position'] = 1;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
                             }
+                            $productArray['media'] = $mediaIds ?? '';
                         }
-                        $productArray['media'] = $mediaIds ?? '';
                     }
                 }
             }
@@ -615,11 +614,11 @@ class MainProductController extends AbstractController
             $productArray['media'] = $media_array;
 
             $productArray['price'] = $this->getPrices($row, $context);
-//            dd($productArray['price']);
             $productArray['stock'] = (int) $row['quantity_available'];
             $productArray['weight'] = $row['weight'];
             $productArray['width'] = $row['width'];
             $productArray['height'] = $row['height'];
+            $productArray['length'] = $row['depth'];
             $productArray['id'] = $productDetail->getId();
             if (isset($media_array[0]['id']) && $media_array[0]['id']) {
                 $productArray['coverId'] = $media_array[0]['id'];
@@ -650,12 +649,10 @@ class MainProductController extends AbstractController
             );
             $productArray['categories'] = $category_array;
             $prices = $this->getAdvancedPrices($row['p_id'], $conn, $context, $prID);
-//            dd($row);
             if (! empty($prices)) {
                 $productArray['prices'] = $prices;
             }
             $products[] = $productArray;
-//            dd($productArray);
             $this->productsRepository->update($products, $context);
         }
     }
@@ -1005,6 +1002,7 @@ class MainProductController extends AbstractController
         )->getTotal();
     }
 
+    // add advanced price in product_price repository
     private function getAdvancedPrices($product_id, $conn, Context $context, $currentProduct): array
     {
         $priceArray = [];
@@ -1035,15 +1033,13 @@ class MainProductController extends AbstractController
                         ],
                     ],
                 ];
-
                 $this->productPriceRepository->create([$price_array], $context);
-//                $priceArray[] = $price_array;
             }
         }
-//        dd($priceArray);
         return $priceArray;
     }
 
+    // check advanced price in product_price repository
     private function checkProductPrice($productId, Context $context): array
     {
         $criteria = new Criteria();
@@ -1056,6 +1052,7 @@ class MainProductController extends AbstractController
         return $this->productPriceRepository->search($criteria, $context)->getIds();
     }
 
+    // remove advanced price from product_price repository
     private function removeProductPrice($productId, Context $context): void
     {
         $criteria = new Criteria();
@@ -1072,6 +1069,7 @@ class MainProductController extends AbstractController
         }
     }
 
+    // get rule id from rule repository
     private function getRuleId(Context $context)
     {
         $criteria = new Criteria();
@@ -1088,6 +1086,7 @@ class MainProductController extends AbstractController
         return $this->ruleRepository->search($criteria, $context)->first();
     }
 
+    // get all category ids
     private function getAllCategoryData($product_id, $conn, Context $context): array
     {
         $categoryArray = [];
@@ -1102,9 +1101,9 @@ class MainProductController extends AbstractController
         return $categoryArray;
     }
 
+    // get list price and price for product repository
     private function getPrices($row, Context $context): array
     {
-//        dd($row);
         $priceArray = [];
         $currencyId = $context->getCurrencyId();
         $price_array = [];
@@ -1132,7 +1131,6 @@ class MainProductController extends AbstractController
             $price_array['listPrice'] = $list_price;
         }
         $priceArray[] = $price_array;
-//        dd($priceArray);
         return $priceArray;
     }
 }
