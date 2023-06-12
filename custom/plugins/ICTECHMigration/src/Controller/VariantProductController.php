@@ -150,7 +150,6 @@ class VariantProductController extends AbstractController
     public function variantProductInsert(array $row, Context $context, $conn): void
     {
         $products = [];
-        $currencyId = $context->getCurrencyId();
         $languageDetails = $this->getLanguagesDetail($context);
         $defaultLanguageCode = $this->getDefaultLanguageCode($context);
         $productDataSql = 'SELECT * from product_data where product_id = '.$row['p_id'];
@@ -426,7 +425,6 @@ class VariantProductController extends AbstractController
     public function variantProductUpdate($productDetail, array $row, Context $context, $conn): void
     {
         $products = [];
-        $currencyId = $context->getCurrencyId();
         $languageDetails = $this->getLanguagesDetail($context);
         $productDataSql = 'SELECT * from product_data where product_id = '.$row['p_id'];
         $productDataDetails = mysqli_query($conn, $productDataSql);
@@ -994,7 +992,7 @@ class VariantProductController extends AbstractController
     }
 
     // add advanced price in product_price repository
-    private function getAdvancedPrices($product_id, $conn, Context $context, $currentProduct): array
+    private function getAdvancedPrices(string $product_id, $conn, Context $context, string $currentProduct): array
     {
         $priceArray = [];
         $currencyId = $context->getCurrencyId();
@@ -1032,7 +1030,7 @@ class VariantProductController extends AbstractController
     }
 
     // check advanced price in product_price repository
-    private function checkProductPrice($productId, Context $context): array
+    private function checkProductPrice(string $productId, Context $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -1041,11 +1039,14 @@ class VariantProductController extends AbstractController
                 $productId
             )
         );
-        return $this->productPriceRepository->search($criteria, $context)->getIds();
+        return $this->productPriceRepository->search(
+            $criteria,
+            $context
+        )->getIds();
     }
 
     // remove advanced price from product_price repository
-    private function removeProductPrice($productId, Context $context): void
+    private function removeProductPrice(string $productId, Context $context): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productId', $productId));
