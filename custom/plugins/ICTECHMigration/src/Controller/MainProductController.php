@@ -458,16 +458,16 @@ class MainProductController extends AbstractController
             }
 
             $subCategories = $this->getAllCategoryData($row['p_id'], $conn, $context);
-            if (isset($subCategories) && !empty($subCategories)) {
-                foreach ($subCategories as $category){
+            if (isset($subCategories) && ! empty($subCategories)) {
+                foreach ($subCategories as $category) {
                     $category_array[] = [
                         'id' => $category->getId(),
                     ];
                 }
             }
             $category_array = array_map(
-                "unserialize",
-                array_unique(array_map("serialize", $category_array))
+                'unserialize',
+                array_unique(array_map('serialize', $category_array))
             );
             $productArray['categories'] = $category_array;
 
@@ -636,16 +636,16 @@ class MainProductController extends AbstractController
                 ];
             }
             $subCategories = $this->getAllCategoryData($row['p_id'], $conn, $context);
-            if (isset($subCategories) && !empty($subCategories)) {
-                foreach ($subCategories as $category){
+            if (isset($subCategories) && ! empty($subCategories)) {
+                foreach ($subCategories as $category) {
                     $category_array[] = [
                         'id' => $category->getId(),
                     ];
                 }
             }
             $category_array = array_map(
-                "unserialize",
-                array_unique(array_map("serialize", $category_array))
+                'unserialize',
+                array_unique(array_map('serialize', $category_array))
             );
             $productArray['categories'] = $category_array;
             $prices = $this->getAdvancedPrices($row['p_id'], $conn, $context, $prID);
