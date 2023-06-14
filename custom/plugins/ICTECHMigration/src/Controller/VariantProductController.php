@@ -42,6 +42,9 @@ class VariantProductController extends AbstractController
     private EntityRepository $propertyGroupRepository;
 
     private EntityRepository $propertyGroupOptionRepository;
+
+    private EntityRepository $ruleRepository;
+    private EntityRepository $productPriceRepository;
     private string $baseURL = 'https://www.purivox.com/uploads/shop/';
 
     private array $folderName = [
@@ -63,7 +66,9 @@ class VariantProductController extends AbstractController
         EntityRepository $mediaThumbnailSize,
         EntityRepository $mediaFolderRepository,
         EntityRepository $propertyGroupRepository,
-        EntityRepository $propertyGroupOptionRepository
+        EntityRepository $propertyGroupOptionRepository,
+        EntityRepository $ruleRepository,
+        EntityRepository $productPriceRepository
     ) {
         $this->systemConfigService = $systemConfigService;
         $this->languageRepository = $languageRepository;
@@ -76,6 +81,8 @@ class VariantProductController extends AbstractController
         $this->mediaFolderRepository = $mediaFolderRepository;
         $this->propertyGroupRepository = $propertyGroupRepository;
         $this->propertyGroupOptionRepository = $propertyGroupOptionRepository;
+        $this->ruleRepository = $ruleRepository;
+        $this->productPriceRepository = $productPriceRepository;
     }
 
     /**

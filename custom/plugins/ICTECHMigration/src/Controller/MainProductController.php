@@ -410,6 +410,13 @@ class MainProductController extends AbstractController
             $productArray['width'] = $row['width'];
             $productArray['height'] = $row['height'];
             $productArray['length'] = $row['depth'];
+
+            if ($row['is_active'] === '1') {
+                $productArray['active'] = true;
+            } else {
+                $productArray['active'] = false;
+            }
+
             $productArray['media'] = $media_array;
             if (isset($media_array[0]['id']) && $media_array[0]['id']) {
                 $productArray['coverId'] = $media_array[0]['id'];
@@ -619,6 +626,11 @@ class MainProductController extends AbstractController
             $productArray['width'] = $row['width'];
             $productArray['height'] = $row['height'];
             $productArray['length'] = $row['depth'];
+            if ($row['is_active'] === '1') {
+                $productArray['active'] = true;
+            } else {
+                $productArray['active'] = false;
+            }
             $productArray['id'] = $productDetail->getId();
             if (isset($media_array[0]['id']) && $media_array[0]['id']) {
                 $productArray['coverId'] = $media_array[0]['id'];

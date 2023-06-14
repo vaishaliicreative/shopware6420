@@ -122,16 +122,32 @@ class CategoryController extends AbstractController
     ): void {
         $categories = [];
         $categoryArray = [];
+        $parentData = [];
         $languageDetails = $this->getLanguagesDetail($context);
         $defaultLanguageCode = $this->getDefaultLanguageCode($context);
         $categoryDataSql = 'SELECT * from product_category_data WHERE category_id = '.$row['pc_id'];
         $categoryDataDetails = mysqli_query($conn, $categoryDataSql);
 
-        if ($row['referto_pc_id'] === '0') {
+        $categoryStringArray = str_split($row['number'],2);
+        if ($categoryStringArray[0] !== '00') {
             $parentData = $this->getFirstLevelParentId($context);
-        } else {
-            $parentData = $this->getParentId($context, $row['referto_pc_id']);
         }
+
+        if ($categoryStringArray[1] !== '00') {
+            $coreParentId = $categoryStringArray[0].'000000';
+            $parentData = $this->getSecondLevelParentId($context, $coreParentId, $conn);
+        }
+
+        if ($categoryStringArray[2] !== '00') {
+            $coreParentId = $categoryStringArray[0].$categoryStringArray[1].'0000';
+            $parentData = $this->getSecondLevelParentId($context, $coreParentId, $conn);
+        }
+
+        if ($categoryStringArray[3] !== '00') {
+            $coreParentId = $categoryStringArray[0].$categoryStringArray[1].$categoryStringArray[2].'00';
+            $parentData = $this->getSecondLevelParentId($context, $coreParentId, $conn);
+        }
+
         $parentId = $parentData->getId();
         if (mysqli_num_rows($categoryDataDetails) > 0) {
             while ($category = mysqli_fetch_assoc($categoryDataDetails)) {
@@ -172,15 +188,30 @@ class CategoryController extends AbstractController
     ): void {
         $categories = [];
         $categoryArray = [];
+        $parentData = [];
         $languageDetails = $this->getLanguagesDetail($context);
         $categoryDataSql = 'SELECT * from product_category_data
                             WHERE category_id = '.$row['pc_id'];
         $categoryDataDetails = mysqli_query($conn, $categoryDataSql);
 
-        if ($row['referto_pc_id'] === '0') {
+        $categoryStringArray = str_split($row['number'],2);
+        if ($categoryStringArray[0] !== '00') {
             $parentData = $this->getFirstLevelParentId($context);
-        } else {
-            $parentData = $this->getParentId($context, $row['referto_pc_id']);
+        }
+
+        if ($categoryStringArray[1] !== '00') {
+            $coreParentId = $categoryStringArray[0].'000000';
+            $parentData = $this->getSecondLevelParentId($context, $coreParentId, $conn);
+        }
+
+        if ($categoryStringArray[2] !== '00') {
+            $coreParentId = $categoryStringArray[0].$categoryStringArray[1].'0000';
+            $parentData = $this->getSecondLevelParentId($context, $coreParentId, $conn);
+        }
+
+        if ($categoryStringArray[3] !== '00') {
+            $coreParentId = $categoryStringArray[0].$categoryStringArray[1].$categoryStringArray[2].'00';
+            $parentData = $this->getSecondLevelParentId($context, $coreParentId, $conn);
         }
         $parentId = $parentData->getId();
         if (mysqli_num_rows($categoryDataDetails) > 0) {
@@ -266,5 +297,19 @@ class CategoryController extends AbstractController
             )
         );
         return $this->categoryRepository->search($criteria, $context)->first();
+    }
+
+    private function getSecondLevelParentId(Context $context, $parentId, $conn)
+    {
+        $parentData = [];
+        $categorySql = 'SELECT * FROM product_category WHERE number = '.$parentId;
+        $categoryDetails = mysqli_query($conn, $categorySql);
+
+        if (mysqli_num_rows($categoryDetails) > 0) {
+            while ($row = mysqli_fetch_assoc($categoryDetails)) {
+                $parentData = $this->getParentId($context, $row['pc_id']);
+            }
+        }
+        return $parentData;
     }
 }
