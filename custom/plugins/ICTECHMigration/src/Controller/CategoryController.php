@@ -128,7 +128,7 @@ class CategoryController extends AbstractController
         $categoryDataSql = 'SELECT * from product_category_data WHERE category_id = '.$row['pc_id'];
         $categoryDataDetails = mysqli_query($conn, $categoryDataSql);
 
-        $categoryStringArray = str_split($row['number'],2);
+        $categoryStringArray = str_split($row['number'], 2);
         if ($categoryStringArray[0] !== '00') {
             $parentData = $this->getFirstLevelParentId($context);
         }
@@ -194,7 +194,7 @@ class CategoryController extends AbstractController
                             WHERE category_id = '.$row['pc_id'];
         $categoryDataDetails = mysqli_query($conn, $categoryDataSql);
 
-        $categoryStringArray = str_split($row['number'],2);
+        $categoryStringArray = str_split($row['number'], 2);
         if ($categoryStringArray[0] !== '00') {
             $parentData = $this->getFirstLevelParentId($context);
         }
