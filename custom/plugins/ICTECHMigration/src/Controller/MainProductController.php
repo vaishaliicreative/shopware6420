@@ -123,20 +123,7 @@ class MainProductController extends AbstractController
 
         if (mysqli_num_rows($productDetails) > 0) {
             while ($row = mysqli_fetch_assoc($productDetails)) {
-                $productDetail = $this->checkProductExistsInProductTable(
-                    $context,
-                    $row['p_id']
-                );
-                if ($productDetail === null) {
-                    $this->mainProductInsert($row, $context, $conn);
-                } else {
-                    $this->mainProductUpdate(
-                        $productDetail,
-                        $row,
-                        $context,
-                        $conn
-                    );
-                }
+                $this->mainProductUpsert($row, $context, $conn);
                 $currentCount = $offSet + 1;
                 $this->systemConfigService
                     ->set('ICTECHMigration.config.mainProductCount', $currentCount);
@@ -159,17 +146,27 @@ class MainProductController extends AbstractController
         return new JsonResponse($responseArray);
     }
 
-    // product insert
-    public function mainProductInsert(
+
+    private function mainProductUpsert(
         array $row,
         Context $context,
         $conn
     ): void {
-        $products = [];
+        $productDetail = $this->checkProductExistsInProductTable(
+            $context,
+            $row['p_id']
+        );
+
+        if ($productDetail === null) {
+            $productId = Uuid::randomHex();
+        } else {
+            $productId = $productDetail->getId();
+        }
+
         $taxDetails = $this->getTaxDetails($context);
         $languageDetails = $this->getLanguagesDetail($context);
         $defaultLanguageCode = $this->getDefaultLanguageCode($context);
-        $productDataSql = 'SELECT * from product_data WHERE product_id = '.$row['p_id'];
+        $productDataSql = 'SELECT * from product_data WHERE product_id = ' . $row['p_id'];
         $productDataDetails = mysqli_query($conn, $productDataSql);
         $productArray = [];
         $media_array = [];
@@ -238,7 +235,7 @@ class MainProductController extends AbstractController
 
                                 if ($mediaId) {
                                     $mediaIdArray['mediaId'] = $mediaId;
-                                    $mediaIdArray['position'] = 1;
+                                    $mediaIdArray['position'] = 2;
                                     $mediaIds[] = $mediaIdArray;
                                 }
                             }
@@ -252,7 +249,7 @@ class MainProductController extends AbstractController
 
                                 if ($mediaIdImage2) {
                                     $mediaIdArray['mediaId'] = $mediaIdImage2;
-                                    $mediaIdArray['position'] = 1;
+                                    $mediaIdArray['position'] = 3;
                                     $mediaIds[] = $mediaIdArray;
                                 }
                             }
@@ -266,7 +263,7 @@ class MainProductController extends AbstractController
 
                                 if ($mediaIdImage3) {
                                     $mediaIdArray['mediaId'] = $mediaIdImage3;
-                                    $mediaIdArray['position'] = 1;
+                                    $mediaIdArray['position'] = 4;
                                     $mediaIds[] = $mediaIdArray;
                                 }
                             }
@@ -274,93 +271,93 @@ class MainProductController extends AbstractController
                         }
                     }
                 }
-
-                if (! isset($productArray['name'][$defaultLanguageCode])) {
-                    if ($product['title'] !== '' && $product['title'] !== null) {
-                        $productArray['name'][$defaultLanguageCode] = $product['title'];
-                    } else {
-                        $productArray['name'][$defaultLanguageCode] = 'dummy migration';
-                    }
-                    $productArray['description'][$defaultLanguageCode] = $product['description'] === null ? '' : $product['description'];
-                    $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
-                    $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
-
-                    $customFieldsData = [];
-                    if ($product['additional_data'] !== '' && $product['additional_data'] !== null) {
-                        $additionalData = json_decode($product['additional_data']);
-                        foreach ($additionalData as $key => $value) {
-                            $customFieldName = 'custom_' . $key;
-                            $customFieldsData[$customFieldName] = $value;
+                if ($productDetail === null) {
+                    if (! isset($productArray['name'][$defaultLanguageCode])) {
+                        if ($product['title'] !== '' && $product['title'] !== null) {
+                            $productArray['name'][$defaultLanguageCode] = $product['title'];
+                        } else {
+                            $productArray['name'][$defaultLanguageCode] = 'dummy migration';
                         }
-                    }
-                    $customFieldsData['custom_product_id'] = $product['product_id'];
-                    $customFieldsData['custom_product_data_id'] = $product['pd_id'];
-                    $customFieldsData['custom_product_video_url'] = $product['video'];
-                    $customFieldsData['custom_product_audio'] = $product['audio'];
-                    $customFieldsData['custom_product_www'] = $product['www'];
-                    $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
+                        $productArray['description'][$defaultLanguageCode] = $product['description'] === null ? '' : $product['description'];
+                        $productArray['metaTitle'][$defaultLanguageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
+                        $productArray['metaDescription'][$defaultLanguageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
 
-                    if (! isset($productArray['media'])) {
-                        if ($product['image'] !== '') {
-                            $coverImage['product_id'] = $product['product_id'];
-                            $coverImage['image'] = $product['image'];
-
-                            $coverMediaId = $this->addCoverImageToMedia(
-                                $context,
-                                $coverImage
-                            );
-
-                            if ($coverMediaId) {
-                                $mediaIdArray['mediaId'] = $coverMediaId;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
+                        $customFieldsData = [];
+                        if ($product['additional_data'] !== '' && $product['additional_data'] !== null) {
+                            $additionalData = json_decode($product['additional_data']);
+                            foreach ($additionalData as $key => $value) {
+                                $customFieldName = 'custom_' . $key;
+                                $customFieldsData[$customFieldName] = $value;
                             }
                         }
+                        $customFieldsData['custom_product_id'] = $product['product_id'];
+                        $customFieldsData['custom_product_data_id'] = $product['pd_id'];
+                        $customFieldsData['custom_product_video_url'] = $product['video'];
+                        $customFieldsData['custom_product_audio'] = $product['audio'];
+                        $customFieldsData['custom_product_www'] = $product['www'];
+                        $productArray['translations'][$defaultLanguageCode]['customFields'] = $customFieldsData;
 
-                        $mediaImage['product_id'] = $product['product_id'];
-                        if ($product['image_1'] !== '') {
-                            $mediaImage['image'] = $product['image_1'];
-                            $mediaId = $this->addImageToMedia(
-                                $context,
-                                $mediaImage
-                            );
+                        if (! isset($productArray['media'])) {
+                            if ($product['image'] !== '') {
+                                $coverImage['product_id'] = $product['product_id'];
+                                $coverImage['image'] = $product['image'];
 
-                            if ($mediaId) {
-                                $mediaIdArray['mediaId'] = $mediaId;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
+                                $coverMediaId = $this->addCoverImageToMedia(
+                                    $context,
+                                    $coverImage
+                                );
+
+                                if ($coverMediaId) {
+                                    $mediaIdArray['mediaId'] = $coverMediaId;
+                                    $mediaIdArray['position'] = 1;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
                             }
-                        }
 
-                        if ($product['image_2'] !== '') {
-                            $mediaImage['image'] = $product['image_2'];
-                            $mediaIdImage2 = $this->addImageToMedia(
-                                $context,
-                                $mediaImage
-                            );
+                            $mediaImage['product_id'] = $product['product_id'];
+                            if ($product['image_1'] !== '') {
+                                $mediaImage['image'] = $product['image_1'];
+                                $mediaId = $this->addImageToMedia(
+                                    $context,
+                                    $mediaImage
+                                );
 
-                            if ($mediaIdImage2) {
-                                $mediaIdArray['mediaId'] = $mediaIdImage2;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
+                                if ($mediaId) {
+                                    $mediaIdArray['mediaId'] = $mediaId;
+                                    $mediaIdArray['position'] = 2;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
                             }
-                        }
 
-                        if ($product['image_3'] !== '') {
-                            $mediaImage['image'] = $product['image_3'];
-                            $mediaIdImage3 = $this->addImageToMedia(
-                                $context,
-                                $mediaImage
-                            );
+                            if ($product['image_2'] !== '') {
+                                $mediaImage['image'] = $product['image_2'];
+                                $mediaIdImage2 = $this->addImageToMedia(
+                                    $context,
+                                    $mediaImage
+                                );
 
-                            if ($mediaIdImage3) {
-                                $mediaIdArray['mediaId'] = $mediaIdImage3;
-                                $mediaIdArray['position'] = 1;
-                                $mediaIds[] = $mediaIdArray;
+                                if ($mediaIdImage2) {
+                                    $mediaIdArray['mediaId'] = $mediaIdImage2;
+                                    $mediaIdArray['position'] = 3;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
                             }
-                        }
 
-                        $productArray['media'] = $mediaIds ?? '';
+                            if ($product['image_3'] !== '') {
+                                $mediaImage['image'] = $product['image_3'];
+                                $mediaIdImage3 = $this->addImageToMedia(
+                                    $context,
+                                    $mediaImage
+                                );
+
+                                if ($mediaIdImage3) {
+                                    $mediaIdArray['mediaId'] = $mediaIdImage3;
+                                    $mediaIdArray['position'] = 4;
+                                    $mediaIds[] = $mediaIdArray;
+                                }
+                            }
+                            $productArray['media'] = $mediaIds ?? '';
+                        }
                     }
                 }
                 // get Tag ID
@@ -368,8 +365,12 @@ class MainProductController extends AbstractController
                     $tagIds = $this->tagInsert($context, $product['tags']);
                 }
             }
+            $galleryMedia = $this->getGalleryMedia($context, $row['p_id'], $conn);
+
+            $productArray['media'] = array_merge($productArray['media'], $galleryMedia);
             $i = 0;
             if (isset($productArray['media'])) {
+                $this->removeProductMedia($productId, $context);
                 foreach ($productArray['media'] as $mediaData) {
                     if ($mediaData['mediaId']) {
                         $media_array[$i]['id'] = Uuid::randomHex();
@@ -390,18 +391,20 @@ class MainProductController extends AbstractController
 
             $productArray['taxId'] = $taxDetails->getId();
 
-            if ($row['article_number'] !== '' && $row['article_number'] !== null) {
-                $productNumberDetails = $this->checkProductNumberExistsInProductTable(
-                    $row['article_number'],
-                    $context
-                );
-                if ($productNumberDetails > 0) {
-                    $productArray['productNumber'] = bin2hex(random_bytes(16));
+            if ($productDetail === null) {
+                if ($row['article_number'] !== '' && $row['article_number'] !== null) {
+                    $productNumberDetails = $this->checkProductNumberExistsInProductTable(
+                        $row['article_number'],
+                        $context
+                    );
+                    if ($productNumberDetails > 0) {
+                        $productArray['productNumber'] = bin2hex(random_bytes(16));
+                    } else {
+                        $productArray['productNumber'] = $row['article_number'];
+                    }
                 } else {
-                    $productArray['productNumber'] = $row['article_number'];
+                    $productArray['productNumber'] = bin2hex(random_bytes(16));
                 }
-            } else {
-                $productArray['productNumber'] = bin2hex(random_bytes(16));
             }
 
             $productArray['price'] = $this->getPrices($row, $context);
@@ -423,22 +426,24 @@ class MainProductController extends AbstractController
             }
 
             // assign sales channel
-            $saleChannelIds = $this->getSalesChannelId($context);
-            $salesChannelArray = [];
-            foreach ($saleChannelIds as $saleChannelId) {
-                $salesChannelArray[] = [
-                    'salesChannelId' => $saleChannelId,
-                    'visibility' => 30,
-                ];
-            }
+            if ($productDetail === null) {
+                $saleChannelIds = $this->getSalesChannelId($context);
+                $salesChannelArray = [];
+                foreach ($saleChannelIds as $saleChannelId) {
+                    $salesChannelArray[] = [
+                        'salesChannelId' => $saleChannelId,
+                        'visibility' => 30,
+                    ];
+                }
 
-            if ($salesChannelArray) {
-                $salesChannelArray = array_map(
-                    'unserialize',
-                    array_unique(array_map('serialize', $salesChannelArray))
-                );
+                if ($salesChannelArray) {
+                    $salesChannelArray = array_map(
+                        'unserialize',
+                        array_unique(array_map('serialize', $salesChannelArray))
+                    );
+                }
+                $productArray['visibilities'] = $salesChannelArray;
             }
-            $productArray['visibilities'] = $salesChannelArray;
 
             // assign tags
             $tag_array = [];
@@ -477,198 +482,12 @@ class MainProductController extends AbstractController
                 array_unique(array_map('serialize', $category_array))
             );
             $productArray['categories'] = $category_array;
+            $productArray['id'] = $productId;
 
-            $products[] = $productArray;
-            $this->productsRepository->create($products, $context);
+            $this->productsRepository->upsert([$productArray], $context);
+            $this->getAdvancedPrices($row['p_id'], $conn, $context, $productId);
         }
     }
-
-    // update product
-    public function mainProductUpdate(
-        $productDetail,
-        array $row,
-        Context $context,
-        $conn
-    ): void {
-        $products = [];
-
-        $languageDetails = $this->getLanguagesDetail($context);
-        $productDataSql = 'SELECT * from product_data WHERE product_id = '.$row['p_id'];
-        $productDataDetails = mysqli_query($conn, $productDataSql);
-        $productArray = [];
-        $media_array = [];
-        if (mysqli_num_rows($productDataDetails) > 0) {
-            while ($product = mysqli_fetch_assoc($productDataDetails)) {
-                $mediaIds = [];
-                foreach ($languageDetails as $_language) {
-                    $mediaIdArray = [];
-                    $coverImage = [];
-                    $mediaImage = [];
-                    $languageCode = $_language->getTranslationCode()->getCode();
-                    $languageArray = explode('-', $languageCode);
-                    if ($product['language'] === $languageArray[0]) {
-                        $customFieldsData = [];
-                        if ($product['title'] !== '' && $product['title'] !== null) {
-                            $productArray['name'][$languageCode] = $product['title'];
-                        } else {
-                            $productArray['name'][$languageCode] = 'dummy migration';
-                        }
-                        $productArray['description'][$languageCode] = $product['description'] === null ? '' : $product['description'];
-                        $productArray['metaTitle'][$languageCode] = $product['seo_title'] === null ? '' : $product['seo_title'];
-                        $productArray['metaDescription'][$languageCode] = $product['seo_description'] === null ? '' : $product['seo_description'];
-
-                        if ($product['additional_data'] !== '' && $product['additional_data'] !== null) {
-                            $additionalData = json_decode($product['additional_data']);
-
-                            foreach ($additionalData as $key => $value) {
-                                $customFieldName = 'custom_' . $key;
-                                $customFieldsData[$customFieldName] = $value;
-                            }
-                        }
-                        $customFieldsData['custom_product_id'] = $product['product_id'];
-                        $customFieldsData['custom_product_data_id'] = $product['pd_id'];
-                        $customFieldsData['custom_product_video_url'] = $product['video'];
-                        $customFieldsData['custom_product_audio'] = $product['audio'];
-                        $customFieldsData['custom_product_www'] = $product['www'];
-                        $productArray['translations'][$languageCode]['customFields'] = $customFieldsData;
-
-                        if (! isset($productArray['media'])) {
-                            if ($product['image'] !== '') {
-                                $coverImage['product_id'] = $product['product_id'];
-                                $coverImage['image'] = $product['image'];
-
-                                $coverMediaId = $this->addCoverImageToMedia(
-                                    $context,
-                                    $coverImage
-                                );
-
-                                if ($coverMediaId) {
-                                    $mediaIdArray['mediaId'] = $coverMediaId;
-                                    $mediaIdArray['position'] = 1;
-                                    $mediaIds[] = $mediaIdArray;
-                                }
-                            }
-
-                            $mediaImage['product_id'] = $product['product_id'];
-                            if ($product['image_1'] !== '') {
-                                $mediaImage['image'] = $product['image_1'];
-                                $mediaId = $this->addImageToMedia(
-                                    $context,
-                                    $mediaImage
-                                );
-
-                                if ($mediaId) {
-                                    $mediaIdArray['mediaId'] = $mediaId;
-                                    $mediaIdArray['position'] = 1;
-                                    $mediaIds[] = $mediaIdArray;
-                                }
-                            }
-
-                            if ($product['image_2'] !== '') {
-                                $mediaImage['image'] = $product['image_2'];
-                                $mediaIdImage2 = $this->addImageToMedia(
-                                    $context,
-                                    $mediaImage
-                                );
-
-                                if ($mediaIdImage2) {
-                                    $mediaIdArray['mediaId'] = $mediaIdImage2;
-                                    $mediaIdArray['position'] = 1;
-                                    $mediaIds[] = $mediaIdArray;
-                                }
-                            }
-
-                            if ($product['image_3'] !== '') {
-                                $mediaImage['image'] = $product['image_3'];
-                                $mediaIdImage3 = $this->addImageToMedia(
-                                    $context,
-                                    $mediaImage
-                                );
-
-                                if ($mediaIdImage3) {
-                                    $mediaIdArray['mediaId'] = $mediaIdImage3;
-                                    $mediaIdArray['position'] = 1;
-                                    $mediaIds[] = $mediaIdArray;
-                                }
-                            }
-                            $productArray['media'] = $mediaIds ?? '';
-                        }
-                    }
-                }
-            }
-            $j = 0;
-            $prID = $productDetail->getId();
-            // set media
-            if (isset($productArray['media'])) {
-                $this->removeProductMedia($prID, $context);
-                foreach ($productArray['media'] as $mediaData) {
-                    if ($mediaData['mediaId']) {
-                        $media_array[$j]['id'] = Uuid::randomHex();
-                        $media_array[$j]['mediaId'] = $mediaData['mediaId'];
-                        $media_array[$j]['position'] = $mediaData['position'] ?? '999';
-                        $j++;
-                    }
-                }
-            }
-            $media_array = array_map(
-                'unserialize',
-                array_unique(array_map('serialize', $media_array))
-            );
-
-            usort($media_array, function ($x, $y) {
-                return $x['position'] <=> $y['position'];
-            });
-            $productArray['media'] = $media_array;
-
-            $productArray['price'] = $this->getPrices($row, $context);
-            $productArray['stock'] = (int) $row['quantity_available'];
-            $productArray['weight'] = $row['weight'];
-            $productArray['width'] = $row['width'];
-            $productArray['height'] = $row['height'];
-            $productArray['length'] = $row['depth'];
-            if ($row['is_active'] === '1') {
-                $productArray['active'] = true;
-            } else {
-                $productArray['active'] = false;
-            }
-            $productArray['id'] = $productDetail->getId();
-            if (isset($media_array[0]['id']) && $media_array[0]['id']) {
-                $productArray['coverId'] = $media_array[0]['id'];
-            }
-
-            // assign categories
-            $categories = $this->getCategoryData(
-                $context,
-                $row['main_category']
-            );
-            $category_array = [];
-            if ($categories !== null) {
-                $category_array[] = [
-                    'id' => $categories->getId(),
-                ];
-            }
-            $subCategories = $this->getAllCategoryData($row['p_id'], $conn, $context);
-            if (isset($subCategories) && ! empty($subCategories)) {
-                foreach ($subCategories as $category) {
-                    $category_array[] = [
-                        'id' => $category->getId(),
-                    ];
-                }
-            }
-            $category_array = array_map(
-                'unserialize',
-                array_unique(array_map('serialize', $category_array))
-            );
-            $productArray['categories'] = $category_array;
-            $prices = $this->getAdvancedPrices($row['p_id'], $conn, $context, $prID);
-            if (! empty($prices)) {
-                $productArray['prices'] = $prices;
-            }
-            $products[] = $productArray;
-            $this->productsRepository->update($products, $context);
-        }
-    }
-
     // get Tax Details
     public function getTaxDetails(Context $context): ?Entity
     {
@@ -1145,4 +964,50 @@ class MainProductController extends AbstractController
         $priceArray[] = $price_array;
         return $priceArray;
     }
+
+    private function getGalleryMedia(Context $context, $productId, $conn)
+    {
+        $productMediaSql = 'SELECT * from image_files WHERE product_id = '.$productId;
+        $productMediaDetails = mysqli_query($conn, $productMediaSql);
+
+        $mediaIds = [];
+        $i = 5;
+        if (mysqli_num_rows($productMediaDetails) > 0) {
+            while ($productMedia = mysqli_fetch_assoc($productMediaDetails)) {
+                $mediaIdArray = [];
+                $mediaIdImage = $this->addGalleryImageToMedia(
+                    $context,
+                    $productMedia
+                );
+                if ($mediaIdImage) {
+                    $mediaIdArray['mediaId'] = $mediaIdImage;
+                    $mediaIdArray['position'] = $i;
+                    $mediaIds[] = $mediaIdArray;
+                    $i++;
+                }
+            }
+        }
+        return $mediaIds;
+    }
+
+    private function addGalleryImageToMedia(Context $context, array $row): ?string
+    {
+        if ($row['image_url'] === '') {
+            return null;
+        }
+        $mediaId = null;
+        $imageName = basename($row['image_url']);
+        $fileNameParts = explode('.', $imageName);
+        $fileName = $fileNameParts[0];
+        $fileExtension = $fileNameParts[1];
+
+        if ($fileName && $fileExtension) {
+            $filePath = tempnam(sys_get_temp_dir(), $fileName);
+            @file_put_contents($filePath, @file_get_contents($row['image_url']));
+            //create media record from the image
+            $mediaId = $this->createMediaFromFile($filePath, $fileName, $fileExtension, $this->folderName, $context);
+        }
+        return $mediaId;
+    }
+
 }
