@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -78,21 +79,7 @@ class CategoryController extends AbstractController
 
         if (mysqli_num_rows($categoryDetails) > 0) {
             while ($row = mysqli_fetch_assoc($categoryDetails)) {
-                $categoryDetail = $this->checkCategoryExistsInCategoryTable(
-                    $context,
-                    $row['pc_id']
-                );
-
-                if ($categoryDetail === null) {
-                    $this->mainCategoryInsert($row, $context, $conn);
-                } else {
-                    $this->mainCategoryUpdate(
-                        $categoryDetail,
-                        $row,
-                        $context,
-                        $conn
-                    );
-                }
+                $this->mainCategoryUpsert($row, $context, $conn);
                 $currentCount = $offSet + 1;
                 $this->systemConfigService
                     ->set('ICTECHMigration.config.categoryCount', $currentCount);
@@ -115,17 +102,24 @@ class CategoryController extends AbstractController
         return new JsonResponse($responseArray);
     }
 
-    public function mainCategoryInsert(
+    public function mainCategoryUpsert(
         array $row,
         Context $context,
         $conn
     ): void {
+        $categoryDetail = $this->checkCategoryExistsInCategoryTable(
+            $context,
+            $row['pc_id']
+        );
+        if ($categoryDetail === null) {
+            $categoryId = Uuid::randomHex();
+        } else {
+            $categoryId = $categoryDetail->getId();
+        }
         $categories = [];
         $categoryArray = [];
         $parentData = [];
-        $languageDetails = $this->getLanguagesDetail($context);
-        $defaultLanguageCode = $this->getDefaultLanguageCode($context);
-        $categoryDataSql = 'SELECT * from product_category_data WHERE category_id = '.$row['pc_id'];
+        $categoryDataSql = 'SELECT * from translations_categories WHERE pc_id = '.$row['pc_id'];
         $categoryDataDetails = mysqli_query($conn, $categoryDataSql);
 
         $categoryStringArray = str_split($row['number'], 2);
@@ -151,89 +145,32 @@ class CategoryController extends AbstractController
         $parentId = $parentData->getId();
         if (mysqli_num_rows($categoryDataDetails) > 0) {
             while ($category = mysqli_fetch_assoc($categoryDataDetails)) {
-                foreach ($languageDetails as $_language) {
-                    $customFieldsData = [];
-                    $languageCode = $_language->getTranslationCode()->getCode();
-                    $languageArray = explode('-', $languageCode);
-                    if ($category['language'] === $languageArray[0]) {
-                        $categoryArray['name'][$languageCode] = $category['title'] === null ? '' : $category['title'];
-                        $categoryArray['description'][$languageCode] = $category['description'] === null ? '' : $category['description'];
+                $categoryArray['name']['en-GB'] = $category['english'] === null ? '' : $category['english'];
+                $customFieldsData['custom_category_id'] = $row['pc_id'];
+                $categoryArray['translations']['en-GB']['customFields'] = $customFieldsData;
 
-                        $customFieldsData['custom_category_id'] = $row['pc_id'];
-                        $categoryArray['translations'][$languageCode]['customFields'] = $customFieldsData;
-                    }
+                $categoryArray['name']['de-DE'] = $category['german'] === null ? '' : $category['german'];
+                $customFieldsData['custom_category_id'] = $row['pc_id'];
+                $categoryArray['translations']['de-DE']['customFields'] = $customFieldsData;
 
-                    if (! isset($categoryArray['name'][$defaultLanguageCode])) {
-                        $categoryArray['name'][$languageCode] = $category['title'] === null ? '' : $category['title'];
-                        $categoryArray['description'][$languageCode] = $category['description'] === null ? '' : $category['description'];
+                $categoryArray['name']['es-ES'] = $category['spanish'] === null ? '' : $category['spanish'];
+                $customFieldsData['custom_category_id'] = $row['pc_id'];
+                $categoryArray['translations']['es-ES']['customFields'] = $customFieldsData;
 
-                        $customFieldsData['custom_category_id'] = $row['pc_id'];
-                        $categoryArray['translations'][$languageCode]['customFields'] = $customFieldsData;
-                    }
-                }
+                $categoryArray['name']['fr-FR'] = $category['french'] === null ? '' : $category['french'];
+                $customFieldsData['custom_category_id'] = $row['pc_id'];
+                $categoryArray['translations']['fr-FR']['customFields'] = $customFieldsData;
+
+                $categoryArray['name']['it-IT'] = $category['italian'] === null ? '' : $category['italian'];
+                $customFieldsData['custom_category_id'] = $row['pc_id'];
+                $categoryArray['translations']['it-IT']['customFields'] = $customFieldsData;
             }
             $categoryArray['parentId'] = $parentId;
+            $categoryArray['id'] = $categoryId;
 
             $categories[] = $categoryArray;
 
-            $this->categoryRepository->create($categories, $context);
-        }
-    }
-
-    public function mainCategoryUpdate(
-        $categoryDetail,
-        array $row,
-        Context $context,
-        $conn
-    ): void {
-        $categories = [];
-        $categoryArray = [];
-        $parentData = [];
-        $languageDetails = $this->getLanguagesDetail($context);
-        $categoryDataSql = 'SELECT * from product_category_data
-                            WHERE category_id = '.$row['pc_id'];
-        $categoryDataDetails = mysqli_query($conn, $categoryDataSql);
-
-        $categoryStringArray = str_split($row['number'], 2);
-        if ($categoryStringArray[0] !== '00') {
-            $parentData = $this->getFirstLevelParentId($context);
-        }
-
-        if ($categoryStringArray[1] !== '00') {
-            $coreParentId = $categoryStringArray[0].'000000';
-            $parentData = $this->getSecondLevelParentId($context, $coreParentId, $conn);
-        }
-
-        if ($categoryStringArray[2] !== '00') {
-            $coreParentId = $categoryStringArray[0].$categoryStringArray[1].'0000';
-            $parentData = $this->getSecondLevelParentId($context, $coreParentId, $conn);
-        }
-
-        if ($categoryStringArray[3] !== '00') {
-            $coreParentId = $categoryStringArray[0].$categoryStringArray[1].$categoryStringArray[2].'00';
-            $parentData = $this->getSecondLevelParentId($context, $coreParentId, $conn);
-        }
-        $parentId = $parentData->getId();
-        if (mysqli_num_rows($categoryDataDetails) > 0) {
-            while ($category = mysqli_fetch_assoc($categoryDataDetails)) {
-                $customFieldsData = [];
-                foreach ($languageDetails as $_language) {
-                    $languageCode = $_language->getTranslationCode()->getCode();
-                    $languageArray = explode('-', $languageCode);
-                    if ($category['language'] === $languageArray[0]) {
-                        $categoryArray['name'][$languageCode] = $category['title'] === null ? '' : $category['title'];
-                        $categoryArray['description'][$languageCode] = $category['description'] === null ? '' : $category['description'];
-
-                        $customFieldsData['custom_category_id'] = $row['pc_id'];
-                        $categoryArray['translations'][$languageCode]['customFields'] = $customFieldsData;
-                    }
-                }
-            }
-            $categoryArray['parentId'] = $parentId;
-            $categoryArray['id'] = $categoryDetail->getId();
-            $categories[] = $categoryArray;
-
-            $this->categoryRepository->update($categories, $context);
+            $this->categoryRepository->upsert($categories, $context);
         }
     }
 
