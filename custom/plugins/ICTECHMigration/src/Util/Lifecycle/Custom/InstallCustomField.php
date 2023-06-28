@@ -45,6 +45,7 @@ class InstallCustomField
                             'en-GB' => 'Custom category id',
                             'de-DE' => 'Benutzerdefinierte Kategorie-ID',
                         ],
+                        'disabled' => 'disabled',
                         'customFieldPosition' => 11,
                     ],
                 ],
