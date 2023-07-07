@@ -45,6 +45,7 @@ class VariantProductController extends AbstractController
 
     private EntityRepository $ruleRepository;
     private EntityRepository $productPriceRepository;
+    private EntityRepository $productConfiguratorSettingRepository;
     private string $baseURL = 'https://www.purivox.com/uploads/shop/';
 
     private array $folderName = [
@@ -68,7 +69,8 @@ class VariantProductController extends AbstractController
         EntityRepository $propertyGroupRepository,
         EntityRepository $propertyGroupOptionRepository,
         EntityRepository $ruleRepository,
-        EntityRepository $productPriceRepository
+        EntityRepository $productPriceRepository,
+        EntityRepository $productConfiguratorSettingRepository
     ) {
         $this->systemConfigService = $systemConfigService;
         $this->languageRepository = $languageRepository;
@@ -83,6 +85,7 @@ class VariantProductController extends AbstractController
         $this->propertyGroupOptionRepository = $propertyGroupOptionRepository;
         $this->ruleRepository = $ruleRepository;
         $this->productPriceRepository = $productPriceRepository;
+        $this->productConfiguratorSettingRepository = $productConfiguratorSettingRepository;
     }
 
     /**
@@ -431,6 +434,29 @@ class VariantProductController extends AbstractController
             $productArray['parentId'] = $parentId;
             $productArray['id'] = $productId;
             $this->productsRepository->upsert([$productArray], $context);
+
+            $configuratorSetting = [];
+            $configuratorSetting['productId'] = $parentId;
+            $configuratorSetting['optionId'] = $variants;
+
+            $configuratorSettingData = $this->getConfiguratorSettingData(
+                $context,
+                $configuratorSetting
+            );
+
+            if ($configuratorSettingData !== null) {
+                $configuratorSettingId = $configuratorSettingData->getId();
+            } else {
+                $configuratorSettingId = Uuid::randomHex();
+            }
+
+            $configuratorSetting['id'] = $configuratorSettingId;
+
+            $this->productConfiguratorSettingRepository->upsert(
+                [$configuratorSetting],
+                $context
+            );
+
             $parentProductData = [];
             if ($parentData !== null) {
                 $parentProductData['id'] = $parentData->getId();
@@ -971,5 +997,29 @@ class VariantProductController extends AbstractController
             $mediaId = $this->createMediaFromFile($filePath, $fileName, $fileExtension, $this->folderName, $context);
         }
         return $mediaId;
+    }
+
+    public function getConfiguratorSettingData(
+        Context $context,
+        array $configuratorSetting
+    ): ?Entity {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter(
+                'productId',
+                $configuratorSetting['productId']
+            )
+        );
+        $criteria->addFilter(
+            new EqualsFilter(
+                'optionId',
+                $configuratorSetting['optionId']
+            )
+        );
+
+        return $this->productConfiguratorSettingRepository->search(
+            $criteria,
+            $context
+        )->first();
     }
 }

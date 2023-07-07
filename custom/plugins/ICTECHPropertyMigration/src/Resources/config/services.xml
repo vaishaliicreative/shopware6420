@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- start Property Group Controller -->
+        <service id="ICTECHPropertyMigration\Controller\PropertyGroupController" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="property_group.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+        <!-- end Property Group Controller -->
+
+        <!-- start Property Group Option Controller -->
+        <service id="ICTECHPropertyMigration\Controller\PropertyOptionController" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="property_group_option.repository"/>
+            <argument type="service" id="property_group.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+        <!-- end Property Group Option Controller -->
+
+        <!-- start Product Variant Controller -->
+        <service id="ICTECHPropertyMigration\Controller\ProductVariantController" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="property_group_option.repository"/>
+            <argument type="service" id="product_configurator_setting.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+        <!-- end Product Variant Controller -->
+    </services>
+</container>

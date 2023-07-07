@@ -1,0 +1,67 @@
+{% block ict_property_migration %}
+    <sw-page class="ict-property-migration">
+        {% block ict_property_migration_header %}
+            <template #smart-bar-header>
+                <h2>
+                    {{ $tc('ict-property-migration.general.mainMenuItemGeneral') }}
+                </h2>
+            </template>
+        {% endblock %}
+        {% block ict_property_migration_content %}
+            <template #content>
+                {% block ict_property_migration_content_card %}
+                    <sw-card-view>
+                        {% block ict_property_migration_content_card_innter %}
+                            <sw-card>
+                                <p class="sw_text-info__info">{{ $tc('ict-property-migration.detail.propertyGroupText') }}</p>
+                                <sw-button
+                                        @click="importPropertyGroups()"
+                                        id="ict_property_migration_content_property_group"
+                                        variant="primary"
+                                        :square="false"
+                                        :block="false"
+                                        :isLoading="isPropertyGroupLoading"
+                                        :disabled="isPropertyOptionLoading || isVariantLoading"
+                                >
+                                    {{ $tc('ict-property-migration.detail.propertyGroup') }}
+                                </sw-button>
+                                {{ importPropertyGroupMessage }}
+                            </sw-card>
+                            <sw-card>
+                                <p class="sw_text-info__info">{{ $tc('ict-property-migration.detail.propertyOptionText') }}</p>
+                                <sw-button
+                                        @click="importPropertyOptions()"
+                                        id="ict_property_migration_content_property_option"
+                                        variant="primary"
+                                        :square="false"
+                                        :block="false"
+                                        :isLoading="isPropertyOptionLoading"
+                                        :disabled="isPropertyGroupLoading || isVariantLoading"
+                                >
+                                    {{ $tc('ict-property-migration.detail.propertyValue') }}
+                                </sw-button>
+                                {{ importPropertyOptionMessage }}
+
+                            </sw-card>
+                            <sw-card>
+                                <p class="sw_text-info__info">{{ $tc('ict-property-migration.detail.variantText') }}</p>
+                                <sw-button
+                                        @click="importVariants()"
+                                        id="ict_property_migration_content_product_variant"
+                                        variant="primary"
+                                        :square="false"
+                                        :block="false"
+                                        :isLoading="isVariantLoading"
+                                        :disabled="isPropertyGroupLoading || isPropertyOptionLoading"
+                                >
+                                    {{ $tc('ict-property-migration.detail.productVariant') }}
+                                </sw-button>
+                                {{ importVariantMessage }}
+                            </sw-card>
+                        {% endblock %}
+                    </sw-card-view>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}
