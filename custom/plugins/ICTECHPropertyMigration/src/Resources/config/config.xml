@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Settings</title>
+        <title lang="de-DE">Einstellungen</title>
+
+        <input-field type="text">
+            <name>databaseHost</name>
+            <label>Database Host</label>
+            <label lang="de-DE">Datenbank-Host</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>databaseUserName</name>
+            <label>Database Username</label>
+            <label lang="de-DE">Datenbank-Benutzername</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>databasePassword</name>
+            <label>Database Password</label>
+            <label lang="de-DE">Datenbank-Passwort</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>databaseName</name>
+            <label>Database Name</label>
+            <label lang="de-DE">Name der Datenbank</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>propertyGroupCount</name>
+            <defaultValue>0</defaultValue>
+            <disabled>true</disabled>
+            <label>Property Group Count</label>
+            <label lang="de-DE">Anzahl der Eigenschaftsgruppen</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>propertyOptionCount</name>
+            <defaultValue>0</defaultValue>
+            <disabled>true</disabled>
+            <label>Property Options Count</label>
+            <label lang="de-DE">Anzahl der Immobilienoptionen</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>variantCount</name>
+            <defaultValue>0</defaultValue>
+            <disabled>true</disabled>
+            <label>Variant Count</label>
+            <label lang="de-DE">Variantenanzahl</label>
+        </input-field>
+    </card>
+</config>

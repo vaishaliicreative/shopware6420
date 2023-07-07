@@ -1,0 +1,17 @@
+{
+    "ict-property-migration": {
+        "general": {
+          "mainMenuItemGeneral": "Custom Migration",
+          "descriptionTextModule": "Custom Migration"
+        },
+        "detail": {
+          "propertyGroup": "Properties",
+          "propertyValue": "Properties Values",
+          "productVariant": "Variant Products",
+          "propertyGroupText": "Click button for Property Group migration",
+          "propertyOptionText": "Click button for Property Values migration",
+          "variantText": "Click button for Variant migration",
+          "totalImportText": "import From total"
+        }
+    }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "ictech/property-migration",
+  "description": "Custom migration",
+  "type": "shopware-platform-plugin",
+  "license": "proprietary",
+  "version": "v1.0.0",
+  "autoload": {
+    "psr-4": {
+      "ICTECHPropertyMigration\\": "src/"
+    }
+  },
+  "require": {
+    "shopware/core": "^6.4",
+    "shopware/storefront": "^6.4",
+    "shopware/administration": "^6.4"
+  },
+  "extra": {
+    "shopware-plugin-class": "ICTECHPropertyMigration\\ICTECHPropertyMigration",
+    "label": {
+      "de-DE": "Custom migration",
+      "en-GB": "Custom migration"
+    }
+  },
+  "require-dev": {
+    "nunomaduro/phpinsights": "^2.8"
+  },
+  "config": {
+    "allow-plugins": {
+      "symfony/runtime": false,
+      "dealerdirect/phpcodesniffer-composer-installer": false
+    }
+  }
+}

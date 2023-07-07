@@ -68,6 +68,7 @@
             <argument type="service" id="property_group_option.repository" />
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="product_price.repository"/>
+            <argument type="service" id="product_configurator_setting.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
