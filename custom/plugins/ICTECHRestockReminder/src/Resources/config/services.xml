@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- ProductTask.php -->
+        <service id="ICTECHRestockReminder\Service\ScheduledTask\ProductTask">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <!-- ProductTaskHandler.php -->
+        <service id="ICTECHRestockReminder\Service\ScheduledTask\ProductTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="ICTECHRestockReminder\Core\Api\ProductTaskController"/>
+            <argument type="service" id="sales_channel.repository" />
+            <argument type="service" id="ICTECHRestockReminder\Service\ProductReminderService" />
+            <tag name="messenger.message_handler" />
+        </service>
+
+        <!-- ProductTaskController.php -->
+        <service id="ICTECHRestockReminder\Core\Api\ProductTaskController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
+            <argument type="service" id="ICTECHRestockReminder\Core\ProductStock\ProductStockPdfService" />
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="user.repository"/>
+            <argument type="service" id="system_config.repository"/>
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+        </service>
+
+        <!-- ProductStockPdfService.php -->
+        <service id="ICTECHRestockReminder\Core\ProductStock\ProductStockPdfService">
+            <argument type="service" id="ICTECHRestockReminder\Core\ProductStock\ProductStockDocumentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer" />
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <!-- ProductStockDocumentService.php -->
+        <service id="ICTECHRestockReminder\Core\ProductStock\ProductStockDocumentService">
+        </service>
+
+        <!-- Service Definition -->
+        <service id="ICTECHRestockReminder\Service\ConfigService">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+        </service>
+
+        <service id="ICTECHRestockReminder\Service\ProductReminderService">
+            <argument type="service" id="ICTECHRestockReminder\Service\ConfigService" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory"/>
+            <argument type="service" id="router"/>
+        </service>
+
+    </services>
+</container>

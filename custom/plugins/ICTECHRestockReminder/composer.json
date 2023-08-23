@@ -1,0 +1,46 @@
+{
+    "name" : "ict/ictech-restock-reminder" ,
+    "description" : "Herbevoorradingsherinnering via e-mail" ,
+    "type" : "shopware-platform-plugin" ,
+    "version" : "v1.0.0" ,
+    "license" : "proprietary" ,
+    "authors" : [
+        {
+            "name" : "iCreative technologies"
+        }
+    ] ,
+    "autoload" : {
+        "psr-4" : {
+            "ICTECHRestockReminder\\" : "src/"
+        }
+    } ,
+    "require" : {
+        "shopware/core" : "^6.4 <6.5" ,
+        "shopware/storefront" : "^6.4 <6.5" ,
+        "shopware/administration" : "^6.4 <6.5"
+    } ,
+    "extra" : {
+        "shopware-plugin-class" : "ICTECHRestockReminder\\ICTECHRestockReminder" ,
+        "plugin-icon" : "src/Resources/config/ict.png" ,
+        "label" : {
+            "de-DE" : "Wiederauffüllungserinnerung" ,
+            "en-GB" : "Restock Reminder",
+            "nl-NL" : "Herbevoorrading Herinnering"
+        } ,
+        "description" : {
+            "de-DE" : "Nachfüllerinnerung per E-Mail." ,
+            "en-GB" : "Restock reminder via email.",
+            "nl-NL" : "Herinnering bijvullen via e-mail."
+        } ,
+        "manufacturerLink" : {
+            "de-DE" : "https://www.icreativetechnologies.com" ,
+            "en-GB" : "https://www.icreativetechnologies.com",
+            "nl-NL" : "https://www.icreativetechnologies.com"
+        } ,
+        "supportLink" : {
+            "de-DE" : "https://support.icreativetechnologies.com/" ,
+            "en-GB" : "https://support.icreativetechnologies.com/",
+            "nl-NL" : "https://support.icreativetechnologies.com/"
+        }
+    }
+}

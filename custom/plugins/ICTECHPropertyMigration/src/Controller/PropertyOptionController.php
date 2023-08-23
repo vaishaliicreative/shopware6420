@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ICTECHPropertyMigration\Controller;
 
 use mysqli;
+use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,8 +26,9 @@ class PropertyOptionController extends AbstractController
     private SystemConfigService $systemConfigService;
     private EntityRepository $languageRepository;
     private EntityRepository $propertyGroupOptionRepository;
-
     private EntityRepository $propertyGroupRepository;
+
+    private string $baseURL = 'https://www.promoshirt.ch/shop/';
 
     public function __construct(
         SystemConfigService $systemConfigService,
@@ -54,7 +56,7 @@ class PropertyOptionController extends AbstractController
         $totalPropertyOption = $this->getPropertyOptionTotalCount($conn);
         $responseArray['totalPropertyOption'] = $totalPropertyOption;
 
-        $propertyOptionSql = 'SELECT * FROM s_plugin_mofa_product_options_options 
+        $propertyOptionSql = 'SELECT * FROM s_plugin_mofa_product_options_options
          ORDER BY id ASC LIMIT 1 OFFSET '.$offSet;
         $propertyOptionDetails = mysqli_query($conn, $propertyOptionSql);
 
@@ -141,6 +143,7 @@ class PropertyOptionController extends AbstractController
         $propertyGroupOptionArray = [];
 
         if (count($propertyOptionDataDetails)) {
+            $mediaIds = [];
             foreach ($propertyOptionDataDetails as $_option) {
                 foreach ($languageDetails as $language) {
                     $customFieldsData = [];
@@ -181,6 +184,15 @@ class PropertyOptionController extends AbstractController
                 }
             }
 
+            $propertyImageURL = $this->getPropertyOptionUrl(
+                $conn,
+                $row['id']
+            );
+
+            dd($propertyImageURL);
+            if ($propertyImageURL != null) {
+
+            }
             $propertyGroupOptionArray['id'] = $propertyGroupOptionId;
             $propertyGroupOptionArray['groupId'] = $propertyGroupId;
         }
@@ -244,5 +256,23 @@ class PropertyOptionController extends AbstractController
             $criteria,
             $context
         )->first();
+    }
+
+    public function getPropertyOptionUrl(
+        mysqli $conn,
+        string $optionID
+    ): ?string
+    {
+        $propertyImageURL = null;
+        $optionImageDataSql = 'SELECT * from
+             s_plugin_mofa_product_options_options_images
+             WHERE OptionID = '.$optionID;
+        $optionImageDetails = mysqli_query($conn, $optionImageDataSql);
+        if (mysqli_num_rows($optionImageDetails) > 0) {
+            while ($optionData = mysqli_fetch_assoc($optionImageDetails)) {
+                $propertyImageURL = $this->baseURL.$optionData['path'];
+            }
+        }
+        return $propertyImageURL;
     }
 }

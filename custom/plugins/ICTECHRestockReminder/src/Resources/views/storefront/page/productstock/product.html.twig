@@ -1,0 +1,25 @@
+{% sw_extends '@Framework/documents/base.html.twig' %}
+{% block document_base %}
+
+<style type="text/css">
+    table, th, td {
+        border: 1px solid;
+    }
+</style>
+  <table>
+      <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Product Number</th>
+            <th>Product redirect link</th>
+        </tr>
+      </thead>
+        {% for result in product %}
+      <tr>
+            <td>{{ result.name }}</td>
+            <td>{{ result.number }}</td>
+            <td colspan="1"><a style="overflow: revert" href="{{ result.link }}">Click Here</a></td>
+      </tr>
+        {% endfor %}
+  </table>
+{% endblock %}

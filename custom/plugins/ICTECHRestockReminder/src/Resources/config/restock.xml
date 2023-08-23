@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Configuration</title>
+        <title lang="de-DE">Konfiguration</title>
+        <title lang="nl-NL">Configuratie</title>
+        <input-field type="bool">
+            <name>active</name>
+            <label>Email Activation</label>
+            <label lang="de-DE">Email Aktivierung</label>
+            <label lang="nl-NL">E-mailactivering</label>
+        </input-field>
+        <input-field type="int">
+            <name>stockLimit</name>
+            <label>Stock Limit</label>
+            <label lang="de-DE">Bestands limit</label>
+            <label lang="nl-NL">Voorraadlimiet</label>
+            <placeholder>0</placeholder>
+        </input-field>
+        <input-field type="text">
+            <name>email</name>
+            <label>Email</label>
+            <label lang="de-DE">Email</label>
+            <label lang="nl-NL">Email</label>
+        </input-field>
+        <input-field type="single-select">
+            <name>emailLanguage</name>
+            <label>Please Select Email Language</label>
+            <label lang="de-DE">Bitte wählen Sie die E-Mail-Sprache aus</label>
+            <label lang="nl-NL">Selecteer e-mailtaal</label>
+            <options>
+                <option>
+                    <id>English</id>
+                    <name>English</name>
+                    <name lang="de-DE">English</name>
+                    <name lang="nl-NL">English</name>
+                </option>
+                <option>
+                    <id>Deutsch</id>
+                    <name>Deutsch</name>
+                    <name lang="de-DE">Deutsch</name>
+                    <name lang="nl-NL">Deutsch</name>
+                </option>
+            </options>
+            <helpText>This Option work on only email contain. Not for PDF</helpText>
+            <helpText lang="de-DE">Diese Option funktioniert nur bei E-Mails. Nicht für PDF</helpText>
+            <helpText lang="nl-NL">Deze optie werkt alleen op e-mail bevatten. Niet voor PDF</helpText>
+        </input-field>
+        <input-field type="text">
+            <name>name</name>
+            <disabled>true</disabled>
+            <label>Name</label>
+            <label lang="de-DE">Name</label>
+            <label lang="nl-NL">Naam</label>
+        </input-field>
+        <input-field type="single-select">
+            <name>interval</name>
+            <label>Interval</label>
+            <label lang="de-DE">Intervall</label>
+            <label lang="nl-NL">Interval</label>
+            <options>
+                <option>
+                    <id>120</id>
+                    <name>2 Minutes (120 Sec.)</name>
+                    <name lang="de-DE">2 Minuten (120 Sek.)</name>
+                    <name lang="nl-NL">2 minuten (120 sec.)</name>
+                </option>
+                <option>
+                    <id>300</id>
+                    <name>5 Minutes (300 Sec.)</name>
+                    <name lang="de-DE">5 Minuten (300 Sek.)</name>
+                    <name lang="nl-NL">5 minuten (300 sec.)</name>
+                </option>
+                <option>
+                    <id>600</id>
+                    <name>10 Minutes (600 Sec.)</name>
+                    <name lang="de-DE">10 Minuten (600 Sek.)</name>
+                    <name lang="nl-NL">10 minuten (600 sec.)</name>
+                </option>
+                <option>
+                    <id>900</id>
+                    <name>15 Minutes (900 Sec.)</name>
+                    <name lang="de-DE">15 Minuten (900 Sek.)</name>
+                    <name lang="nl-NL">15 minuten (900 sec.)</name>
+                </option>
+                <option>
+                    <id>1800</id>
+                    <name>30 Minutes (1800 Sec.)</name>
+                    <name lang="de-DE">30 Minuten (1800 Sek.)</name>
+                    <name lang="nl-NL">30 minuten (1800 sec.)</name>
+                </option>
+                <option>
+                    <id>3600</id>
+                    <name>1 Hour (3600 Sec.)</name>
+                    <name lang="de-DE">1 Stunde (3600 Sek.)</name>
+                    <name lang="nl-NL">1 uur (3600 sec.)</name>
+                </option>
+                <option>
+                    <id>7200</id>
+                    <name>2 Hours (7200 Sec.)</name>
+                    <name lang="de-DE">2 Stunden (7200 Sek.)</name>
+                    <name lang="nl-NL">2 uur (7200 sec.)</name>
+                </option>
+                <option>
+                    <id>14400</id>
+                    <name>4 Hours (14400 Sec.)</name>
+                    <name lang="de-DE">4 Stunden (14400 Sek.)</name>
+                    <name lang="nl-NL">4 uur (14400 sec.)</name>
+                </option>
+                <option>
+                    <id>28800</id>
+                    <name>8 Hours (28800 Sec.)</name>
+                    <name lang="de-DE">8 Stunden (28800 Sek.)</name>
+                    <name lang="nl-NL">8 uur (28800 sec.)</name>
+                </option>
+                <option>
+                    <id>43200</id>
+                    <name>12 Hours (43200 Sec.)</name>
+                    <name lang="de-DE">12 Stunden (43200 Sek.)</name>
+                    <name lang="nl-NL">12 uur (43200 sec.)</name>
+                </option>
+                <option>
+                    <id>86400</id>
+                    <name>1 Day (86400 Sec.)</name>
+                    <name lang="de-DE">1 Tag (86400 Sek.)</name>
+                    <name lang="nl-NL">1 dag (86400 sec.)</name>
+                </option>
+                <option>
+                    <id>172800</id>
+                    <name>2 Days (172800 Sec.)</name>
+                    <name lang="de-DE">2 Tage (172800 Sek.)</name>
+                    <name lang="nl-NL">2 dag (172800 sec.)</name>
+                </option>
+                <option>
+                    <id>604800</id>
+                    <name>1 Week (604800 Sec.)</name>
+                    <name lang="de-DE">1 Woche (604800 Sek.)</name>
+                    <name lang="nl-NL">1 week (604800 sec.)</name>
+                </option>
+            </options>
+        </input-field>
+        <input-field type="text">
+            <name>status</name>
+            <disabled>true</disabled>
+            <label>Status</label>
+            <label lang="de-DE">Status</label>
+            <label lang="nl-NL">Toestand</label>
+        </input-field>
+    </card>
+</config>
