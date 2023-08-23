@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ICTECHRestockReminder\Core\ProductStock;
 
@@ -9,17 +11,17 @@ class ProductStockDocumentService
 {
     /**
      * Generate PDF
+     *
      * @param $html
-     * @return string
      */
-    public function generateDocument( $html ): string
+    public function generateDocument($html): string
     {
         $options = new Options();
         $options->set('isRemoteEnabled', true);
         $options->setIsHtml5ParserEnabled(true);
         $dompdf = new Dompdf($options);
         $dompdf->setPaper('a4', 'portrait');
-        $dompdf->set_option("isPhpEnabled", true);
+        $dompdf->set_option('isPhpEnabled', true);
         $dompdf->loadHtml($html);
 
         $gcEnabledAtStart = gc_enabled();

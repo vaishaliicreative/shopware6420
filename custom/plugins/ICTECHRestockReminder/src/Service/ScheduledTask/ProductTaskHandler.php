@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ICTECHRestockReminder\Service\ScheduledTask;
 
 use ICTECHRestockReminder\Core\Api\ProductTaskController;
+use ICTECHRestockReminder\Service\ProductReminderService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,46 +15,24 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
-use ICTECHRestockReminder\Service\ProductReminderService;
 
 class ProductTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @var EntityRepositoryInterface
      */
-    protected $scheduledTaskRepository;
+    protected  $scheduledTaskRepository;
+    protected EntityRepositoryInterface $salesChannelRepository;
+    protected ProductReminderService $productReminderService;
+    private ProductTaskController $productTaskController;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $salesChannelRepository;
-
-    /**
-     * @var ProductTaskController
-     */
-    private $productTaskController;
-
-    /**
-     * @var ProductReminderService
-     */
-    protected $productReminderService;
-
-    /**
-     * CollectTaskHandler constructor.
-     *
-     * @param EntityRepositoryInterface $scheduledTaskRepository
-     * @param ProductTaskController $productTaskController
-     * @param EntityRepositoryInterface $salesChannelRepository
-     * @param ProductReminderService $productReminderService
-     */
 
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         ProductTaskController $productTaskController,
         EntityRepositoryInterface $salesChannelRepository,
         ProductReminderService $productReminderService
-    )
-    {
+    ) {
         $this->scheduledTaskRepository = $scheduledTaskRepository;
         $this->productTaskController = $productTaskController;
         $this->salesChannelRepository = $salesChannelRepository;
@@ -70,26 +51,28 @@ class ProductTaskHandler extends ScheduledTaskHandler
         $context = $this->getContext();
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'ICTECH.product_task'));
-        $getScheduledTask = $this->scheduledTaskRepository->search($criteria, $context)->first();
-        $this->productReminderService->setStatus(null,$getScheduledTask->getStatus());
-        $this->productReminderService->setName(null,$getScheduledTask->getName());
-        $interval = $this->productReminderServiceproductReminderService->getInterval();
+        $getScheduledTask = $this->scheduledTaskRepository->search(
+            $criteria,
+            $context
+        )->first();
+        $this->productReminderService->setStatus(
+            null,
+            $getScheduledTask->getStatus()
+        );
+        $this->productReminderService->setName(
+            null,
+            $getScheduledTask->getName()
+        );
+        $interval = $this->productReminderService->getInterval();
+        $data = array();
         if ($interval) {
-                $data[] = [
-                    'id' => $getScheduledTask->getId(),
-                    'runInterval' => $interval
-                ];
-                $this->scheduledTaskRepository->update($data, $context);
-                $this->productTaskController->getProducts(Context::createDefaultContext());
-            }
-    }
-
-    /**
-     * @return Context
-     */
-    private function getContext(): Context
-    {
-        return Context::createDefaultContext();
+            $data[] = [
+                'id' => $getScheduledTask->getId(),
+                'runInterval' => $interval,
+            ];
+            $this->scheduledTaskRepository->update($data, $context);
+            $this->productTaskController->getProducts($this->getContext());
+        }
     }
 
     protected function markTaskRunning(ScheduledTask $task): void
@@ -104,8 +87,14 @@ class ProductTaskHandler extends ScheduledTaskHandler
         $context = $this->getContext();
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'ICTECH.product_task'));
-        $getScheduledTask = $this->scheduledTaskRepository->search($criteria, $context)->first();
-        $this->productReminderService->setStatus(null,$getScheduledTask->getStatus());
+        $getScheduledTask = $this->scheduledTaskRepository->search(
+            $criteria,
+            $context
+        )->first();
+        $this->productReminderService->setStatus(
+            null,
+            $getScheduledTask->getStatus()
+        );
     }
 
     protected function markTaskFailed(ScheduledTask $task): void
@@ -120,18 +109,28 @@ class ProductTaskHandler extends ScheduledTaskHandler
         $context = $this->getContext();
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'ICTECH.product_task'));
-        $getScheduledTask = $this->scheduledTaskRepository->search($criteria, $context)->first();
-        $this->productReminderService->setStatus(null,$getScheduledTask->getStatus());
+        $getScheduledTask = $this->scheduledTaskRepository->search(
+            $criteria,
+            $context
+        )->first();
+        $this->productReminderService->setStatus(
+            null,
+            $getScheduledTask->getStatus()
+        );
     }
 
 
-    protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
-    {
+    protected function rescheduleTask(
+        ScheduledTask $task,
+        ScheduledTaskEntity $taskEntity
+    ): void {
         $now = new \DateTimeImmutable();
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);
-        $newNextExecutionTime = $nextExecutionTime->modify(sprintf('+%d seconds', $taskEntity->getRunInterval()));
+        $newNextExecutionTime = $nextExecutionTime->modify(
+            sprintf('+%d seconds', $taskEntity->getRunInterval())
+        );
 
         if ($newNextExecutionTime < $now) {
             $newNextExecutionTime = $now;
@@ -149,7 +148,18 @@ class ProductTaskHandler extends ScheduledTaskHandler
         $context = $this->getContext();
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'ICTECH.product_task'));
-        $getScheduledTask = $this->scheduledTaskRepository->search($criteria, $context)->first();
-        $this->productReminderService->setStatus(null,$getScheduledTask->getStatus());
+        $getScheduledTask = $this->scheduledTaskRepository->search(
+            $criteria,
+            $context
+        )->first();
+        $this->productReminderService->setStatus(
+            null,
+            $getScheduledTask->getStatus()
+        );
+    }
+
+    private function getContext(): Context
+    {
+        return Context::createDefaultContext();
     }
 }

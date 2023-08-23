@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ICTECHRestockReminder\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
