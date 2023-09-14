@@ -21,11 +21,10 @@ class ProductTaskHandler extends ScheduledTaskHandler
     /**
      * @var EntityRepositoryInterface
      */
-    protected  $scheduledTaskRepository;
+    protected $scheduledTaskRepository;
     protected EntityRepositoryInterface $salesChannelRepository;
     protected ProductReminderService $productReminderService;
     private ProductTaskController $productTaskController;
-
 
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
@@ -126,7 +125,9 @@ class ProductTaskHandler extends ScheduledTaskHandler
     ): void {
         $now = new \DateTimeImmutable();
 
-        $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(
+            Defaults::STORAGE_DATE_TIME_FORMAT
+        );
         $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);
         $newNextExecutionTime = $nextExecutionTime->modify(
             sprintf('+%d seconds', $taskEntity->getRunInterval())

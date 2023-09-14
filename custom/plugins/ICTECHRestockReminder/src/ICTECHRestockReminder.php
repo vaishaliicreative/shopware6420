@@ -94,7 +94,6 @@ class ICTECHRestockReminder extends Plugin
                 $installContext->getContext()
             );
         } catch (UniqueConstraintViolationException $exception) {
-
         }
     }
 
@@ -150,6 +149,4 @@ class ICTECHRestockReminder extends Plugin
 
         $connection->executeStatement("DELETE FROM `system_config` WHERE `configuration_key` LIKE 'ICTECHRestockReminder%'");
     }
-
-
 }

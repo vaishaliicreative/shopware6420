@@ -22,17 +22,18 @@ class ConfigService
         $this->configService = $configService;
     }
 
-
     public function getIsActive(): ?bool
     {
         /** @var bool $isActive */
-        $isActive = $this->configService->get('ICTECHRestockReminder.restock.active');
+        $isActive = $this->configService->get(
+            'ICTECHRestockReminder.restock.active'
+        );
         return !is_null($isActive) ? $isActive : false;
     }
 
-
-    public function getInterval(?SalesChannelEntity $salesChannelEntity = null): int
-    {
+    public function getInterval(
+        ?SalesChannelEntity $salesChannelEntity = null
+    ): int {
         $interval = $this->configService->get(
             'ICTECHRestockReminder.restock.interval',
             $salesChannelEntity ? $salesChannelEntity->getId() : null
@@ -61,5 +62,4 @@ class ConfigService
             $salesChannelEntity ? $salesChannelEntity->getId() : null
         );
     }
-
 }

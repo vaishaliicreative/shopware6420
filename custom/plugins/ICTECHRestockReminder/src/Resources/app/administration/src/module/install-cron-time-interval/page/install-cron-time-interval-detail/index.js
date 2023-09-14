@@ -4,6 +4,7 @@ const { Component } = Shopware;
 
 Component.register('install-cron-time-interval-detail',{
    template,
+    inject: ['configService'],
 
     data() {
         return {
@@ -13,7 +14,7 @@ Component.register('install-cron-time-interval-detail',{
     },
 
     created() {
-        this.createdComponent();
+        // this.createdComponent();
     },
 
     methods: {
@@ -22,12 +23,19 @@ Component.register('install-cron-time-interval-detail',{
         },
 
         onSave() {
+            let headers = this.configService.getBasicHeaders();
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
             this.$refs.systemConfig.saveAll().then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
+                return this.configService.httpClient.get('/ictech/updateScheduledTask',{headers})
+                    .then((response) => {
+                        this.isLoading = false;
+                        this.isSaveSuccessful = true;
+                    })
+                    .catch((exception) => {
+                        this.isLoading = false;
+                    });
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({

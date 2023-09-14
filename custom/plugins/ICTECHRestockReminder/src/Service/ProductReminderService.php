@@ -21,7 +21,6 @@ class ProductReminderService
 
     private CachedSalesChannelContextFactory $salesChannelContextFactory;
 
-
     public function __construct(
         ConfigService $configService,
         SalesChannelContextPersister $contextPersister,
@@ -32,12 +31,10 @@ class ProductReminderService
         $this->salesChannelContextFactory = $salesChannelContextFactory;
     }
 
-
     public function isActive(SalesChannelEntity $salesChannelEntity): bool
     {
         return $this->configService->getIsActive($salesChannelEntity);
     }
-
 
     public function getInterval(): int
     {
@@ -50,7 +47,6 @@ class ProductReminderService
     ): void {
         $this->configService->setName($salesChannelEntity, $name);
     }
-
 
     public function setStatus(
         ?SalesChannelEntity $salesChannelEntity = null,

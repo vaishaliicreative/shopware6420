@@ -33,6 +33,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="user.repository"/>
             <argument type="service" id="system_config.repository"/>
+            <argument type="service" id="scheduled_task.repository"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
