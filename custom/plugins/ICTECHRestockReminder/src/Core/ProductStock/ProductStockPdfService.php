@@ -64,7 +64,10 @@ class ProductStockPdfService
                 $variantsCriteria->addFilter(
                     new EqualsFilter('id', $product->parentId)
                 );
-                $variants = $this->productRepository->search($variantsCriteria, $context)->getElements();
+                $variants = $this->productRepository->search(
+                    $variantsCriteria,
+                    $context
+                )->getElements();
                 foreach ($variants as $productVeriant) {
                     $result[] = [
                         'id' => $product->id,
@@ -91,13 +94,20 @@ class ProductStockPdfService
             'counter' => new Counter(),
         ];
 
-        $html = $this->twig->render($view, $parameters, $context, null, $context->getLanguageId());
+        $html = $this->twig->render(
+            $view,
+            $parameters,
+            $context,
+            null,
+            $context->getLanguageId()
+        );
 
-        $pdfAsBlob = $this->productStockDocumentService->generateDocument($html);
+        $pdfAsBlob = $this->productStockDocumentService->generateDocument(
+            $html
+        );
 
         $filename = 'Products-' . date('d-m-Y') . '.pdf';
 
         return new PdfFile($filename, $pdfAsBlob);
     }
-
 }

@@ -38,5 +38,4 @@ class ProductStockDocumentService
 
         return $dompdf->output();
     }
-
 }

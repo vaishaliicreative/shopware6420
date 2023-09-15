@@ -7,11 +7,13 @@ namespace ICTECHRestockReminder\Core\Api;
 use ICTECHRestockReminder\Core\ProductStock\ProductStockPdfService;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -29,26 +31,28 @@ class ProductTaskController extends AbstractController
 {
     private AbstractMailService $mailService;
     private SystemConfigService $systemConfigService;
-    private EntityRepositoryInterface $productRepository;
-    private EntityRepositoryInterface $mailTemplateRepository;
+    private EntityRepository $productRepository;
+    private EntityRepository $mailTemplateRepository;
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
     private ProductStockPdfService $productStockPdfService;
-    private EntityRepositoryInterface $salesChannelRepository;
-    private EntityRepositoryInterface $langauageRepository;
-    private EntityRepositoryInterface $userRepository;
-    private EntityRepositoryInterface $systemConfigRepository;
+    private EntityRepository $salesChannelRepository;
+    private EntityRepository $languageRepository;
+    private EntityRepository $userRepository;
+    private EntityRepository $systemConfigRepository;
+    private EntityRepository $scheduledTaskRepository;
 
     public function __construct(
         AbstractMailService $mailService,
         SystemConfigService $systemConfigService,
-        EntityRepositoryInterface $productRepository,
-        EntityRepositoryInterface $mailTemplateRepository,
+        EntityRepository $productRepository,
+        EntityRepository $mailTemplateRepository,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
         ProductStockPdfService $productStockPdfService,
-        EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $langauageRepository,
-        EntityRepositoryInterface $userRepository,
-        EntityRepositoryInterface $systemConfigRepository
+        EntityRepository $salesChannelRepository,
+        EntityRepository $languageRepository,
+        EntityRepository $userRepository,
+        EntityRepository $systemConfigRepository,
+        EntityRepository $scheduledTaskRepository
     ) {
         $this->mailService = $mailService;
         $this->systemConfigService = $systemConfigService;
@@ -57,9 +61,10 @@ class ProductTaskController extends AbstractController
         $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->productStockPdfService = $productStockPdfService;
         $this->salesChannelRepository = $salesChannelRepository;
-        $this->langauageRepository = $langauageRepository;
+        $this->languageRepository = $languageRepository;
         $this->userRepository = $userRepository;
         $this->systemConfigRepository = $systemConfigRepository;
+        $this->scheduledTaskRepository = $scheduledTaskRepository;
     }
 
     /**
@@ -75,21 +80,24 @@ class ProductTaskController extends AbstractController
     // Mail Sending
     public function mailTo(Context $context): void
     {
-
         $userCriteria = new Criteria();
-        $adminEmail = $this->userRepository->search($userCriteria, $context)->first();
+        $adminEmail = $this->userRepository->search(
+            $userCriteria,
+            $context
+        )->first();
 
         $criteria = new Criteria();
-        $language = $this->langauageRepository->search($criteria, $context)->getElements();
+        $language = $this->languageRepository->search(
+            $criteria,
+            $context
+        )->getElements();
         $selectedLanguage = $this->systemConfigService->get(
             'ICTECHRestockReminder.restock.emailLanguage'
         );
         $languageId = '';
 
-        foreach($language as $languageIds)
-        {
-            if($languageIds->getName() === $selectedLanguage)
-            {
+        foreach ($language as $languageIds) {
+            if ($languageIds->getName() === $selectedLanguage) {
                 $languageId = $languageIds->getId();
             }
         }
@@ -161,6 +169,59 @@ class ProductTaskController extends AbstractController
         }
     }
 
+    /**
+     * @Route("api/ictech/updateScheduledTask", name="api.ictech.updateScheduledTask", methods={"GET"})
+     */
+    public function updateScheduledTask(Context $context): JsonResponse
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'ICTECH.product_task'));
+        $getScheduledTask = $this->scheduledTaskRepository->search(
+            $criteria,
+            $context
+        )->first();
+
+        $now = new \DateTimeImmutable();
+
+        $lastExecutionTimeString = $getScheduledTask->getLastExecutionTime()
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $lastExecutionTime = new \DateTimeImmutable($lastExecutionTimeString);
+
+        $intervalTime = $this->systemConfigService->get(
+            'ICTECHRestockReminder.restock.interval'
+        );
+
+        $newNextExecutionTime = $lastExecutionTime->modify(
+            sprintf('+%d seconds', $intervalTime)
+        );
+
+        $taskDataArray = array();
+
+        if ($newNextExecutionTime < $now) {
+            $taskDataArray['lastExecutionTime'] = $now;
+            $newNextExecutionTime = $now->modify(
+                sprintf('+%d seconds', $intervalTime)
+            );
+        }
+
+        $taskDataArray['id'] = $getScheduledTask->getId();
+        $taskDataArray['status'] = ScheduledTaskDefinition::STATUS_SCHEDULED;
+        $taskDataArray['nextExecutionTime'] = $newNextExecutionTime;
+        $taskDataArray['runInterval'] = (int) $intervalTime;
+
+        $this->scheduledTaskRepository->update(
+            [$taskDataArray],
+            $context
+        );
+
+        $this->systemConfigService->set(
+            'ICTECHRestockReminder.restock.status',
+            ScheduledTaskDefinition::STATUS_SCHEDULED
+        );
+
+        return new JsonResponse(null, JsonResponse::HTTP_OK);
+    }
+
     private function getMailTemplate(Context $context): ?MailTemplateEntity
     {
         $criteria = new Criteria();
@@ -181,7 +242,9 @@ class ProductTaskController extends AbstractController
     //Create PDF
     private function generatePdf(Context $context): Response
     {
-        $pdfFile = $this->productStockPdfService->createPdfForProductStock($context);
+        $pdfFile = $this->productStockPdfService->createPdfForProductStock(
+            $context
+        );
 
         return $this->createResponse(
             $pdfFile->getFileName(),
